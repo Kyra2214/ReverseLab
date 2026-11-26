@@ -1230,3 +1230,52 @@ A tela de armazenamento pode identificar arquivos temporários, derivados ou gra
 - Confirmar ações destrutivas com descrição precisa do que será afetado.
 
 **Critério de aceite:** as telas principais compartilham a identidade dark e a navegação inferior; o usuário consegue importar uma amostra, navegar pela biblioteca em cartões, entrar em um módulo, solicitar análise local ou profunda, abrir evidências, consultar relatórios e ajustar armazenamento sem perder o contexto nem sofrer exclusões automáticas.
+
+
+---
+
+## 21. Biblioteca unificada: Projetos, Técnica e Visual
+
+**Decisão aprovada pelo usuário:** a tela principal da Biblioteca terá três áreas de entrada: **Projetos**, **Biblioteca Técnica** e **Biblioteca Visual**.
+
+### 21.1 Projetos
+- Reúne as amostras importadas e seus respectivos projetos de investigação.
+- Cada projeto preserva a identidade da amostra, versões, arquivos de origem, relações entre APK, splits, OBB e demais arquivos auxiliares.
+- Apresenta o histórico de importação, análises, relatórios e descobertas daquele projeto.
+- Funciona como espaço de origem e rastreabilidade, não como substituto das bibliotecas reutilizáveis.
+
+### 21.2 Biblioteca Técnica
+- Reúne conhecimentos, componentes, mecanismos, padrões, explicações e descobertas técnicas identificados nas análises.
+- Organiza o conteúdo por grupos, módulos e subdivisões recursivas, sem limite artificial de profundidade.
+- Cada item mantém referência ao projeto, amostra, arquivo e evidências de origem.
+
+### 21.3 Biblioteca Visual
+- Reúne telas, menus, HUDs, ícones, botões, componentes, texturas, fundos, animações, sprites, diagramas e demais referências visuais.
+- Organiza o conteúdo por grupos, módulos e subdivisões conforme o volume e a natureza dos ativos.
+- Cada ativo mantém procedência e vínculo com o arquivo e projeto de origem.
+
+### 21.4 Relação entre as três áreas
+- Uma descoberta originada em um projeto pode ser referenciada pela Biblioteca Técnica, pela Biblioteca Visual ou por ambas.
+- Referências cruzadas não exigem duplicação física de arquivos.
+- O mesmo ativo ou evidência pode estar relacionado a vários módulos, mantendo um único registro de origem e identidade.
+- Alterações na organização hierárquica não podem quebrar IDs, procedência, histórico ou referências de relatórios.
+- A visualização permanece isolada por área e módulo por padrão; correlações entre áreas são apresentadas quando solicitadas ou necessárias à investigação, com escopo explícito.
+
+### 21.5 Busca global
+- A tela Biblioteca terá uma busca global capaz de pesquisar Projetos, Biblioteca Técnica e Biblioteca Visual.
+- Os resultados devem ser agrupados por área e permitir filtros para restringir a pesquisa a uma ou mais áreas.
+- Cada resultado deve indicar sua origem e permitir navegar até o projeto, grupo, módulo, arquivo, ativo ou evidência correspondente.
+- A busca global não deve misturar silenciosamente conteúdos na visualização de um módulo.
+
+### 21.6 Apresentação visual
+- Exibir as três áreas como cartões de entrada destacados na tela Biblioteca.
+- Usar ícones e cores secundárias consistentes para diferenciar Projetos, Técnica e Visual, preservando o tema dark, a navegação inferior e a organização balanced já aprovados.
+- Os cartões podem mostrar contagens resumidas quando os dados estiverem disponíveis; nunca apresentar números fictícios.
+- Manter busca global visível no topo da tela Biblioteca.
+
+### 21.7 Preservação
+- Projetos, arquivos originais, derivados, evidências, relatórios e ativos não podem ser apagados automaticamente.
+- A organização por referências não autoriza excluir, substituir, mesclar ou deduplicar fisicamente arquivos.
+- Qualquer exclusão exige ação iniciada pelo usuário, apresentação do escopo exato e confirmação explícita.
+
+**Critério de aceite:** a tela Biblioteca oferece acesso direto às três áreas, pesquisa global com resultados separados por origem, navegação hierárquica e referências cruzadas rastreáveis, sem duplicação física desnecessária e sem exclusões automáticas.
