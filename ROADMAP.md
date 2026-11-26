@@ -970,3 +970,101 @@ A validação automática comprova a integridade das referências, não necessar
 O Knowledge Vault será uma biblioteca hierárquica, expansível e pesquisável. A IA trabalhará de forma incremental, com contexto limitado, relatórios individuais e validação externa. Arquivos e resultados permanecerão sob controle do usuário.
 
 **Regra central:** organizar primeiro, analisar por partes, registrar cada resultado, validar referências e só então correlacionar. Nunca preencher ausência de informação com invenção.
+
+
+---
+
+## 17. Navegação e visualização isolada por área
+
+**Decisão de produto:** o usuário pode explorar a biblioteca por área e visualizar somente o conteúdo relacionado ao escopo selecionado, sem misturar automaticamente resultados de outras áreas.
+
+### 17.1 Navegação por grupos e módulos
+
+- A biblioteca deve permitir entrar diretamente em grupos, módulos e subdivisões.
+- Cada área apresenta seus próprios arquivos, ativos, evidências, descobertas e relatórios.
+- Filtros internos permitem restringir a visualização por tipo, formato, componente, origem, estado da análise, data e tags.
+- Exemplos: Interface pode ser filtrada por telas, menus, HUDs, botões e ícones; Áudio por arquivos, codecs, mixer, efeitos e reprodução; Código por pacote, classe, arquivo, método ou função.
+- A consulta de um módulo não deve carregar nem exibir indiscriminadamente o conteúdo de toda a amostra.
+
+### 17.2 Visualização de código com escopo preciso
+
+O usuário deve poder selecionar pacote, classe, arquivo ou método e abrir somente esse elemento, com contexto técnico suficiente para entendê-lo. Dependências e referências externas podem ser exibidas em uma área separada e identificadas como contexto relacionado, sem ampliar silenciosamente o escopo principal.
+
+### 17.3 Análises cruzadas sob demanda
+
+- A visualização isolada é o comportamento padrão.
+- Quando o usuário solicitar uma investigação que atravesse áreas, o orquestrador recupera somente os módulos, evidências e dependências relevantes.
+- Exemplo: investigar como uma tela inicia a reprodução de áudio pode relacionar Interface, Áudio e os métodos de código responsáveis pela integração.
+- A análise cruzada gera um registro próprio, preservando os relatórios originais de cada módulo.
+- Relações descobertas podem ser vinculadas aos módulos envolvidos sem duplicar arquivos ou evidências.
+
+### 17.4 Investigação personalizada
+
+O usuário pode descrever uma pergunta ou comportamento em linguagem natural. O sistema identifica os módulos potencialmente relevantes, apresenta o escopo da investigação e reúne evidências pertinentes. A resposta deve separar o que foi observado, interpretado, hipotetizado e validado, com referências rastreáveis.
+
+**Critério de aceite:** deve ser possível consultar exclusivamente uma área, navegar até um arquivo ou método específico e, quando solicitado, executar uma investigação cruzada sem misturar ou duplicar os registros originais.
+
+---
+
+## 18. Dois níveis de análise disponíveis em cada módulo
+
+**Decisão de produto:** dentro de cada módulo haverá duas ações explícitas: **Pedir análise** e **Análise profunda**. Elas usam motores diferentes e seus resultados permanecem separados.
+
+### 18.1 Pedir análise — mini LLM local
+
+- Executada pela mini LLM instalada no dispositivo.
+- Deve funcionar offline depois que o modelo estiver disponível.
+- Recebe os dados estruturados, arquivos e evidências pertinentes ao módulo selecionado, respeitando limites de contexto e memória.
+- Produz interpretação inicial, explicação técnica, identificação de padrões, relações internas e relatório daquele módulo.
+- Não substitui a extração determinística nem o validador independente.
+- Registra modelo, quantização, versão do prompt, data, escopo e evidências utilizadas.
+
+### 18.2 Análise profunda — API externa
+
+- Executada por um provedor/modelo externo configurado pelo usuário.
+- Requer conectividade e configuração válida do provedor.
+- Pode aprofundar relações complexas, examinar conjuntos maiores de evidências relevantes, comparar hipóteses e elaborar explicações arquiteturais mais detalhadas.
+- O escopo inicial é o módulo selecionado; outros módulos só entram quando necessários e devem ser identificados no escopo enviado.
+- Não enviar APK, OBB, biblioteca inteira ou arquivos completos por padrão. Preparar um pacote de contexto mínimo com resultados estruturados e evidências relevantes.
+- Antes do envio, mostrar quais dados serão compartilhados, o provedor/modelo e uma estimativa de tokens/custo quando a API disponibilizar informação suficiente.
+- Exigir confirmação explícita do usuário antes de qualquer envio externo.
+- Permitir cancelar antes do envio e informar falhas, limites ou indisponibilidade do provedor.
+- Nunca incluir credenciais, tokens ou segredos do usuário no contexto enviado; chaves de API devem permanecer em armazenamento seguro e fora dos relatórios.
+
+### 18.3 Independência e histórico
+
+- A análise local e a análise profunda são execuções independentes.
+- Uma não sobrescreve, apaga ou altera a outra.
+- Cada execução registra motor/provedor, modelo, versão, data, escopo, arquivos/evidências consultados, consumo informado pela API, custo quando disponível, estado e relatório.
+- Uma nova execução cria uma nova versão de análise; não destrói resultados anteriores.
+- Os dois níveis devem usar o mesmo esquema de evidências e classificação: Observado, Interpretado, Hipótese e Validado.
+- O validador independente verifica IDs e integridade das referências de ambas as análises. A análise externa não recebe confiança automática apenas por usar um modelo maior.
+
+### 18.4 Comparação de análises
+
+O usuário poderá solicitar comparação entre a análise local e a análise profunda. A comparação deve apresentar:
+- pontos de concordância;
+- descobertas presentes somente na análise local;
+- descobertas presentes somente na análise profunda;
+- divergências de interpretação;
+- hipóteses que precisam de investigação;
+- evidências que sustentam cada lado;
+- sugestões de validação reproduzível.
+
+A comparação é um relatório adicional. Não escolhe automaticamente um vencedor nem converte divergência em fato.
+
+**Critério de aceite:** em qualquer módulo, o usuário consegue iniciar a análise local ou a análise profunda de forma explícita, compreender o escopo e o possível custo do envio externo, preservar os dois resultados e compará-los com rastreabilidade.
+
+---
+
+## 19. Princípio consolidado de experiência de análise
+
+O ReverseLab deve permitir três níveis de exploração sem confundi-los:
+
+1. **Exploração isolada:** visualizar apenas uma área, módulo, arquivo, classe ou método.
+2. **Análise do módulo:** pedir análise local ou análise profunda externa para o escopo selecionado.
+3. **Investigação cruzada:** reunir áreas diferentes somente quando o usuário solicitar ou quando a pergunta exigir dependências identificáveis, deixando o escopo explícito.
+
+A interface deve manter ações e relatórios próximos ao módulo em que o usuário está trabalhando. O usuário escolhe quando aprofundar, quando compartilhar dados com serviço externo e quando ampliar o escopo.
+
+**Regra central:** local primeiro como opção disponível, externo somente por solicitação e confirmação, escopo mínimo, resultados independentes e evidências rastreáveis.
