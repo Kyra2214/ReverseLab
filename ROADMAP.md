@@ -1068,3 +1068,165 @@ O ReverseLab deve permitir três níveis de exploração sem confundi-los:
 A interface deve manter ações e relatórios próximos ao módulo em que o usuário está trabalhando. O usuário escolhe quando aprofundar, quando compartilhar dados com serviço externo e quando ampliar o escopo.
 
 **Regra central:** local primeiro como opção disponível, externo somente por solicitação e confirmação, escopo mínimo, resultados independentes e evidências rastreáveis.
+
+
+---
+
+## 20. Diretrizes de interface e experiência visual
+
+**Decisões aprovadas pelo usuário para a interface inicial:**
+- Aparência **dark** como tema padrão.
+- Navegação principal por **barra inferior fixa**.
+- Organização da biblioteca em **cartões com miniaturas e informações resumidas** (densidade visual equilibrada).
+- Identidade visual técnica, legível e adequada a sessões longas de investigação.
+
+### 20.1 Identidade visual
+
+- Fundo principal em grafite azulado muito escuro.
+- Superfícies e cartões em tons ligeiramente mais claros que o fundo.
+- Ciano como destaque primário para ações, seleção e navegação.
+- Violeta como destaque secundário para IA, análise profunda e recursos inteligentes.
+- Verde reservado a estados positivos/concluídos; amarelo/âmbar para atenção; vermelho para erros e ações destrutivas.
+- Contraste suficiente entre texto, ícones, superfícies e estados.
+- Evitar excesso de brilho, bordas luminosas, gradientes decorativos e informação simultânea desnecessária.
+- Tipografia clara, tamanhos confortáveis e áreas de toque adequadas a celular.
+- Tema claro pode ser considerado futuramente como opção, sem alterar a identidade principal dark.
+
+### 20.2 Navegação global
+
+Barra inferior fixa com cinco destinos:
+1. **Início:** painel geral, importar amostra, bibliotecas em destaque e análises recentes.
+2. **Biblioteca:** Knowledge Vault técnico e visual, grupos, módulos, arquivos e filtros.
+3. **Analisar:** fluxo de importação, seleção de amostras, execução e acompanhamento das análises.
+4. **IA:** modelos locais, provedores externos, histórico de análises, consumo e comparação.
+5. **Ajustes:** armazenamento, permissões, segurança, modelos, provedores, aparência e preferências.
+
+A barra inferior deve permanecer consistente nas áreas principais. Em fluxos focados, como visualização de código ou leitura de relatório, pode ser ocultada temporariamente para liberar espaço, mantendo retorno claro à navegação anterior.
+
+### 20.3 Tela Início
+
+Componentes:
+- Cabeçalho com identidade ReverseLab e acesso rápido aos ajustes.
+- Ação principal **Importar nova amostra**.
+- Acesso resumido às bibliotecas Técnica e Visual e às categorias mais utilizadas.
+- Resumo de análises em andamento, concluídas e que exigem atenção.
+- Lista de análises recentes com nome da amostra, estado e data.
+- Atalhos para retomar uma análise ou abrir o último módulo consultado.
+
+Não transformar o início em painel excessivamente carregado. Mostrar informações resumidas e permitir aprofundamento por toque.
+
+### 20.4 Tela Biblioteca
+
+- Alternância entre Biblioteca Técnica e Biblioteca Visual.
+- Navegação hierárquica por grupos, módulos e submódulos.
+- Cartões com ícone/miniatura, nome, descrição curta e contagem de itens.
+- Busca global e filtros contextuais.
+- Ordenação por nome, atividade recente, quantidade e origem.
+- Estados vazios explicativos, sem criar categorias artificiais.
+- Indicação visual de módulos com análise pendente, parcial ou concluída.
+
+### 20.5 Tela de módulo
+
+Cabeçalho com caminho hierárquico (breadcrumb), nome, descrição e ações do módulo.
+
+Ações principais:
+- **Pedir análise:** mini LLM local.
+- **Análise profunda:** API externa, com apresentação do escopo, dados a enviar e estimativa de custo quando disponível, exigindo confirmação explícita.
+- Consultar relatórios e histórico.
+- Filtrar e ordenar arquivos/ativos.
+
+Conteúdo:
+- cartões com miniaturas quando houver conteúdo visual;
+- lista compacta alternativa para arquivos técnicos;
+- filtros por tipo, formato, origem, estado, data e tags;
+- separação entre arquivos, evidências, descobertas e relatórios;
+- acesso a detalhes sem misturar automaticamente outros módulos.
+
+### 20.6 Fluxo de importação
+
+Etapas propostas:
+1. Escolher arquivos por seletor do Android.
+2. Exibir seleção e identificação de APK, splits, OBB, XAPK, APKS, ZIP e arquivos auxiliares.
+3. Agrupar componentes relacionados e apontar conjuntos aparentemente incompletos.
+4. Apresentar resumo: nomes, formatos, tamanhos e hashes quando calculados.
+5. Permitir revisar e confirmar a amostra e o escopo da análise.
+6. Mostrar progresso, etapas, estado e opção de interrupção segura.
+7. Ao concluir, apresentar resumo dos resultados e atalhos para as bibliotecas.
+
+Não excluir, substituir ou limpar arquivos durante importação ou análise. Duplicatas podem ser sinalizadas, nunca removidas automaticamente.
+
+### 20.7 Tela Analisar e fila de processamento
+
+- Lista de amostras importadas e execuções recentes.
+- Estado por amostra, módulo e lote: pendente, em processamento, parcial, concluído, revisão necessária ou falha recuperável.
+- Progresso por etapa, sem percentuais fictícios.
+- Ações de abrir, pausar/cancelar quando seguro, retomar e consultar erros.
+- Histórico preservado; nova execução não apaga relatórios anteriores.
+- Diferenciar análise determinística, análise local LLM e análise profunda externa.
+
+### 20.8 Visualizadores especializados
+
+Um visualizador adequado ao tipo de conteúdo, com cabeçalho de origem e procedência:
+- **Imagem:** zoom, dimensões, transparência quando aplicável, metadados e componentes anotados.
+- **Áudio:** reprodução de prévia, duração, codec, frequência, canais e metadados disponíveis.
+- **Vídeo:** reprodução de prévia, duração, resolução, codec e informações de faixa.
+- **Código:** nome do pacote/arquivo/classe/método, realce de sintaxe, pesquisa no arquivo e referências de dependência.
+- **Texto/hexadecimal:** conteúdo textual ou bytes para formatos não reconhecidos, sem executar conteúdo importado.
+- **Diagramas:** visualização ampliada e relações navegáveis.
+
+Visualização nunca modifica o original. Qualquer derivado criado deve manter vínculo e procedência.
+
+### 20.9 Tela de relatório
+
+- Identificação da amostra, módulo, escopo, motor/modelo e data.
+- Resumo e conclusões.
+- Seções distintas para Observado, Interpretado, Hipótese e Validado.
+- Evidências clicáveis que abrem o arquivo, trecho, recurso ou log correspondente.
+- Limitações, arquivos não examinados e erros.
+- Estado da análise e necessidade de revisão.
+- Histórico de versões do relatório.
+- Ações para comparar, exportar ou iniciar nova análise, sem sobrescrever a versão existente.
+
+### 20.10 Tela de comparação
+
+- Comparar análise local e análise profunda, ou execuções de versões diferentes da amostra.
+- Mostrar concordâncias, descobertas exclusivas, divergências e hipóteses pendentes.
+- Cada item deve permitir abrir as evidências de cada análise.
+- Não atribuir automaticamente superioridade ou validade a um modelo.
+- Manter comparação como registro separado dos relatórios originais.
+
+### 20.11 Tela de IA e provedores
+
+Abas ou seções:
+- **Modelo local:** modelo instalado, tamanho, quantização, disponibilidade, uso de memória e parâmetros.
+- **Provedores externos:** provedor/modelo selecionado, configuração segura de credenciais, conectividade e limites.
+- **Histórico:** execuções locais e externas, estado, escopo, consumo/custo informado e relatórios.
+- **Comparação:** acesso às comparações entre resultados.
+
+Antes de cada envio externo, apresentar claramente o conteúdo e o escopo compartilhados e solicitar autorização. Não expor credenciais em tela, logs ou relatórios.
+
+### 20.12 Ajustes e gerenciamento de armazenamento
+
+Seções:
+- Aparência e acessibilidade.
+- Modelos locais e limites de recursos.
+- Provedores externos e privacidade.
+- Armazenamento, espaço utilizado e localização dos dados.
+- Backup e exportação.
+- Permissões e segurança.
+- Ferramentas, versões e licenças.
+- Diagnóstico e logs.
+
+A tela de armazenamento pode identificar arquivos temporários, derivados ou grandes, mas não deve apagá-los automaticamente. Toda exclusão exige seleção pelo usuário, apresentação do escopo exato e confirmação explícita.
+
+### 20.13 Regras de consistência e acessibilidade
+
+- Ações principais sempre identificáveis por texto e ícone; não depender apenas de cor.
+- Estados de processamento, erro, alerta e sucesso devem ter texto explicativo.
+- Manter navegação de retorno previsível e preservar o contexto ao sair e voltar de um módulo.
+- Usar cartões para descoberta visual e listas para conteúdo técnico denso, permitindo alternância quando fizer sentido.
+- Evitar telas com excesso de controles simultâneos; filtros avançados podem ficar em painel dedicado.
+- Respeitar tamanho de fonte do sistema, contraste e áreas de toque.
+- Confirmar ações destrutivas com descrição precisa do que será afetado.
+
+**Critério de aceite:** as telas principais compartilham a identidade dark e a navegação inferior; o usuário consegue importar uma amostra, navegar pela biblioteca em cartões, entrar em um módulo, solicitar análise local ou profunda, abrir evidências, consultar relatórios e ajustar armazenamento sem perder o contexto nem sofrer exclusões automáticas.
