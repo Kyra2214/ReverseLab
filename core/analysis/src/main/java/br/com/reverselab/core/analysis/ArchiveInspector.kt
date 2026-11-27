@@ -6,6 +6,8 @@ import br.com.reverselab.core.domain.ArchiveInspectionStatus
 import br.com.reverselab.core.domain.ArchiveInventoryRecord
 import br.com.reverselab.core.domain.SampleRecord
 import java.io.File
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.io.IOException
 import java.util.Enumeration
 import java.util.Locale
@@ -121,7 +123,7 @@ class ArchiveInspector {
         val rootManifest = zip.getEntry("AndroidManifest.xml")
         if (rootManifest != null && rootManifest.size in 1..MAX_MANIFEST_BYTES) {
             manifestMetadata = zip.getInputStream(rootManifest).use { input ->
-                val bytes = input.readNBytes(MAX_MANIFEST_BYTES.toInt() + 1)
+                val bytes = input.readBounded(MAX_MANIFEST_BYTES.toInt() + 1)
                 if (bytes.size > MAX_MANIFEST_BYTES) AndroidManifestMetadata(parseStatus = "LIMIT_EXCEEDED: manifesto excede o limite de leitura.")
                 else BinaryAndroidManifestParser().parse(bytes)
             }
@@ -221,6 +223,19 @@ class ArchiveInspector {
         warnings = listOf(warning),
         truncated = false,
     )
+
+    private fun InputStream.readBounded(limit: Int): ByteArray {
+        val output = ByteArrayOutputStream()
+        val buffer = ByteArray(8 * 1024)
+        while (output.size() <= limit) {
+            val remaining = limit + 1 - output.size()
+            if (remaining <= 0) break
+            val count = read(buffer, 0, minOf(buffer.size, remaining))
+            if (count < 0) break
+            output.write(buffer, 0, count)
+        }
+        return output.toByteArray()
+    }
 
     private fun isUnsafePath(path: String): Boolean {
         val normalized = path.replace('\\', '/')
