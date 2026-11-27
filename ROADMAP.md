@@ -1577,3 +1577,10 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - A tela Analisar agora resolve os IDs de amostras externas retornados pela correlação virtual para seus nomes visíveis, facilitando a revisão do vínculo por package name.
 - A apresentação não altera associação persistida nem cria amostras derivadas.
 - Build/testes não executados; validação final pendente.
+
+### 22.32 — Consistência interna do TOC APKS
+
+- Parser preserva registros duplicados de módulos e caminhos APK para não ocultar inconsistências.
+- Analisador verifica módulos sem APK descrito, dependências ausentes, quantidade de master splits por módulo split, caminhos duplicados, módulos duplicados e números de variante repetidos.
+- Inconsistências são exibidas como revisão estrutural; nenhuma entrada é removida ou corrigida automaticamente.
+- O resultado continua limitado ao conteúdo do TOC e não equivale a prova de compatibilidade universal.
