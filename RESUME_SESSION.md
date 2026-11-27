@@ -29,3 +29,6 @@
 - Progresso global estimado: inferior a 1%; Fase 0 com 6/6 submódulos de implementação concluídos; Fase 1 com 1.1, 1.2, 1.3, 1.5 e 1.6 implementados, 1.4 parcial e 1.7 parcialmente implementado. Validação final pendente. A validação final continua pendente.
 
 - Importação Fase 1.4: o `SampleImportCoordinator` agora inspeciona APKs importados, persiste inventário/manifesto, corrige BASE/SPLIT pelo atributo split e agrupa por package name com confiança MANIFEST_VERIFIED. OBB permanece heurístico. XAPK/APKS ainda não expandem seus APKs internos como amostras individuais.
+
+- Ajuste adicional `285c864`: em múltiplas bases com mesmo package, bases e splits permanecem no mesmo grupo ambíguo para revisão. `e011363` atualiza o contrato documental do avaliador.
+- Estado de execução: 1.4 e 1.7 parcialmente implementados. Próxima pendência de 1.4: ler metadados de APKs aninhados em XAPK/APKS e correlacioná-los sem descartar o contêiner original. Próxima pendência de 1.7: estender parsing para estruturas compostas e refinar os requisitos de completude sem inferir splits ausentes.
