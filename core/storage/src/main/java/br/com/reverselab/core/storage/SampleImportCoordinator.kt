@@ -233,7 +233,7 @@ private object PackageAssociationResolver {
                 }
             } else if (bases.size > 1 && splits.isNotEmpty()) {
                 val groupId = SampleGroupId("manifest-ambiguous:" + packageName.sha256Hex())
-                splits.forEach { sample ->
+                (bases + splits).forEach { sample ->
                     updated[sample.id] = sample.copy(associationGroupId = groupId, associationConfidence = SampleAssociationConfidence.AMBIGUOUS_BATCH)
                 }
             }
