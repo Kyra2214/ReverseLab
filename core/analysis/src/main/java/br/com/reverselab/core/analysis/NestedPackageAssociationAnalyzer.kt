@@ -51,12 +51,27 @@ class NestedPackageAssociationAnalyzer {
                     val xapkMetadata = inventories[container.id]?.xapkManifest
                     val xapkPackageMismatch = xapkMetadata?.parseStatus == "PARSED" &&
                         !xapkMetadata?.packageName.isNullOrBlank() && xapkMetadata?.packageName != packageName
+                    val apksToc = inventories[container.id]?.apksToc
+                    val tocPackageMismatch = apksToc?.parseStatus in setOf("PARSED", "PARSED_WITHOUT_PACKAGE") &&
+                        !apksToc?.packageName.isNullOrBlank() && apksToc?.packageName != packageName
+                    val tocMissingPaths = apksToc?.variants.orEmpty().flatMap { it.apks }.map { it.path }.toSet()
+                        .filterNot { declared -> nested.any { it.entryPath == declared || it.entryPath.endsWith("/$declared") } }
+                    val tocMissingModuleDependencies = apksToc?.variants.orEmpty().flatMap { variant ->
+                        val names = variant.modules.map { it.name }.toSet()
+                        variant.modules.flatMap { module ->
+                            module.dependencies.filterNot { it in names }.map { dependency -> "${module.name} -> $dependency" }
+                        }
+                    }.distinct()
                     val declaredMissingPaths = xapkMetadata?.splitApkPaths.orEmpty().filterNot { declared ->
                         nested.any { it.entryPath == declared || it.entryPath.endsWith("/$declared") }
                     }
                     val status = when {
                         xapkPackageMismatch -> {
                             reasons += "package_name do manifest.json (${xapkMetadata?.packageName}) diverge do package declarado pelos APKs internos ($packageName)."
+                            NestedPackageAssociationStatus.PACKAGE_MISMATCH
+                        }
+                        tocPackageMismatch -> {
+                            reasons += "package_name do toc.pb (${apksToc?.packageName}) diverge do package declarado pelos APKs internos ($packageName)."
                             NestedPackageAssociationStatus.PACKAGE_MISMATCH
                         }
                         externalBases.size > 1 -> {
@@ -91,6 +106,12 @@ class NestedPackageAssociationAnalyzer {
                     if (declaredMissingPaths.isNotEmpty()) {
                         reasons += "manifest.json referencia APKs que não foram identificados no inventário interno: ${declaredMissingPaths.joinToString()}."
                     }
+                    if (tocMissingPaths.isNotEmpty()) {
+                        reasons += "toc.pb referencia APKs não encontrados entre os membros internos inspecionados: ${tocMissingPaths.take(12).joinToString()}."
+                    }
+                    if (tocMissingModuleDependencies.isNotEmpty()) {
+                        reasons += "Dependências de módulos não presentes na variante: ${tocMissingModuleDependencies.joinToString()}."
+                    }
                     if (duplicateSplits.isNotEmpty()) {
                         reasons += "splitName duplicado entre membros internos/externos: ${duplicateSplits.joinToString()}."
                     }
@@ -107,7 +128,7 @@ class NestedPackageAssociationAnalyzer {
                         containerSampleId = container.id.value,
                         containerName = container.displayName,
                         packageName = packageName,
-                        status = if (status != NestedPackageAssociationStatus.PACKAGE_MISMATCH && (duplicateSplits.isNotEmpty() || missingDependencies.isNotEmpty() || missingConfigTargets.isNotEmpty())) {
+                        status = if (status != NestedPackageAssociationStatus.PACKAGE_MISMATCH && (duplicateSplits.isNotEmpty() || missingDependencies.isNotEmpty() || missingConfigTargets.isNotEmpty() || tocMissingPaths.isNotEmpty() || tocMissingModuleDependencies.isNotEmpty())) {
                             NestedPackageAssociationStatus.STRUCTURE_REQUIRES_REVIEW
                         } else status,
                         nestedEntryPaths = members.map { it.entryPath },
