@@ -1,5 +1,10 @@
 # core:storage
 
-Camada responsável pela persistência local, importação controlada, procedência e políticas de preservação.
+Camada responsável pela persistência local, importação controlada, procedência, permissões SAF e políticas de preservação.
 
-Regra crítica: não implementar exclusão automática, limpeza por falta de espaço ou sobrescrita silenciosa.
+Regras obrigatórias:
+- Nenhuma exclusão, limpeza, sobrescrita ou deduplicação física automática.
+- Operações destrutivas exigem ação iniciada pelo usuário e confirmação vinculada ao conjunto exato de alvos apresentado.
+- O acesso a documentos usa permissões concedidas pelo Storage Access Framework; não solicitar acesso amplo ao armazenamento.
+- A liberação de uma permissão SAF revoga acesso do app, mas nunca apaga o documento.
+- Arquivos originais e derivados mantêm identidades e procedência próprias.
