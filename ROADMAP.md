@@ -1427,4 +1427,5 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Implementação: registro PENDING antes da cópia, cópia privada única, hash em streaming, preservação de parciais, catálogo SQLite e associação heurística sinalizada.
 - Commits de código: `5222df8bf4b74dd3a58c1bcd566c64bfe500c00e` e `1c66315cd005c72252846f05f0a61c0522d29e17`.
 - Pacote completo: `ReverseLab_CHECKPOINT_010.zip`, incluindo o estado integral do projeto.
+- Integridade estrutural do ZIP: confirmada após a geração final.
 - Build e testes: não executados; permanecem na validação final.

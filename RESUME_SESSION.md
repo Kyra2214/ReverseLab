@@ -1,6 +1,7 @@
 # ReverseLab — Estado de retomada
 
 - Branch: `main`.
+- Último commit de documentação: `b2e85e0dd4fc7b1401f6ec13102e6e4df06f0b47`.
 - Commit de referência antes da implementação: `a69ea8f772035778975dd78b0927b455a815cd2b`.
 - Commit do submódulo 0.1: `b4eb0b9e9059ae1b1df0bbc14d8f0e9030a123c6`.
 - Commit do submódulo 0.2: `576fdd210bc0857af9318f0dc9e02ad50e852d7e`.
@@ -18,5 +19,5 @@
 - Testes/builds: não executados por regra de execução; ficam acumulados para a validação final.
 - Pendência técnica: Gradle Wrapper binário oficial não foi obtido neste ambiente; não foi criado binário fictício.
 - Checkpoints 001 a 009: pacotes completos e integridade estrutural confirmada.
-- Checkpoint 010: `ReverseLab_CHECKPOINT_010.zip`, pacote integral do estado atual.
+- Checkpoint 010: `ReverseLab_CHECKPOINT_010.zip`, pacote integral do estado atual, integridade estrutural confirmada.
 - Progresso global estimado: inferior a 1%; Fase 0 com 6/6 submódulos de implementação concluídos e Fase 1 com 1.1, 1.2, 1.3 e 1.4 concluídos. A validação final continua pendente.
