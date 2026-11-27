@@ -35,6 +35,11 @@ class BinaryAndroidManifestParser {
             val features = linkedSetOf<String>()
             val usesLibraries = linkedSetOf<String>()
             val components = mutableListOf<AndroidComponentRecord>()
+            var detailsTruncated = false
+            fun addBounded(target: MutableSet<String>, value: String) {
+                if (value in target) return
+                if (target.size < MAX_MANIFEST_ITEMS) target += value else detailsTruncated = true
+            }
 
             while (offset + 8 <= declaredSize) {
                 val type = u16(buffer, offset)
@@ -75,15 +80,15 @@ class BinaryAndroidManifestParser {
                                 minSdkVersion = attributes["minSdkVersion"] ?: minSdkVersion
                                 targetSdkVersion = attributes["targetSdkVersion"] ?: targetSdkVersion
                             }
-                            "uses-split" -> attributes["name"]?.takeIf { it.isNotBlank() }?.let(usesSplits::add)
+                            "uses-split" -> attributes["name"]?.takeIf { it.isNotBlank() }?.let { addBounded(usesSplits, it) }
                             "uses-permission", "uses-permission-sdk-23", "uses-permission-sdk-m", "uses-permission-sdk-28" ->
-                                attributes["name"]?.takeIf { it.isNotBlank() }?.let(permissions::add)
+                                attributes["name"]?.takeIf { it.isNotBlank() }?.let { addBounded(permissions, it) }
                             "permission", "permission-group", "permission-tree" ->
-                                attributes["name"]?.takeIf { it.isNotBlank() }?.let(declaredPermissions::add)
+                                attributes["name"]?.takeIf { it.isNotBlank() }?.let { addBounded(declaredPermissions, it) }
                             "uses-feature" ->
-                                attributes["name"]?.takeIf { it.isNotBlank() }?.let(features::add)
+                                attributes["name"]?.takeIf { it.isNotBlank() }?.let { addBounded(features, it) }
                             "uses-library", "uses-native-library" ->
-                                attributes["name"]?.takeIf { it.isNotBlank() }?.let(usesLibraries::add)
+                                attributes["name"]?.takeIf { it.isNotBlank() }?.let { addBounded(usesLibraries, it) }
                             "application" -> {
                                 applicationName = attributes["name"] ?: applicationName
                                 applicationLabel = attributes["label"] ?: applicationLabel
@@ -94,15 +99,17 @@ class BinaryAndroidManifestParser {
                             "activity", "activity-alias", "service", "receiver", "provider" -> {
                                 val name = attributes["name"]
                                 if (!name.isNullOrBlank()) {
-                                    components += AndroidComponentRecord(
-                                        type = elementName,
-                                        name = name,
-                                        exported = attributes["exported"]?.toBooleanStrictOrNull(),
-                                        enabled = attributes["enabled"]?.toBooleanStrictOrNull(),
-                                        permission = attributes["permission"],
-                                        process = attributes["process"],
-                                        targetActivity = attributes["targetActivity"],
-                                    )
+                                    if (components.size < MAX_MANIFEST_COMPONENTS) {
+                                        components += AndroidComponentRecord(
+                                            type = elementName,
+                                            name = name,
+                                            exported = attributes["exported"]?.toBooleanStrictOrNull(),
+                                            enabled = attributes["enabled"]?.toBooleanStrictOrNull(),
+                                            permission = attributes["permission"],
+                                            process = attributes["process"],
+                                            targetActivity = attributes["targetActivity"],
+                                        )
+                                    } else detailsTruncated = true
                                 }
                             }
                         }
@@ -127,6 +134,7 @@ class BinaryAndroidManifestParser {
                 features = features.toList(),
                 usesLibraries = usesLibraries.toList(),
                 components = components,
+                truncated = detailsTruncated,
             )
             if (packageName.isNullOrBlank()) {
                 AndroidManifestMetadata(parseStatus = "INCOMPLETE: atributo package não encontrado.", details = details)
@@ -218,6 +226,8 @@ class BinaryAndroidManifestParser {
         const val TYPE_FLOAT = 0x04
         const val NO_INDEX = -1
         const val MAX_STRINGS = 100_000
+        const val MAX_MANIFEST_ITEMS = 4_096
+        const val MAX_MANIFEST_COMPONENTS = 10_000
     }
 }
 
