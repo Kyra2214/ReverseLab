@@ -1327,6 +1327,16 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Build e testes do aplicativo: não executados; permanecem na validação final.
 
 
+
+### 22.5 Checkpoint 001
+
+- Submódulo: 0.1 — estrutura inicial Android modular.
+- Commit: `b4eb0b9e9059ae1b1df0bbc14d8f0e9030a123c6`.
+- Pacote completo: `ReverseLab_CHECKPOINT_001.zip` (20 KB).
+- Integridade estrutural do ZIP: confirmada; `unzip -t` não reportou erros.
+- SHA-256: `8931db2a3ec23d844c99c8827d349231e437efb004ae97ba7a6aeeb15ffb0bf4`.
+- Build e testes do aplicativo: não executados; permanecem na validação final.
+
 ### 22.6 Checkpoint 002
 
 - Submódulo: 0.2 — contratos de domínio, estados e convenções compartilhadas.
