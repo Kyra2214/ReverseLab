@@ -450,6 +450,12 @@ private fun ImportBatchCard(
                 if (assessment.nestedEntryPaths.isNotEmpty()) {
                     Text("Entradas: ${assessment.nestedEntryPaths.joinToString()}", style = MaterialTheme.typography.labelSmall)
                 }
+                val externalNames = assessment.externalSampleIds.mapNotNull { id ->
+                    batch.samples.firstOrNull { it.id.value == id }?.displayName
+                }
+                if (externalNames.isNotEmpty()) {
+                    Text("APK(s) externos correspondentes: ${externalNames.joinToString()}", style = MaterialTheme.typography.labelSmall)
+                }
                 assessment.reasons.forEach { reason ->
                     Text(reason, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
