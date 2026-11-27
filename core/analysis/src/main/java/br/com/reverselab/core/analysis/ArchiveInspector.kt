@@ -5,6 +5,7 @@ import br.com.reverselab.core.domain.ArchiveInspectionId
 import br.com.reverselab.core.domain.ArchiveInspectionStatus
 import br.com.reverselab.core.domain.ArchiveInventoryRecord
 import br.com.reverselab.core.domain.NestedApkManifestRecord
+import br.com.reverselab.core.domain.XapkManifestRecord
 import br.com.reverselab.core.domain.SampleRecord
 import java.io.File
 import java.io.ByteArrayOutputStream
@@ -13,6 +14,8 @@ import java.io.IOException
 import java.util.Enumeration
 import java.util.Locale
 import java.util.UUID
+import java.nio.charset.StandardCharsets
+import org.json.JSONObject
 import java.util.zip.ZipEntry
 import java.util.zip.ZipException
 import java.util.zip.ZipFile
@@ -67,6 +70,7 @@ class ArchiveInspector {
         var obbEntryCount = 0
         var truncated = false
         var manifestMetadata: AndroidManifestMetadata? = null
+        var xapkManifestMetadata: XapkManifestRecord? = null
         val nestedApkManifests = mutableListOf<NestedApkManifestRecord>()
         var nestedManifestBytes = 0L
 
@@ -181,6 +185,13 @@ class ArchiveInspector {
             }
         }
 
+        if (hasXapkManifest && sample.formatCode.equals("XAPK", ignoreCase = true)) {
+            xapkManifestMetadata = readXapkManifest(zip)
+            if (xapkManifestMetadata?.parseStatus != "PARSED") {
+                addGlobalWarning("manifest.json do XAPK não forneceu metadados completos: ${xapkManifestMetadata?.parseStatus ?: "resultado ausente"}")
+            }
+        }
+
         val rootManifest = zip.getEntry("AndroidManifest.xml")
         if (rootManifest != null && rootManifest.size in 1..MAX_MANIFEST_BYTES) {
             manifestMetadata = zip.getInputStream(rootManifest).use { input ->
@@ -255,7 +266,47 @@ class ArchiveInspector {
             manifestUsesSplits = manifestMetadata?.usesSplits ?: emptyList(),
             manifestParseStatus = manifestMetadata?.parseStatus,
             nestedApkManifests = nestedApkManifests,
+            xapkManifest = xapkManifestMetadata,
         )
+    }
+
+    private fun readXapkManifest(zip: ZipFile): XapkManifestRecord? {
+        val entry = zip.getEntry("manifest.json") ?: return null
+        if (entry.isDirectory) return XapkManifestRecord(null, null, null, null, emptyList(), "INVALID_ENTRY")
+        if (entry.size > MAX_XAPK_MANIFEST_BYTES) {
+            return XapkManifestRecord(null, null, null, null, emptyList(), "LIMIT_EXCEEDED")
+        }
+        return runCatching {
+            val bytes = zip.getInputStream(entry).use { it.readBounded(MAX_XAPK_MANIFEST_BYTES + 1) }
+            if (bytes.size > MAX_XAPK_MANIFEST_BYTES) {
+                return@runCatching XapkManifestRecord(null, null, null, null, emptyList(), "LIMIT_EXCEEDED")
+            }
+            val json = JSONObject(String(bytes, StandardCharsets.UTF_8))
+            val packageName = json.optString("package_name").takeIf { it.isNotBlank() && it != "null" }
+            val appName = json.optString("name").takeIf { it.isNotBlank() && it != "null" }
+            val versionName = json.optString("version_name").takeIf { it.isNotBlank() && it != "null" }
+            val versionCode = json.opt("version_code")?.toString()?.takeIf { it.isNotBlank() && it != "null" }
+            val splitPaths = buildList {
+                val splitArray = json.optJSONArray("split_apks") ?: return@buildList
+                for (index in 0 until splitArray.length()) {
+                    val item = splitArray.optJSONObject(index) ?: continue
+                    val path = item.optString("file").replace('\\', '/')
+                    if (path.isNotBlank() && path != "null" && !isUnsafePath(path) && !path.startsWith('/')) {
+                        add(path.take(MAX_ENTRY_PATH_LENGTH))
+                    }
+                }
+            }.distinct()
+            XapkManifestRecord(
+                packageName = packageName,
+                appName = appName,
+                versionName = versionName,
+                versionCode = versionCode,
+                splitApkPaths = splitPaths,
+                parseStatus = if (packageName == null) "MISSING_PACKAGE_NAME" else "PARSED",
+            )
+        }.getOrElse { error ->
+            XapkManifestRecord(null, null, null, null, emptyList(), "INVALID_JSON: ${error.javaClass.simpleName}")
+        }
     }
 
     private fun emptyResult(
@@ -317,6 +368,7 @@ class ArchiveInspector {
         const val MAX_COMPRESSION_RATIO = 1_000L
         const val MAX_WARNINGS = 100
         const val MAX_MANIFEST_BYTES = 2L * 1024L * 1024L
+        const val MAX_XAPK_MANIFEST_BYTES = 256 * 1024
         const val MAX_NESTED_APKS = 32
         const val MAX_NESTED_APK_ENTRIES = 1
         const val MAX_TOTAL_NESTED_MANIFEST_BYTES = 16L * 1024L * 1024L
