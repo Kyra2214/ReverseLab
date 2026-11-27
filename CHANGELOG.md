@@ -24,7 +24,9 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Documentação do formato de backup, escopo e limitações de restauração.
 - Tela inicial como central de comando, com atalhos reais para Analisar e para as três áreas da Biblioteca.
 - Navegação funcional de Projetos, Biblioteca Técnica e Biblioteca Visual, com estados vazios explícitos.
-- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_007.zip`, verificados estruturalmente.
+- Seletor múltiplo do Android integrado à tela Analisar.
+- Permissões persistentes de leitura SAF restauradas a partir dos URIs autorizados, sem cópia ou análise prematura dos arquivos.
+- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_008.zip`, verificados estruturalmente.
 
 ### Deferred
 - Execução de builds, testes e validações para a fase final, conforme a política de execução vigente.
