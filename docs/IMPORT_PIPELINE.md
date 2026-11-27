@@ -39,3 +39,10 @@ Ainda não há extração de APK/XAPK/APKS/OBB, decodificação de manifestos in
 ### Metadados de identidade do manifesto
 
 Para APKs individuais, `ArchiveInspector` lê a entrada raiz `AndroidManifest.xml` com limite de 2 MiB e usa `BinaryAndroidManifestParser` para interpretar o XML binário Android sem executar o pacote. São registrados `package`, `split`, `configForSplit` e referências `uses-split`, junto ao estado da interpretação. Os campos são persistidos no inventário SQLite (migração aditiva para versão 4). Durante a importação em lote, APKs com manifesto interpretável têm seu papel corrigido a partir do atributo `split` e são agrupados por `package` coincidente. A confiança `MANIFEST_VERIFIED` é usada somente para base/splits cujo package name foi lido dos manifestos; OBBs anexados permanecem com confiança heurística. Manifestos ausentes, inválidos ou acima do limite permanecem sem identidade declarada e recebem estado/motivo explícito. O parser não resolve IDs de recursos nem decodifica manifestos protobuf de AAB.
+
+
+### Manifestos de APKs aninhados em XAPK/APKS
+
+O inventário abre entradas APK como fluxos ZIP aninhados e procura somente a entrada raiz `AndroidManifest.xml`. São persistidos caminho virtual, package name, split, configForSplit, uses-split e estado do parsing. Nenhum APK interno é extraído, salvo como amostra independente ou alterado; o contêiner original permanece a única amostra importada.
+
+Limites por inspeção: até 32 APKs internos, 128 entradas ZIP por APK e 16 MiB agregados de manifestos internos, além do limite individual de 2 MiB. Esses metadados permitem futura correlação lógica, mas não comprovam que todas as variantes necessárias foram fornecidas.
