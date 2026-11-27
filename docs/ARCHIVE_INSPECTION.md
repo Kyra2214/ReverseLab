@@ -36,3 +36,7 @@ A etapa seguinte deve interpretar package name e versões no manifesto binário,
 ## Leitura de manifestos de APKs internos
 
 Para XAPK/APKS, o inspetor percorre até 32 entradas APK, abre cada uma como fluxo ZIP aninhado e lê somente o manifesto raiz. Não há extração em disco, cópia adicional nem execução. A leitura é limitada a 1ª entrada por APK, 2 MiB por manifesto e 16 MiB agregados. O resultado mantém o caminho virtual e a identidade declarada, sem criar amostra independente nem afirmar completude.
+
+## Manifesto XAPK
+
+Para XAPK, o inventário também interpreta o `manifest.json` da raiz, limitado a 256 KiB. São lidos package name, nome, versão e caminhos declarados em `split_apks`; caminhos inseguros são ignorados. O parsing é persistido no SQLite (migração aditiva versão 6) e exibido na tela Analisar. A identidade declarada no JSON é comparada com os package names dos APKs internos. Divergências e arquivos declarados que não aparecem no inventário são sinalizados, sem extração ou execução. O JSON é metadado auxiliar: não substitui a leitura dos manifestos binários nem prova a completude do conjunto.
