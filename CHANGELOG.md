@@ -122,3 +122,16 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - `manifest.json` limitado a 256 KiB; caminhos inseguros não são aceitos.
 - O manifesto externo não substitui a validação dos manifestos binários internos nem prova completude.
 - Interpretação de APKS `toc.pb` e AAB protobuf permanece pendente; builds/testes seguem para a validação final.
+
+## 2026-11-27
+
+### Added
+- Parser protobuf limitado para `toc.pb` APKS, baseado na estrutura pública `BuildApksResult` do Bundletool.
+- Inventário de package name, variantes, módulos, dependências, caminhos APK, split IDs, master split e metadados de targeting.
+- Persistência SQLite versão 7 com migração aditiva e exibição dos dados na tela Analisar.
+- Correlação entre caminhos do TOC e APKs internos, com proteção contra falsos alertas quando o limite de 32 entradas impede cobertura completa.
+
+### Limits
+- `toc.pb` limitado a 4 MiB; APKs internos continuam limitados a 32 por inspeção.
+- Targeting é registrado como presente, mas ABI/idioma/densidade ainda não são interpretados semanticamente.
+- A presença de variantes no TOC não comprova completude para todos os dispositivos.
