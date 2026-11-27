@@ -14,7 +14,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,9 +43,6 @@ fun ReverseLabApp() {
     val sampleCatalog = remember(context) { SqliteSampleCatalog(context) }
     val importCoordinator = remember(context.contentResolver, sampleCatalog) {
         SampleImportCoordinator(context, context.contentResolver, sampleCatalog)
-    }
-    DisposableEffect(sampleCatalog) {
-        onDispose { sampleCatalog.close() }
     }
     var selectedDestination by remember { mutableIntStateOf(0) }
     var selectedLibraryArea by remember { mutableStateOf(LibraryArea.ROOT) }

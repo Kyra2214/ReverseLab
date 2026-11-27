@@ -81,13 +81,13 @@ class SampleImportCoordinator(
         try {
             val input = contentResolver.openInputStream(document.uri)
                 ?: throw IllegalStateException("O provedor não abriu o documento selecionado.")
-            target.parentFile?.let { parent ->
-                if (!parent.exists() && !parent.mkdirs()) {
-                    throw IllegalStateException("Não foi possível criar a pasta privada da amostra.")
-                }
-            }
-            check(target.createNewFile()) { "O destino interno já existe; nenhuma sobrescrita foi realizada." }
             input.use { source ->
+                target.parentFile?.let { parent ->
+                    if (!parent.exists() && !parent.mkdirs()) {
+                        throw IllegalStateException("Não foi possível criar a pasta privada da amostra.")
+                    }
+                }
+                check(target.createNewFile()) { "O destino interno já existe; nenhuma sobrescrita foi realizada." }
                 FileOutputStream(target, false).use { output ->
                     val buffer = ByteArray(COPY_BUFFER_SIZE)
                     while (true) {

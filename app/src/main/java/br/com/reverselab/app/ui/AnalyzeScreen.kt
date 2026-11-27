@@ -69,7 +69,7 @@ fun AnalyzeScreen(
     val inspectionExecutor = remember { Executors.newSingleThreadExecutor() }
     val mainHandler = remember { Handler(Looper.getMainLooper()) }
     DisposableEffect(inspectionExecutor) {
-        onDispose { inspectionExecutor.shutdownNow() }
+        onDispose { inspectionExecutor.shutdown() }
     }
     val selectedDocuments = remember(permissionManager) {
         mutableStateListOf<SelectedDocument>().apply {
