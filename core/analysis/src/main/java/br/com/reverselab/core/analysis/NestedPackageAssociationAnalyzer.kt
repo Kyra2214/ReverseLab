@@ -52,7 +52,8 @@ class NestedPackageAssociationAnalyzer {
                     val xapkPackageMismatch = xapkMetadata?.parseStatus == "PARSED" &&
                         !xapkMetadata?.packageName.isNullOrBlank() && xapkMetadata?.packageName != packageName
                     val apksToc = inventories[container.id]?.apksToc
-                    val tocPackageMismatch = apksToc?.parseStatus in setOf("PARSED", "PARSED_WITHOUT_PACKAGE") &&
+                    val tocPackageParsed = apksToc?.parseStatus == "PARSED" || apksToc?.parseStatus == "PARSED_WITHOUT_PACKAGE"
+                    val tocPackageMismatch = tocPackageParsed &&
                         !apksToc?.packageName.isNullOrBlank() && apksToc?.packageName != packageName
                     val tocMissingPaths = apksToc?.variants.orEmpty().flatMap { it.apks }.map { it.path }.toSet()
                         .filterNot { declared -> nested.any { it.entryPath == declared || it.entryPath.endsWith("/$declared") } }
