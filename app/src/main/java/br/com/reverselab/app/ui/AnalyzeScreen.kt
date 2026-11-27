@@ -198,20 +198,24 @@ fun AnalyzeScreen(
                             documents = requests,
                             importedAtEpochMillis = System.currentTimeMillis(),
                         )
-                        val snapshot = historyRepository.loadSnapshot()
+                        val snapshot = try {
+                            historyRepository.loadSnapshot()
+                        } catch (_: Exception) {
+                            null
+                        }
                         val incompleteCount = results.count { it.errorMessage != null }
                         mainHandler.post {
-                            historySnapshotState.value = snapshot
+                            if (snapshot != null) historySnapshotState.value = snapshot
                             pendingIndices.forEach { index ->
                                 if (index in selectedDocuments.indices) {
                                     selectedDocuments[index] = selectedDocuments[index].copy(selectedForImport = false)
                                 }
                             }
                             isImporting = false
-                            statusMessage = if (incompleteCount == 0) {
-                                "${results.size} arquivo(s) importado(s). Hashes e associações foram registrados."
-                            } else {
-                                "$incompleteCount arquivo(s) tiveram importação parcial ou falha. Os artefatos parciais foram preservados."
+                            statusMessage = when {
+                                snapshot == null -> "Importação concluída, mas o histórico não foi atualizado. Use Atualizar para tentar novamente."
+                                incompleteCount > 0 -> "$incompleteCount arquivo(s) tiveram importação parcial ou falha. Os artefatos parciais foram preservados."
+                                else -> "${results.size} arquivo(s) importado(s). Hashes e associações foram registrados."
                             }
                         }
                     } catch (exception: Exception) {
