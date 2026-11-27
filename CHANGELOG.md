@@ -166,3 +166,15 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 ### Added
 - Verificação estrutural do TOC APKS: módulo sem APK descrito, dependência de módulo ausente, master split ausente/duplicado, caminho duplicado, módulo duplicado e número de variante repetido.
 - Preservação de entradas duplicadas durante o parsing para que o analisador possa identificá-las.
+
+## 2026-11-27
+
+### Added
+- Expansão do parser Android Binary XML para versão, SDK mínimo/alvo, atributos de application, permissões, features, bibliotecas e componentes.
+- Extração de activity, activity-alias, service, receiver e provider, com atributos explícitos de exported, enabled, permission, process e targetActivity.
+- Persistência dos detalhes do manifesto no SQLite versão 8 e exibição na tela Analisar.
+
+### Limits
+- Referências de recursos são mantidas como IDs hexadecimais; resolução via resources.arsc permanece pendente.
+- Listas limitadas a 4.096 itens e componentes a 10.000 por manifesto, com truncamento explícito.
+- Atributos ausentes, como exported, permanecem desconhecidos e não são inferidos.
