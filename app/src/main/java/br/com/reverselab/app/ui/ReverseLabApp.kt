@@ -14,12 +14,16 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import br.com.reverselab.core.storage.SampleImportCoordinator
+import br.com.reverselab.core.storage.SqliteSampleCatalog
 
 private data class MainDestination(
     val label: String,
@@ -36,6 +40,14 @@ private val destinations = listOf(
 
 @Composable
 fun ReverseLabApp() {
+    val context = LocalContext.current
+    val sampleCatalog = remember(context) { SqliteSampleCatalog(context) }
+    val importCoordinator = remember(context.contentResolver, sampleCatalog) {
+        SampleImportCoordinator(context, context.contentResolver, sampleCatalog)
+    }
+    DisposableEffect(sampleCatalog) {
+        onDispose { sampleCatalog.close() }
+    }
     var selectedDestination by remember { mutableIntStateOf(0) }
     var selectedLibraryArea by remember { mutableStateOf(LibraryArea.ROOT) }
 
@@ -70,7 +82,7 @@ fun ReverseLabApp() {
                 onSelectArea = { selectedLibraryArea = it },
                 onBackToRoot = { selectedLibraryArea = LibraryArea.ROOT },
             )
-            2 -> AnalyzeScreen(modifier = contentModifier)
+            2 -> AnalyzeScreen(sampleCatalog, importCoordinator, modifier = contentModifier)
             3 -> FeaturePlaceholderScreen(
                 modifier = contentModifier,
                 title = "IA",
