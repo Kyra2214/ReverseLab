@@ -1381,7 +1381,7 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 | 1.1 | Telas Início/Biblioteca e navegação funcional | Concluído (implementação; validação final pendente) |
 | 1.2 | Seletor SAF e integração das permissões persistentes | Concluído (implementação; validação final pendente) |
 | 1.3 | Seleção múltipla e detecção real de formatos | Concluído (cabeçalho e estrutura interna; validação final pendente) |
-| 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Parcial: importação, manifesto binário, inventário virtual XAPK/APKS, correlação por lote e leitura do manifest.json XAPK implementados; toc.pb/AAB e confirmação de completude pendentes |
+| 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Parcial: importação, manifesto binário, inventário virtual XAPK/APKS, manifest.json XAPK e toc.pb APKS implementados; AAB e confirmação de completude pendentes |
 | 1.5 | Histórico de importação e ocupação de armazenamento | Concluído (implementação; validação final pendente) |
 | 1.6 | Inventário interno e verificação de contêineres APK/OBB/XAPK/APKS/AAB | Concluído (implementação; validação final pendente) |
 | 1.7 | Revisão e confirmação de grupos e detecção de conjuntos incompletos | Parcial: revisão auditada e correlação de identidade/splits, inclusive membros virtuais; prova de completude e interpretação de variantes ainda pendentes |
@@ -1551,5 +1551,14 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - `ArchiveInspector` compara os caminhos declarados com as entradas internas sem extração. Se o limite de 32 APKs impedir cobertura integral, a análise informa cobertura parcial e não acusa falsamente APKs não inspecionados como ausentes.
 - Persistência SQLite versão 7 por migração aditiva; UI apresenta variantes, módulos e descrições APK.
 - Analisador de associação compara package name do TOC com manifestos internos e verifica caminhos e dependências de módulos por variante.
-- A leitura do TOC não prova que todas as variantes de um dispositivo foram fornecidas; targeting ainda é indicado apenas como presente, sem interpretação semântica detalhada.
+- Targeting agora apresenta valores/alternativas de ABI, multi-ABI, idioma, densidade e SDK mínimo; dimensões adicionais ainda não são decodificadas.
+- A leitura do TOC não prova que todas as variantes necessárias para cada dispositivo foram fornecidas.
 - Build/testes não executados, conforme política de validação final. Nenhum ZIP gerado.
+
+### 22.29 — Decodificação de targeting APKS
+
+- O parser de `toc.pb` passou a interpretar valores e alternativas de ABI, multi-ABI, idioma, densidade de tela e SDK mínimo.
+- Os resumos de targeting são persistidos junto às descrições APK já armazenadas no JSON do inventário e exibidos na tela Analisar.
+- O estado diferencia dimensões efetivamente decodificadas de targeting genérico; textura, sanitizer, grupos de dispositivos e países ainda não têm interpretação semântica.
+- A análise permanece descritiva: não escolhe nem recomenda um APK para instalação sem conhecer o dispositivo-alvo e sem avaliar o conjunto completo.
+- Build/testes não executados, conforme política de validação final.
