@@ -101,6 +101,7 @@ data class AndroidManifestDetailsRecord(
     val features: List<String>,
     val usesLibraries: List<String>,
     val components: List<AndroidComponentRecord>,
+    val truncated: Boolean = false,
 )
 
 data class ArchiveInventoryRecord(
