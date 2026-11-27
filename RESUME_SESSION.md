@@ -83,3 +83,13 @@
 - Limites: toc.pb 4 MiB; 32 APKs internos; manifestos binários até 2 MiB por APK e 16 MiB agregados.
 - Ainda pendente: interpretação semântica de ABI/idioma/densidade/SDK targeting e avaliação de completude por dispositivo.
 - Builds/testes não executados por instrução; validação final permanece pendente.
+
+## Atualização 2026-11-27 — targeting APKS
+
+- Commit da ampliação do modelo: `50c595ea0193df71ce5f3e8f2414d1f8e85dc060`.
+- Commit da decodificação de ABI/idioma/densidade/SDK/multi-ABI: `f6c09d3f39856c6523b28378e5c0d847cae21c4a`.
+- Commit da persistência dos resumos: `a246710676a7294553a27bdcae95aeab10597812`.
+- Commit da exibição na UI: `2cf49c2c3dcb7f971a07b7b6afe5c5ec8c160314`.
+- O parser agora mostra valores e alternativas por APK; não escolhe variantes nem afirma cobertura total.
+- Próxima pendência: interpretar dimensões adicionais de targeting e definir critérios de completude por dispositivo com evidências suficientes.
+- Build/testes não executados por instrução; validação final permanece pendente.
