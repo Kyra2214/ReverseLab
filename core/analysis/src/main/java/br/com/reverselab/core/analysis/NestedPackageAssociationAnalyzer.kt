@@ -50,7 +50,7 @@ class NestedPackageAssociationAnalyzer {
                     val reasons = mutableListOf<String>()
                     val xapkMetadata = inventories[container.id]?.xapkManifest
                     val xapkPackageMismatch = xapkMetadata?.parseStatus == "PARSED" &&
-                        !xapkMetadata.packageName.isNullOrBlank() && xapkMetadata.packageName != packageName
+                        !xapkMetadata?.packageName.isNullOrBlank() && xapkMetadata?.packageName != packageName
                     val declaredMissingPaths = xapkMetadata?.splitApkPaths.orEmpty().filterNot { declared ->
                         nested.any { it.entryPath == declared || it.entryPath.endsWith("/$declared") }
                     }
@@ -107,7 +107,7 @@ class NestedPackageAssociationAnalyzer {
                         containerSampleId = container.id.value,
                         containerName = container.displayName,
                         packageName = packageName,
-                        status = if (duplicateSplits.isNotEmpty() || missingDependencies.isNotEmpty() || missingConfigTargets.isNotEmpty()) {
+                        status = if (status != NestedPackageAssociationStatus.PACKAGE_MISMATCH && (duplicateSplits.isNotEmpty() || missingDependencies.isNotEmpty() || missingConfigTargets.isNotEmpty())) {
                             NestedPackageAssociationStatus.STRUCTURE_REQUIRES_REVIEW
                         } else status,
                         nestedEntryPaths = members.map { it.entryPath },
