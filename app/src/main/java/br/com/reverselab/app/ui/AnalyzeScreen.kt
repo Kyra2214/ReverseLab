@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import br.com.reverselab.core.analysis.ArchiveInspector
 import br.com.reverselab.core.analysis.PackageSetCompletenessAnalyzer
+import br.com.reverselab.core.analysis.NestedPackageAssociationAnalyzer
 import br.com.reverselab.core.analysis.FileDetection
 import br.com.reverselab.core.analysis.SafFormatInspector
 import br.com.reverselab.core.domain.ArchiveInventoryRecord
@@ -422,6 +423,9 @@ private fun ImportBatchCard(
     val packageAssessments = remember(batch, archiveInventories) {
         PackageSetCompletenessAnalyzer().assess(batch.samples, archiveInventories)
     }
+    val nestedPackageAssessments = remember(batch, archiveInventories) {
+        NestedPackageAssociationAnalyzer().assess(batch.samples, archiveInventories)
+    }
     Card(
         onClick = { expanded = !expanded },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -436,6 +440,19 @@ private fun ImportBatchCard(
             if (batch.duplicateCandidates > 0) Text("Possíveis duplicatas: ${batch.duplicateCandidates}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
             packageAssessments.forEach { assessment ->
                 Text("Conjunto ${assessment.status.name}: ${assessment.reasons.joinToString(" ")}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+            }
+            nestedPackageAssessments.forEach { assessment ->
+                Text(
+                    "APK virtual • ${assessment.containerName} • ${assessment.packageName ?: "identidade não lida"} • ${assessment.status.name}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+                if (assessment.nestedEntryPaths.isNotEmpty()) {
+                    Text("Entradas: ${assessment.nestedEntryPaths.joinToString()}", style = MaterialTheme.typography.labelSmall)
+                }
+                assessment.reasons.forEach { reason ->
+                    Text(reason, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
             if (batch.associationReviews.isNotEmpty()) Text("Revisões de associação registradas: ${batch.associationReviews.size}", style = MaterialTheme.typography.labelSmall)
             batch.associationReviews.forEach { review ->
