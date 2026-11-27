@@ -52,3 +52,9 @@ Limites por inspeção: até 32 APKs internos, 1ª entrada ZIP de cada APK inter
 O `manifest.json` da raiz é lido com limite de 256 KiB. O inventário persiste package name, nome, versão, version code, caminhos declarados em `split_apks` e estado do parsing. A UI apresenta esses dados e a análise virtual compara o package name externo com os manifestos binários dos APKs internos, além de sinalizar caminhos declarados que não foram encontrados. A migração SQLite 6 adiciona o campo de metadados sem substituir ou apagar inventários anteriores.
 
 A associação continua restrita ao lote de importação. Nenhum APK interno vira amostra independente, nenhum arquivo é extraído e a divergência entre manifest.json e manifestos binários é sinalizada como incompatibilidade. O metadado externo não comprova a presença de todas as variantes. APKS `toc.pb` e AAB protobuf permanecem sem interpretação nesta etapa.
+
+### Tabela de conteúdo APKS (`toc.pb`)
+
+O inspetor lê `toc.pb` com limite de 4 MiB e interpreta a mensagem protobuf pública `BuildApksResult`: package name, variantes, módulos, dependências, caminhos de APK, split IDs, master split e presença de targeting. O leitor ignora campos desconhecidos pelos respectivos wire types e rejeita estruturas truncadas ou inválidas. O resultado é persistido no SQLite versão 7 e exibido na tela Analisar.
+
+Os caminhos do TOC são correlacionados com entradas APK do mesmo contêiner. A correlação respeita o limite de 32 APKs internos e não classifica como ausentes os caminhos que ficaram fora da janela de inspeção. Os manifestos binários internos continuam sendo a fonte para package/split de cada APK. A leitura do TOC não extrai arquivos, não executa código e não garante completude de variantes.
