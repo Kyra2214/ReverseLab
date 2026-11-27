@@ -110,3 +110,15 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - A correlação não altera a associação persistida do contêiner e não prova completude de todas as variantes.
 - Interpretação de toc.pb/manifest.json e confirmação de completude permanecem pendentes.
 - Builds/testes seguem reservados à validação final.
+
+## 2026-11-27
+
+### Added
+- Parsing limitado do `manifest.json` raiz de XAPK: package name, nome, versão, version code e caminhos de APKs declarados.
+- Persistência dos metadados XAPK no SQLite versão 6 com migração aditiva.
+- Exibição do manifesto XAPK na inspeção e comparação com package names dos APKs internos, sinalizando divergências e caminhos declarados ausentes.
+
+### Limits
+- `manifest.json` limitado a 256 KiB; caminhos inseguros não são aceitos.
+- O manifesto externo não substitui a validação dos manifestos binários internos nem prova completude.
+- Interpretação de APKS `toc.pb` e AAB protobuf permanece pendente; builds/testes seguem para a validação final.
