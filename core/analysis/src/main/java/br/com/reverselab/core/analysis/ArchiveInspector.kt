@@ -219,6 +219,7 @@ class ArchiveInspector {
                 else BinaryAndroidManifestParser().parse(bytes)
             }
             if (manifestMetadata?.parseStatus != "PARSED") addGlobalWarning("Manifesto Android não interpretado: ${manifestMetadata?.parseStatus ?: "resultado ausente"}")
+            if (manifestMetadata?.details?.truncated == true) addGlobalWarning("Inventário de metadados do manifesto limitado por segurança; algumas listas foram truncadas.")
         } else if (rootManifest != null) {
             manifestMetadata = AndroidManifestMetadata(parseStatus = "LIMIT_EXCEEDED: manifesto excede o limite de leitura.")
             addGlobalWarning("Manifesto Android excede o limite de leitura e não foi interpretado.")
@@ -287,6 +288,7 @@ class ArchiveInspector {
             nestedApkManifests = nestedApkManifests,
             xapkManifest = xapkManifestMetadata,
             apksToc = apksTocMetadata,
+            manifestDetails = manifestMetadata?.details,
         )
     }
 
