@@ -1,7 +1,6 @@
 # ReverseLab — Estado de retomada
 
 - Branch: `main`.
-- Último commit de documentação: `b2e85e0dd4fc7b1401f6ec13102e6e4df06f0b47`.
 - Commit de referência antes da implementação: `a69ea8f772035778975dd78b0927b455a815cd2b`.
 - Commit do submódulo 0.1: `b4eb0b9e9059ae1b1df0bbc14d8f0e9030a123c6`.
 - Commit do submódulo 0.2: `576fdd210bc0857af9318f0dc9e02ad50e852d7e`.
@@ -13,11 +12,12 @@
 - Commit do submódulo 1.2: `b504c53559407dd542a88177e0bc6f3eee434335`.
 - Commit do submódulo 1.3: `f1798cbcb17738393633ae477242e7153c7fdf77`.
 - Commits do submódulo 1.4: `5222df8bf4b74dd3a58c1bcd566c64bfe500c00e` e `1c66315cd005c72252846f05f0a61c0522d29e17`.
+- Commits do submódulo 1.5: `9b342feb2463818c63696891809d8022229144e1` e `be8c98b3b22a5e09f7078c5f562d30050c64bef8`.
 - Fase 0: implementação dos seis submódulos concluída; validação final pendente.
-- Fase 1: submódulos 1.1, 1.2, 1.3 e 1.4 concluídos; 1.5 é o próximo.
-- Próximo submódulo: 1.5 — histórico de importação e ocupação do armazenamento.
+- Fase 1: 1.1, 1.2 e 1.5 concluídos; 1.3 e 1.4 parciais; 1.6 é o próximo.
+- Próximo submódulo: 1.6 — inventário interno e verificação de contêineres APK/OBB/XAPK/APKS/AAB.
 - Testes/builds: não executados por regra de execução; ficam acumulados para a validação final.
 - Pendência técnica: Gradle Wrapper binário oficial não foi obtido neste ambiente; não foi criado binário fictício.
-- Checkpoints 001 a 009: pacotes completos e integridade estrutural confirmada.
-- Checkpoint 010: `ReverseLab_CHECKPOINT_010.zip`, pacote integral do estado atual, integridade estrutural confirmada.
-- Progresso global estimado: inferior a 1%; Fase 0 com 6/6 submódulos de implementação concluídos e Fase 1 com 1.1, 1.2, 1.3 e 1.4 concluídos. A validação final continua pendente.
+- Checkpoints 001 a 010: pacotes completos e integridade estrutural confirmada.
+- Checkpoint 011: `ReverseLab_CHECKPOINT_011.zip`, pacote integral do estado atual, integridade estrutural confirmada.
+- Progresso global estimado: inferior a 1%; Fase 0 com 6/6 submódulos de implementação concluídos; Fase 1 com 1.1, 1.2 e 1.5 concluídos e 1.3/1.4 parciais. A validação final continua pendente.

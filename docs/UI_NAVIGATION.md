@@ -14,11 +14,13 @@ A raiz da Biblioteca apresenta três áreas distintas: Projetos, Biblioteca Téc
 
 Os estados vazios são explícitos e não simulam conteúdo. Os itens aparecerão quando os fluxos de importação e catalogação forem implementados.
 
-## Analisar: seleção e detecção inicial
+## Analisar: seleção, importação e histórico
 
-A tela Analisar abre o seletor múltiplo de documentos do Android. Cada URI selecionado recebe permissão persistente de leitura e é exibido pelo nome fornecido pelo provedor de documentos. A lista é reconstruída a partir das permissões persistentes concedidas anteriormente.
+A tela Analisar abre o seletor múltiplo de documentos do Android. Cada URI selecionado recebe permissão persistente de leitura e é exibido pelo nome fornecido pelo provedor de documentos.
 
-Após a seleção, um executor em segundo plano lê apenas 32 bytes do cabeçalho e classifica assinaturas conhecidas. Não há cópia, extração, execução ou análise profunda do conteúdo. A detecção interna de pacotes e a criação de amostras pertencem à próxima etapa.
+Após a seleção, um executor em segundo plano lê somente 32 bytes do cabeçalho. Ao solicitar importação, o app cria um registro PENDING, copia o conteúdo para a área privada, calcula SHA-256 em streaming e atualiza o estado para IMPORTED, PARTIAL ou FAILED. O arquivo original nunca é alterado.
+
+A tela também apresenta o histórico agrupado por lote e a ocupação real da pasta privada de amostras. O usuário pode atualizar o histórico manualmente. A ocupação não representa o espaço total do aplicativo.
 
 ## Áreas ainda em construção
 

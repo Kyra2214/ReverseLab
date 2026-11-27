@@ -7,9 +7,9 @@ O ReverseLab investiga como tecnologias, sistemas e mecanismos de aplicativos s�
 ## Estado atual
 
 - Fase 0 — implementação concluída; validação final pendente.
-- Último submódulo concluído: Fase 1.4 — importação controlada, SHA-256 e associação de APK/splits/OBB. Próximo: Fase 1.5 — histórico de importação e ocupação do armazenamento.
-- A aplicação possui um esqueleto inicial em Kotlin e Jetpack Compose.
-- Recursos de importação completa, análise estática, CryptoLab, IA e Knowledge Vault ainda serão implementados na ordem do [roadmap](ROADMAP.md).
+- Último submódulo concluído: Fase 1.5 — histórico de importação e ocupação da pasta privada de amostras.
+- Os submódulos 1.3 e 1.4 permanecem parciais, com inspeção interna de contêineres e confirmação de associações pendentes.
+- Próximo: Fase 1.6 — inventário interno de APK/OBB/XAPK/APKS/AAB.
 - Testes, builds e validações estão reservados para a fase final do projeto, conforme o fluxo de execução vigente.
 
 ## Estrutura do repositório
@@ -51,6 +51,7 @@ ReverseLab/
 - [Seleção de documentos e permissões SAF](docs/IMPORT_ACCESS.md)
 - [Detecção inicial de formatos](docs/FORMAT_DETECTION.md)
 - [Pipeline de importação](docs/IMPORT_PIPELINE.md)
+- [Histórico e ocupação de armazenamento](docs/IMPORT_HISTORY.md)
 - [Decisões arquiteturais](docs/decisions/)
 - [Inventário de dependências e licenças](DEPENDENCIES.md)
 - [Changelog](CHANGELOG.md)

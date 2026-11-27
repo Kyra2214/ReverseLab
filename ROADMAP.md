@@ -1380,9 +1380,11 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 |---|---|---|
 | 1.1 | Telas Início/Biblioteca e navegação funcional | Concluído (implementação; validação final pendente) |
 | 1.2 | Seletor SAF e integração das permissões persistentes | Concluído (implementação; validação final pendente) |
-| 1.3 | Seleção múltipla e detecção real de formatos | Concluído (implementação; validação final pendente) |
-| 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Concluído (implementação; validação final pendente) |
-| 1.5 | Histórico de importação e ocupação de armazenamento | Próximo |
+| 1.3 | Seleção múltipla e detecção real de formatos | Parcial: cabeçalho detectado; estrutura interna pendente |
+| 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Parcial: importação e hash concluídos; associações heurísticas aguardam validação |
+| 1.5 | Histórico de importação e ocupação de armazenamento | Concluído (implementação; validação final pendente) |
+| 1.6 | Inventário interno e verificação de contêineres APK/OBB/XAPK/APKS/AAB | Próximo |
+| 1.7 | Revisão/confirmação de grupos e detecção de conjuntos incompletos | Pendente |
 
 ### 22.11 Checkpoint 006
 
@@ -1429,3 +1431,20 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Pacote completo: `ReverseLab_CHECKPOINT_010.zip`, incluindo o estado integral do projeto.
 - Integridade estrutural do ZIP: confirmada após a geração final.
 - Build e testes: não executados; permanecem na validação final.
+
+
+### 22.16 Checkpoint 011
+
+- Submódulo: 1.5 — histórico de importação e ocupação de armazenamento.
+- Implementação: histórico agrupado por lote, expansão de amostras, contagem de estados e medição dos bytes/arquivos existentes na pasta privada de amostras.
+- Commits de código: `9b342feb2463818c63696891809d8022229144e1` e `be8c98b3b22a5e09f7078c5f562d30050c64bef8`.
+- Pacote completo: `ReverseLab_CHECKPOINT_011.zip`, incluindo o estado integral do projeto.
+- Integridade estrutural do ZIP: confirmada após a geração final.
+- Build e testes: não executados; permanecem na validação final.
+
+### 22.17 Pendências residuais da Fase 1
+
+- 1.3: inspeção dos arquivos internos dos contêineres, além da assinatura inicial do cabeçalho.
+- 1.4: confirmação de relações entre APK base, splits e OBB; identificação de conjuntos incompletos sem promover heurísticas a fatos.
+- 1.6: inventariar entradas de contêineres com limites de segurança e validar estruturas internas reconhecíveis.
+- 1.7: apresentar candidatos de associação, permitir confirmação explícita do usuário e sinalizar conjuntos incompletos/ambíguos.

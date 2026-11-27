@@ -29,8 +29,10 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Detecção preliminar por assinatura de cabeçalho para contêineres Android, DEX, ELF, imagens, áudio, vídeo e PDF, sem extração ou execução.
 - Importação controlada para área privada, com registro PENDING antes da cópia e hash SHA-256 calculado em streaming.
 - Catálogo SQLite de amostras, identificação de duplicatas sem deduplicação física e associação heurística de APK base, splits e OBB com estado de confiança explícito.
-- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_010.zip`, verificados estruturalmente.
+- Histórico de importação agrupado por lote e medição de bytes/arquivos na pasta privada de amostras, sem limpeza automática.
+- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_011.zip`, verificados estruturalmente.
 
 ### Deferred
+- Inspeção interna de contêineres e confirmação de associações entre APK base, splits e OBB, pendentes na Fase 1.
 - Execução de builds, testes e validações para a fase final, conforme a política de execução vigente.
 - Gradle Wrapper binário oficial pendente de inclusão.
