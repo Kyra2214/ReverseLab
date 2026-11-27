@@ -199,11 +199,15 @@ class ArchiveInspector {
             if (apksTocMetadata?.parseStatus !in setOf("PARSED", "PARSED_WITHOUT_PACKAGE")) {
                 addGlobalWarning("toc.pb do APKS não pôde ser interpretado integralmente: ${apksTocMetadata?.parseStatus ?: "resultado ausente"}")
             }
-            val declaredPaths = apksTocMetadata?.variants.orEmpty().flatMap { it.apks }.map { it.path }.toSet()
-            val actualPaths = nestedApkManifests.map { it.entryPath }.toSet()
-            val missingPaths = declaredPaths - actualPaths
-            if (missingPaths.isNotEmpty()) {
-                addGlobalWarning("toc.pb referencia APKs não encontrados no inventário interno: ${missingPaths.take(12).joinToString()}")
+            if (nestedApkManifests.size < MAX_NESTED_APKS || apkEntryCount <= nestedApkManifests.size) {
+                val declaredPaths = apksTocMetadata?.variants.orEmpty().flatMap { it.apks }.map { it.path }.toSet()
+                val actualPaths = nestedApkManifests.map { it.entryPath }.toSet()
+                val missingPaths = declaredPaths - actualPaths
+                if (missingPaths.isNotEmpty()) {
+                    addGlobalWarning("toc.pb referencia APKs não encontrados no inventário interno: ${missingPaths.take(12).joinToString()}")
+                }
+            } else {
+                addGlobalWarning("Correlação dos caminhos toc.pb é parcial: o limite de APKs internos foi atingido.")
             }
         }
 
