@@ -1481,5 +1481,6 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Novo componente: `core/analysis/.../PackageSetCompletenessAnalyzer.kt`.
 - Classifica grupos sem anexos, sem APK base, ambíguos, estruturalmente incompletos, ainda sem inventário e com identidade ainda não verificada.
 - O componente não decodifica AndroidManifest.xml e não afirma completude apenas pela presença de um manifesto. A comparação de package name, splitName e dependências fica vinculada à Fase 2.
-- Pendências: integrar a avaliação ao histórico/UI; implementar decodificação de manifesto e correlação técnica; manter 1.4/1.7 parciais até atender os critérios.
+- Integração concluída: a tela Analisar apresenta os estados e motivos da avaliação por grupo.
+- Pendências: implementar decodificação de manifesto e correlação técnica por package name/splitName/dependências; manter 1.4/1.7 parciais até atender os critérios.
 - ZIPs desativados por instrução atual do usuário. Build/testes continuam reservados à etapa final.
