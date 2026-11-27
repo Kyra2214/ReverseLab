@@ -1495,3 +1495,11 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - UI apresenta os metadados extraídos no histórico.
 - Limites: APKs aninhados em XAPK/APKS e manifesto protobuf de AAB ainda não são lidos; package identity coincidente não prova completude de todos os splits. 1.7 e 1.4 permanecem parciais.
 - Build/testes não executados, conforme instrução; permanecem para a validação final. ZIPs não gerados por instrução do usuário.
+
+### 22.23 Associação de APKs na importação por identidade do manifesto
+
+- `SampleCatalog.updateRole` permite corrigir o papel base/split a partir do atributo `split` do manifesto.
+- `SampleImportCoordinator` inspeciona APKs individuais importados, persiste o inventário e agrupa base/splits por package name coincidente.
+- `MANIFEST_VERIFIED` só é aplicado quando o package name foi extraído com sucesso; OBB continua heurístico.
+- Fase 1.4 continua parcial: APKs aninhados em XAPK/APKS ainda não são convertidos em registros individuais nem associados por manifesto; AAB protobuf também permanece sem parser.
+- Não foram executados builds/testes. ZIPs desativados por instrução do usuário.
