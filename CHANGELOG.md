@@ -160,3 +160,9 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 
 ### Improved
 - A tela Analisar exibe os nomes dos APKs externos que correspondem aos manifestos virtuais do XAPK/APKS, além dos caminhos internos e motivos de associação.
+
+## 2026-11-27
+
+### Added
+- Verificação estrutural do TOC APKS: módulo sem APK descrito, dependência de módulo ausente, master split ausente/duplicado, caminho duplicado, módulo duplicado e número de variante repetido.
+- Preservação de entradas duplicadas durante o parsing para que o analisador possa identificá-las.
