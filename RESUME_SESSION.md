@@ -70,3 +70,16 @@
 - Limite do JSON: 256 KiB. Nenhum APK interno é extraído ou promovido a amostra independente.
 - Próxima pendência de 1.4/1.7: interpretar `toc.pb` de APKS e aprimorar a avaliação de variantes sem inferir completude indevida.
 - Builds/testes não executados por instrução; validação final permanece pendente.
+
+## Atualização 2026-11-27 — toc.pb APKS
+
+- Modelo de domínio de variantes/módulos/APKs: commits `0e0ecae2581becba83e6cd3f235f8747d622fec2` e `40e51aa8cf82df2bfcbb44d9f7578cca2deb3717`.
+- Parser protobuf: `6f0ccaf0f63b10006a7d620fb80e05ab3d7b2968`.
+- Integração ao inventário: `4ee9ed0e61f75f595d458b91c60f8ee95440e177`.
+- Persistência SQLite 7: `fbbd55c63f0325890b41ae0828590cdb891670be`.
+- UI de variantes e módulos: `b7c9e46dc561620eb7ffbc3ddedb6bf1f42c8a62`.
+- Correlação de package, caminhos e dependências: `93541ce5cf82066c257f764096525345caf6549e` e `b4ab3659e230019cefa3efc9a799c85a783ed31f`.
+- Correção de cobertura parcial do limite de APKs: `74557a7b661d10506739cb920d8edb1ee2c4fb9d` e `79518d485527b48a376cf3ee18b493a17dffe5aa`.
+- Limites: toc.pb 4 MiB; 32 APKs internos; manifestos binários até 2 MiB por APK e 16 MiB agregados.
+- Ainda pendente: interpretação semântica de ABI/idioma/densidade/SDK targeting e avaliação de completude por dispositivo.
+- Builds/testes não executados por instrução; validação final permanece pendente.
