@@ -24,7 +24,7 @@
 - Pendência técnica: Gradle Wrapper binário oficial não foi obtido neste ambiente; não foi criado binário fictício.
 - Checkpoints 001 a 011: pacotes completos e integridade estrutural confirmada.
 - Checkpoint 012: `ReverseLab_CHECKPOINT_012.zip` corresponde ao submódulo 1.6; não representa o commit posterior 55199248a6fda06c1488edcb0ac37e14ae69d6ae.
-- Checkpoint 013: pacote ZIP do commit mais recente ainda precisa ser gerado e ter integridade estrutural verificada.
+- Checkpoints ZIP: não fazem parte do fluxo atual, por instrução explícita do usuário; o trabalho segue diretamente na branch main.
 - ZIPs: não gerar, por instrução atual do usuário.
 - Progresso global estimado: inferior a 1%; Fase 0 com 6/6 submódulos de implementação concluídos; Fase 1 com 1.1, 1.2, 1.3, 1.5 e 1.6 implementados, 1.4 parcial e 1.7 parcialmente implementado. Validação final pendente. A validação final continua pendente.
 
@@ -40,7 +40,9 @@
 - Implementado: parsing por fluxo ZIP aninhado, sem extração; persistência SQLite 5; exibição de package/split/configForSplit/uses-split por caminho virtual; limites explícitos de leitura.
 - Não implementado ainda: associação lógica desses membros a amostras externas ou bases, parsing de toc.pb/manifest.json e prova de completude de variantes.
 - Estado: Fase 1.4 parcialmente implementada; Fase 1.7 parcialmente implementada. Nenhum build/teste executado.
-- Próximo requisito: correlação segura dos APKs internos por package name/splitName, mantendo as entradas como referências virtuais vinculadas ao contêiner original. O parser lê conservadoramente apenas a primeira entrada ZIP do APK interno; quando o manifesto não está nela, registra MANIFEST_NOT_FIRST sem percorrer dados potencialmente expansivos.
+- Próximo requisito: correlação segura dos APKs internos por package name/splitName, mantendo as entradas como referências virtuais vinculadas ao contêiner original. O parser lê conservadoramente apenas a primeira entrada ZIP de cada APK interno; quando o manifesto não está nela, registra MANIFEST_NOT_FIRST sem percorrer dados potencialmente expansivos.
 - ZIPs: ignorados por instrução explícita do usuário.
 
-- Commit mais recente: `a6c82205e437344865cf2fd671b4a9458054a45e`.
+- Commit do refinamento de segurança do parser: `a6c82205e437344865cf2fd671b4a9458054a45e`.
+
+- Último commit de documentação/checkpoint: atualização de retomada após o refinamento do parser (registrado no histórico da branch `main`).
