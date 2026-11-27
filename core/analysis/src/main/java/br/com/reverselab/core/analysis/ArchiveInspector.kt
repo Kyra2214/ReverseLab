@@ -4,6 +4,7 @@ import br.com.reverselab.core.domain.ArchiveEntryRecord
 import br.com.reverselab.core.domain.ArchiveInspectionId
 import br.com.reverselab.core.domain.ArchiveInspectionStatus
 import br.com.reverselab.core.domain.ArchiveInventoryRecord
+import br.com.reverselab.core.domain.ApksTocRecord
 import br.com.reverselab.core.domain.NestedApkManifestRecord
 import br.com.reverselab.core.domain.XapkManifestRecord
 import br.com.reverselab.core.domain.SampleRecord
@@ -71,6 +72,7 @@ class ArchiveInspector {
         var truncated = false
         var manifestMetadata: AndroidManifestMetadata? = null
         var xapkManifestMetadata: XapkManifestRecord? = null
+        var apksTocMetadata: ApksTocRecord? = null
         val nestedApkManifests = mutableListOf<NestedApkManifestRecord>()
         var nestedManifestBytes = 0L
 
@@ -192,6 +194,19 @@ class ArchiveInspector {
             }
         }
 
+        if (hasApksToc && sample.formatCode.equals("APKS", ignoreCase = true)) {
+            apksTocMetadata = readApksToc(zip)
+            if (apksTocMetadata?.parseStatus !in setOf("PARSED", "PARSED_WITHOUT_PACKAGE")) {
+                addGlobalWarning("toc.pb do APKS não pôde ser interpretado integralmente: ${apksTocMetadata?.parseStatus ?: "resultado ausente"}")
+            }
+            val declaredPaths = apksTocMetadata?.variants.orEmpty().flatMap { it.apks }.map { it.path }.toSet()
+            val actualPaths = nestedApkManifests.map { it.entryPath }.toSet()
+            val missingPaths = declaredPaths - actualPaths
+            if (missingPaths.isNotEmpty()) {
+                addGlobalWarning("toc.pb referencia APKs não encontrados no inventário interno: ${missingPaths.take(12).joinToString()}")
+            }
+        }
+
         val rootManifest = zip.getEntry("AndroidManifest.xml")
         if (rootManifest != null && rootManifest.size in 1..MAX_MANIFEST_BYTES) {
             manifestMetadata = zip.getInputStream(rootManifest).use { input ->
@@ -267,7 +282,16 @@ class ArchiveInspector {
             manifestParseStatus = manifestMetadata?.parseStatus,
             nestedApkManifests = nestedApkManifests,
             xapkManifest = xapkManifestMetadata,
+            apksToc = apksTocMetadata,
         )
+    }
+
+    private fun readApksToc(zip: ZipFile): ApksTocRecord? {
+        val entry = zip.getEntry("toc.pb") ?: return null
+        if (entry.isDirectory) return ApksTocRecord(null, emptyList(), "INVALID_ENTRY")
+        if (entry.size > MAX_APKS_TOC_BYTES.toLong()) return ApksTocRecord(null, emptyList(), "LIMIT_EXCEEDED")
+        val bytes = zip.getInputStream(entry).use { it.readBounded(MAX_APKS_TOC_BYTES + 1) }
+        return ApksTocParser().parse(bytes)
     }
 
     private fun readXapkManifest(zip: ZipFile): XapkManifestRecord? {
@@ -369,6 +393,7 @@ class ArchiveInspector {
         const val MAX_WARNINGS = 100
         const val MAX_MANIFEST_BYTES = 2L * 1024L * 1024L
         const val MAX_XAPK_MANIFEST_BYTES = 256 * 1024
+        const val MAX_APKS_TOC_BYTES = 4 * 1024 * 1024
         const val MAX_NESTED_APKS = 32
         const val MAX_NESTED_APK_ENTRIES = 1
         const val MAX_TOTAL_NESTED_MANIFEST_BYTES = 16L * 1024L * 1024L
