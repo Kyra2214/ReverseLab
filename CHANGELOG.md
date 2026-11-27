@@ -96,5 +96,5 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 ### Limits
 - APKs internos continuam sendo referências virtuais ao contêiner original, não amostras independentes.
 - A correlação lógica desses membros com APKs externos/base e a confirmação de completude permanecem pendentes.
-- Limites: 32 APKs internos, 128 entradas por APK, 2 MiB por manifesto e 16 MiB agregados.
+- Limites: 32 APKs internos, 1ª entrada por APK, 2 MiB por manifesto e 16 MiB agregados.
 - Builds/testes não executados; ficam para a validação final. ZIPs não gerados por instrução do usuário.
