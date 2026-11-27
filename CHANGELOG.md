@@ -27,7 +27,9 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Seletor múltiplo do Android integrado à tela Analisar.
 - Permissões persistentes de leitura SAF restauradas a partir dos URIs autorizados, sem cópia ou análise prematura dos arquivos.
 - Detecção preliminar por assinatura de cabeçalho para contêineres Android, DEX, ELF, imagens, áudio, vídeo e PDF, sem extração ou execução.
-- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_009.zip`, verificados estruturalmente.
+- Importação controlada para área privada, com registro PENDING antes da cópia e hash SHA-256 calculado em streaming.
+- Catálogo SQLite de amostras, identificação de duplicatas sem deduplicação física e associação heurística de APK base, splits e OBB com estado de confiança explícito.
+- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_010.zip`, verificados estruturalmente.
 
 ### Deferred
 - Execução de builds, testes e validações para a fase final, conforme a política de execução vigente.

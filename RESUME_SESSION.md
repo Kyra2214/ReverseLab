@@ -11,11 +11,12 @@
 - Commit do submódulo 1.1: `a1b313db661003fc0dd1295ec85e2060a02b3043`.
 - Commit do submódulo 1.2: `b504c53559407dd542a88177e0bc6f3eee434335`.
 - Commit do submódulo 1.3: `f1798cbcb17738393633ae477242e7153c7fdf77`.
+- Commits do submódulo 1.4: `5222df8bf4b74dd3a58c1bcd566c64bfe500c00e` e `1c66315cd005c72252846f05f0a61c0522d29e17`.
 - Fase 0: implementação dos seis submódulos concluída; validação final pendente.
-- Fase 1: submódulos 1.1, 1.2 e 1.3 concluídos; 1.4 é o próximo.
-- Próximo submódulo: 1.4 — importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB.
+- Fase 1: submódulos 1.1, 1.2, 1.3 e 1.4 concluídos; 1.5 é o próximo.
+- Próximo submódulo: 1.5 — histórico de importação e ocupação do armazenamento.
 - Testes/builds: não executados por regra de execução; ficam acumulados para a validação final.
 - Pendência técnica: Gradle Wrapper binário oficial não foi obtido neste ambiente; não foi criado binário fictício.
-- Checkpoints 001 a 008: pacotes completos e integridade estrutural confirmada.
-- Checkpoint 009: `ReverseLab_CHECKPOINT_009.zip`, pacote integral do estado atual.
-- Progresso global estimado: inferior a 1%; Fase 0 com 6/6 submódulos de implementação concluídos e Fase 1 com 1.1, 1.2 e 1.3 concluídos. A validação final continua pendente.
+- Checkpoints 001 a 009: pacotes completos e integridade estrutural confirmada.
+- Checkpoint 010: `ReverseLab_CHECKPOINT_010.zip`, pacote integral do estado atual.
+- Progresso global estimado: inferior a 1%; Fase 0 com 6/6 submódulos de implementação concluídos e Fase 1 com 1.1, 1.2, 1.3 e 1.4 concluídos. A validação final continua pendente.

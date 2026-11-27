@@ -192,7 +192,7 @@ private object PackageAssociationResolver {
         .flatMap(::resolveBatch)
 
     private fun resolveBatch(records: List<SampleRecord>): List<SampleRecord> {
-        val baseApks = records.filter { it.role == SampleRole.BASE_APK_CANDIDATE }
+        val baseApks = records.filter { it.role == SampleRole.BASE_APK_CANDIDATE && it.status == SampleImportStatus.IMPORTED }
         val attachableRoles = setOf(
             SampleRole.BASE_APK_CANDIDATE,
             SampleRole.SPLIT_APK_CANDIDATE,
@@ -201,7 +201,7 @@ private object PackageAssociationResolver {
         return if (baseApks.size == 1) {
             val groupId = SampleGroupId("sample:${baseApks.single().id.value}")
             records.map { record ->
-                if (record.role in attachableRoles) {
+                if (record.status == SampleImportStatus.IMPORTED && record.role in attachableRoles) {
                     record.copy(
                         associationGroupId = groupId,
                         associationConfidence = SampleAssociationConfidence.HEURISTIC_SINGLE_BASE_IN_BATCH,
