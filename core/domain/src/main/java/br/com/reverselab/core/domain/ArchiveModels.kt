@@ -55,9 +55,14 @@ data class ApksTocApkRecord(
     val hasTargeting: Boolean,
 )
 
+data class ApksTocModuleRecord(
+    val name: String,
+    val dependencies: List<String>,
+)
+
 data class ApksTocVariantRecord(
     val variantNumber: Int,
-    val moduleNames: List<String>,
+    val modules: List<ApksTocModuleRecord>,
     val apks: List<ApksTocApkRecord>,
 )
 
