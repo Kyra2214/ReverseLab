@@ -567,6 +567,39 @@ private fun ArchiveInventorySummary(inventory: ArchiveInventoryRecord) {
         inventory.manifestSplitName?.let { Text("Split name: $it", style = MaterialTheme.typography.labelSmall) }
         inventory.manifestConfigForSplit?.let { Text("Configuração para split: $it", style = MaterialTheme.typography.labelSmall) }
         if (inventory.manifestUsesSplits.isNotEmpty()) Text("Dependências de split: ${inventory.manifestUsesSplits.joinToString()}", style = MaterialTheme.typography.labelSmall)
+        inventory.apksToc?.let { toc ->
+            Text(
+                "toc.pb APKS • ${toc.parseStatus}" +
+                    (toc.packageName?.let { " • package=$it" } ?: "") +
+                    " • ${toc.variants.size} variante(s)",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            toc.variants.forEach { variant ->
+                Text("Variante ${variant.variantNumber}", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold)
+                variant.modules.forEach { module ->
+                    Text(
+                        "Módulo ${module.name}" +
+                            (module.dependencies.takeIf { it.isNotEmpty() }?.let { " • depende de ${it.joinToString()}" } ?: ""),
+                        style = MaterialTheme.typography.labelSmall,
+                    )
+                }
+                variant.apks.take(40).forEach { apk ->
+                    Text(
+                        "${apk.path} • ${apk.moduleName ?: "módulo desconhecido"}" +
+                            (apk.splitId?.let { " • split=$it" } ?: "") +
+                            (apk.isMasterSplit?.let { " • master=$it" } ?: "") +
+                            (apk.metadataKind?.let { " • $it" } ?: "") +
+                            (if (apk.hasTargeting) " • targeting" else ""),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                if (variant.apks.size > 40) {
+                    Text("Mais ${variant.apks.size - 40} entradas APK nesta variante.", style = MaterialTheme.typography.labelSmall)
+                }
+            }
+        }
         inventory.xapkManifest?.let { metadata ->
             Text(
                 "manifest.json XAPK • ${metadata.parseStatus}" +
