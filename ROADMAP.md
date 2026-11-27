@@ -1360,4 +1360,5 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Submódulo: 0.4 — decisões arquiteturais e inventário de dependências/licenças.
 - Implementação: ADRs 0001–0003, inventário direto de dependências e catálogo central de versões Gradle.
 - Pacote completo: `ReverseLab_CHECKPOINT_004.zip`, incluindo o estado integral do projeto.
+- Integridade estrutural do ZIP: confirmada após a geração final.
 - Build, resolução de dependências e auditoria transitiva: não executados; ficam para a validação final.
