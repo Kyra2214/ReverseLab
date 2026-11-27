@@ -69,4 +69,6 @@ interface SampleCatalog {
         groupId: SampleGroupId,
         confidence: SampleAssociationConfidence,
     )
+    fun saveArchiveInventory(inventory: ArchiveInventoryRecord)
+    fun listArchiveInventories(sampleId: SampleId): List<ArchiveInventoryRecord>
 }

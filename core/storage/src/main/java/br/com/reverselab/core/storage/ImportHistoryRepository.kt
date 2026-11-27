@@ -1,7 +1,9 @@
 package br.com.reverselab.core.storage
 
 import android.content.Context
+import br.com.reverselab.core.domain.ArchiveInventoryRecord
 import br.com.reverselab.core.domain.ImportBatchId
+import br.com.reverselab.core.domain.SampleId
 import br.com.reverselab.core.domain.SampleImportStatus
 import br.com.reverselab.core.domain.SampleRecord
 import java.io.File
@@ -14,20 +16,17 @@ class ImportHistoryRepository(
 
     fun loadSnapshot(): ImportHistorySnapshot {
         val records = catalog.listAll()
-        val batches = records
-            .groupBy { it.importBatchId }
+        val batches = records.groupBy { it.importBatchId }
             .map { (batchId, samples) -> batchSummary(batchId, samples) }
             .sortedByDescending { it.importedAtEpochMillis }
 
         var fileCount = 0
         var bytesOnDisk = 0L
         if (samplesDirectory.exists()) {
-            samplesDirectory.walkTopDown()
-                .filter { it.isFile }
-                .forEach { file ->
-                    fileCount++
-                    bytesOnDisk += file.length()
-                }
+            samplesDirectory.walkTopDown().filter { it.isFile }.forEach { file ->
+                fileCount++
+                bytesOnDisk += file.length()
+            }
         }
 
         val usage = StorageUsageSnapshot(
@@ -40,7 +39,10 @@ class ImportHistoryRepository(
             pendingSamples = records.count { it.status == SampleImportStatus.PENDING },
             duplicateCandidates = records.count { it.duplicateOfSampleId != null },
         )
-        return ImportHistorySnapshot(batches, usage)
+        val archiveInventories = records.mapNotNull { sample ->
+            catalog.listArchiveInventories(sample.id).maxByOrNull { it.inspectedAtEpochMillis }
+        }.associateBy { it.sampleId }
+        return ImportHistorySnapshot(batches, usage, archiveInventories)
     }
 
     private fun batchSummary(batchId: ImportBatchId, samples: List<SampleRecord>) = ImportBatchSummary(
@@ -63,6 +65,7 @@ class ImportHistoryRepository(
 data class ImportHistorySnapshot(
     val batches: List<ImportBatchSummary>,
     val storage: StorageUsageSnapshot,
+    val archiveInventories: Map<SampleId, ArchiveInventoryRecord>,
 )
 
 data class ImportBatchSummary(

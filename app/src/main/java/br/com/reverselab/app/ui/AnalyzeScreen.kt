@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.OpenableColumns
+import java.io.File
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -37,11 +38,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import br.com.reverselab.core.analysis.ArchiveInspector
 import br.com.reverselab.core.analysis.FileDetection
 import br.com.reverselab.core.analysis.SafFormatInspector
+import br.com.reverselab.core.domain.ArchiveInventoryRecord
 import br.com.reverselab.core.domain.ImportBatchId
 import br.com.reverselab.core.domain.SampleAssociationConfidence
 import br.com.reverselab.core.domain.SampleCatalog
+import br.com.reverselab.core.domain.SampleId
 import br.com.reverselab.core.domain.SampleRecord
 import br.com.reverselab.core.storage.ImportBatchSummary
 import br.com.reverselab.core.storage.ImportHistoryRepository
@@ -75,6 +79,7 @@ fun AnalyzeScreen(
         SafPermissionManager(context.contentResolver)
     }
     val inspector = remember(context.contentResolver) { SafFormatInspector(context.contentResolver) }
+    val archiveInspector = remember { ArchiveInspector() }
     val historyRepository = remember(context, sampleCatalog) {
         ImportHistoryRepository(context, sampleCatalog)
     }
@@ -83,6 +88,7 @@ fun AnalyzeScreen(
     val historySnapshotState = remember { mutableStateOf<ImportHistorySnapshot?>(null) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var isImporting by remember { mutableStateOf(false) }
+    var inspectingSampleId by remember { mutableStateOf<SampleId?>(null) }
     DisposableEffect(inspectionExecutor) {
         onDispose { inspectionExecutor.shutdown() }
     }
@@ -121,17 +127,14 @@ fun AnalyzeScreen(
                 }
                 val name = resolveDisplayName(context.contentResolver, uri)
                 val itemIndex = selectedDocuments.size
-                selectedDocuments.add(
-                    SelectedDocument(uri, name, isInspecting = true, selectedForImport = true),
-                )
+                selectedDocuments.add(SelectedDocument(uri, name, isInspecting = true, selectedForImport = true))
                 inspectionExecutor.execute {
                     try {
                         val detection = inspector.inspect(uri, name)
                         mainHandler.post {
                             if (itemIndex in selectedDocuments.indices) {
                                 selectedDocuments[itemIndex] = selectedDocuments[itemIndex].copy(
-                                    detection = detection,
-                                    isInspecting = false,
+                                    detection = detection, isInspecting = false,
                                 )
                             }
                         }
@@ -156,10 +159,7 @@ fun AnalyzeScreen(
 
     val pendingImportCount = selectedDocuments.count { it.selectedForImport }
 
-    Column(
-        modifier = modifier.padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
+    Column(modifier = modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Analisar", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(
             "Selecione arquivos pelo seletor seguro do Android. O ReverseLab identifica o tipo pelo cabeçalho e importa uma cópia de trabalho para a área privada, preservando o original.",
@@ -184,25 +184,13 @@ fun AnalyzeScreen(
                 inspectionExecutor.execute {
                     try {
                         val requests = pendingDocuments.map { document ->
-                            val detection = document.detection
-                                ?: inspector.inspect(document.uri, document.displayName)
-                            ImportDocumentRequest(
-                                uri = document.uri,
-                                displayName = document.displayName,
-                                mimeType = detection.mimeType,
-                                formatCode = detection.format.name,
-                            )
+                            val detection = document.detection ?: inspector.inspect(document.uri, document.displayName)
+                            ImportDocumentRequest(document.uri, document.displayName, detection.mimeType, detection.format.name)
                         }
                         val results = importCoordinator.importBatch(
-                            batchId = ImportBatchId(UUID.randomUUID().toString()),
-                            documents = requests,
-                            importedAtEpochMillis = System.currentTimeMillis(),
+                            ImportBatchId(UUID.randomUUID().toString()), requests, System.currentTimeMillis(),
                         )
-                        val snapshot = try {
-                            historyRepository.loadSnapshot()
-                        } catch (_: Exception) {
-                            null
-                        }
+                        val snapshot = try { historyRepository.loadSnapshot() } catch (_: Exception) { null }
                         val incompleteCount = results.count { it.errorMessage != null }
                         mainHandler.post {
                             if (snapshot != null) historySnapshotState.value = snapshot
@@ -231,26 +219,16 @@ fun AnalyzeScreen(
             Icon(Icons.Outlined.FolderCopy, contentDescription = null)
             Text(if (isImporting) "Importando…" else "Importar selecionados ($pendingImportCount)")
         }
-        statusMessage?.let { message ->
-            Text(message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-        }
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
+        statusMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
+        LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             item {
-                Text(
-                    "Arquivos com acesso concedido (${selectedDocuments.size})",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
+                Text("Arquivos com acesso concedido (${selectedDocuments.size})", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             }
             if (selectedDocuments.isEmpty()) {
                 item { EmptyListCard("Nenhum arquivo selecionado. Use o seletor do Android para escolher uma ou mais amostras.") }
             } else {
                 items(selectedDocuments) { document -> SelectedDocumentCard(document) }
             }
-
             val snapshot = historySnapshotState.value
             if (snapshot == null) {
                 item { Text("Carregando histórico e armazenamento…", style = MaterialTheme.typography.bodySmall) }
@@ -268,7 +246,44 @@ fun AnalyzeScreen(
                 if (snapshot.batches.isEmpty()) {
                     item { EmptyListCard("Nenhuma importação registrada ainda.") }
                 } else {
-                    items(snapshot.batches) { batch -> ImportBatchCard(batch) }
+                    items(snapshot.batches) { batch ->
+                        ImportBatchCard(
+                            batch, snapshot.archiveInventories, inspectingSampleId,
+                            onInspectSample = { sample ->
+                                val relativePath = sample.internalRelativePath
+                                if (sample.status.name != "IMPORTED" || relativePath == null) {
+                                    statusMessage = "A amostra precisa estar importada integralmente antes da inspeção interna."
+                                } else if (inspectingSampleId != null) {
+                                    statusMessage = "Outra inspeção de contêiner já está em andamento."
+                                } else {
+                                    inspectingSampleId = sample.id
+                                    statusMessage = "Inspecionando entradas do contêiner sem extrair arquivos…"
+                                    inspectionExecutor.execute {
+                                        try {
+                                            val root = context.filesDir.canonicalFile
+                                            val file = File(root, relativePath).canonicalFile
+                                            require(file.path.startsWith(root.path + File.separator)) {
+                                                "O caminho interno da amostra saiu da pasta privada autorizada."
+                                            }
+                                            val inventory = archiveInspector.inspect(sample, file, System.currentTimeMillis())
+                                            sampleCatalog.saveArchiveInventory(inventory)
+                                            val updatedSnapshot = historyRepository.loadSnapshot()
+                                            mainHandler.post {
+                                                historySnapshotState.value = updatedSnapshot
+                                                inspectingSampleId = null
+                                                statusMessage = "Inventário ${inventory.status.name}: ${inventory.entryCount} entrada(s), tipo interno ${inventory.detectedContainerType ?: "não confirmado"}."
+                                            }
+                                        } catch (exception: Exception) {
+                                            mainHandler.post {
+                                                inspectingSampleId = null
+                                                statusMessage = "Não foi possível concluir o inventário interno. O arquivo original e a cópia de trabalho foram preservados."
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -277,20 +292,13 @@ fun AnalyzeScreen(
 
 @Composable
 private fun SelectedDocumentCard(document: SelectedDocument) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(Icons.Outlined.AttachFile, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 Text(document.displayName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             }
-            Text(
-                if (document.selectedForImport) "Selecionado para importação" else "Permissão de leitura persistente ativa",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary,
-            )
+            Text(if (document.selectedForImport) "Selecionado para importação" else "Permissão de leitura persistente ativa", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
             val detection = document.detection
             Text(
                 when {
@@ -307,18 +315,12 @@ private fun SelectedDocumentCard(document: SelectedDocument) {
 
 @Composable
 private fun StorageUsageCard(usage: StorageUsageSnapshot) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant), modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Text("Armazenamento privado", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Text(formatBytes(usage.bytesOnDisk), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
             Text("${usage.fileCount} arquivo(s) • ${usage.cataloguedSamples} registro(s) no catálogo", style = MaterialTheme.typography.bodySmall)
-            Text(
-                "Importados: ${usage.importedSamples} • Parciais: ${usage.partialSamples} • Pendentes: ${usage.pendingSamples} • Falhas: ${usage.failedSamples}",
-                style = MaterialTheme.typography.bodySmall,
-            )
+            Text("Importados: ${usage.importedSamples} • Parciais: ${usage.partialSamples} • Pendentes: ${usage.pendingSamples} • Falhas: ${usage.failedSamples}", style = MaterialTheme.typography.bodySmall)
             Text("Possíveis duplicatas: ${usage.duplicateCandidates}. Nenhum arquivo é removido automaticamente.", style = MaterialTheme.typography.bodySmall)
             Text("Métrica referente à pasta privada de amostras, não ao espaço total do aplicativo.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
@@ -326,33 +328,35 @@ private fun StorageUsageCard(usage: StorageUsageSnapshot) {
 }
 
 @Composable
-private fun ImportBatchCard(batch: ImportBatchSummary) {
+private fun ImportBatchCard(
+    batch: ImportBatchSummary,
+    archiveInventories: Map<SampleId, ArchiveInventoryRecord>,
+    inspectingSampleId: SampleId?,
+    onInspectSample: (SampleRecord) -> Unit,
+) {
     var expanded by remember(batch.batchId) { mutableStateOf(false) }
-    Card(
-        onClick = { expanded = !expanded },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+    Card(onClick = { expanded = !expanded }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Text("Lote ${batch.batchId.value.take(8)}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Text(formatDate(batch.importedAtEpochMillis), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text("${batch.totalSamples} arquivo(s) • ${formatBytes(batch.totalBytes)}", style = MaterialTheme.typography.bodyMedium)
-            Text(
-                "Importados: ${batch.importedSamples} • Parciais: ${batch.partialSamples} • Pendentes: ${batch.pendingSamples} • Falhas: ${batch.failedSamples}",
-                style = MaterialTheme.typography.bodySmall,
-            )
+            Text("Importados: ${batch.importedSamples} • Parciais: ${batch.partialSamples} • Pendentes: ${batch.pendingSamples} • Falhas: ${batch.failedSamples}", style = MaterialTheme.typography.bodySmall)
             Text("Formatos: ${batch.formats.joinToString()}", style = MaterialTheme.typography.bodySmall)
-            if (batch.duplicateCandidates > 0) {
-                Text("Possíveis duplicatas: ${batch.duplicateCandidates}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
-            }
+            if (batch.duplicateCandidates > 0) Text("Possíveis duplicatas: ${batch.duplicateCandidates}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
             Text(if (expanded) "Ocultar amostras" else "Ver amostras", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
             if (expanded) {
                 batch.samples.forEach { sample ->
-                    Column(modifier = Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Column(modifier = Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                         Text(sample.displayName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                         Text("${sample.formatCode} • ${sample.status.name} • ${formatBytes(sample.sizeBytes)}", style = MaterialTheme.typography.labelSmall)
                         sample.sha256?.let { Text("SHA-256: $it", style = MaterialTheme.typography.labelSmall) }
                         Text(associationLabel(sample.associationConfidence), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        archiveInventories[sample.id]?.let { ArchiveInventorySummary(it) }
+                        if (sample.formatCode.uppercase() in setOf("APK", "OBB", "XAPK", "APKS", "AAB", "ZIP") && sample.status.name == "IMPORTED") {
+                            OutlinedButton(enabled = inspectingSampleId == null, onClick = { onInspectSample(sample) }) {
+                                Text(if (inspectingSampleId == sample.id) "Inspecionando…" else "Inspecionar estrutura interna")
+                            }
+                        }
                     }
                 }
             }
@@ -361,11 +365,23 @@ private fun ImportBatchCard(batch: ImportBatchSummary) {
 }
 
 @Composable
+private fun ArchiveInventorySummary(inventory: ArchiveInventoryRecord) {
+    Column(modifier = Modifier.padding(start = 8.dp, top = 4.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text("Estrutura: ${inventory.detectedContainerType ?: "não confirmada"} • ${inventory.status.name} • ${inventory.entryCount} entrada(s)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+        Text("Manifesto: ${if (inventory.hasAndroidManifest) "sim" else "não"} • DEX: ${inventory.dexEntryCount} • APK internos: ${inventory.apkEntryCount} • OBB internos: ${inventory.obbEntryCount}", style = MaterialTheme.typography.labelSmall)
+        Text("resources.arsc: ${if (inventory.hasResourcesTable) "sim" else "não"} • bibliotecas nativas: ${if (inventory.hasNativeLibraries) "sim" else "não"}", style = MaterialTheme.typography.labelSmall)
+        inventory.warnings.take(4).forEach { warning ->
+            Text("Atenção: $warning", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+        }
+        inventory.entries.take(8).forEach { entry ->
+            Text("• ${entry.path}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
 private fun EmptyListCard(message: String) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant), modifier = Modifier.fillMaxWidth()) {
         Text(message, modifier = Modifier.padding(18.dp), style = MaterialTheme.typography.bodyMedium)
     }
 }
@@ -392,8 +408,7 @@ private fun resolveDisplayName(
     uri: Uri,
 ): String = try {
     val cursor = contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
-    cursor?.use { if (it.moveToFirst()) it.getString(0) else null }
-        ?: uri.lastPathSegment ?: "Documento sem nome"
+    cursor?.use { if (it.moveToFirst()) it.getString(0) else null } ?: uri.lastPathSegment ?: "Documento sem nome"
 } catch (_: Exception) {
     uri.lastPathSegment ?: "Documento sem nome"
 }
