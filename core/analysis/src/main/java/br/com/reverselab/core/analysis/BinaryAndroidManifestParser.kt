@@ -1,5 +1,7 @@
 package br.com.reverselab.core.analysis
 
+import br.com.reverselab.core.domain.AndroidComponentRecord
+import br.com.reverselab.core.domain.AndroidManifestDetailsRecord
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -17,7 +19,23 @@ class BinaryAndroidManifestParser {
             var packageName: String? = null
             var splitName: String? = null
             var configForSplit: String? = null
+            var versionCode: String? = null
+            var versionCodeMajor: String? = null
+            var versionName: String? = null
+            var minSdkVersion: String? = null
+            var targetSdkVersion: String? = null
+            var applicationName: String? = null
+            var applicationLabel: String? = null
+            var debuggable: Boolean? = null
+            var allowBackup: Boolean? = null
+            var usesCleartextTraffic: Boolean? = null
             val usesSplits = linkedSetOf<String>()
+            val permissions = linkedSetOf<String>()
+            val declaredPermissions = linkedSetOf<String>()
+            val features = linkedSetOf<String>()
+            val usesLibraries = linkedSetOf<String>()
+            val components = mutableListOf<AndroidComponentRecord>()
+
             while (offset + 8 <= declaredSize) {
                 val type = u16(buffer, offset)
                 val headerSize = u16(buffer, offset + 2)
@@ -32,6 +50,7 @@ class BinaryAndroidManifestParser {
                         val attributeCount = u16(buffer, offset + 28)
                         require(attributeSize >= 20) { "Atributo XML com tamanho inválido." }
                         var attrOffset = offset + 16 + attributeStart
+                        val attributes = linkedMapOf<String, String?>()
                         repeat(attributeCount) {
                             require(attrOffset + attributeSize <= offset + chunkSize) { "Atributo fora dos limites do chunk." }
                             val name = stringAt(strings, u32(buffer, attrOffset + 4).toInt())
@@ -39,22 +58,88 @@ class BinaryAndroidManifestParser {
                             val valueType = buffer.get(attrOffset + 15).toInt() and 0xff
                             val valueData = u32(buffer, attrOffset + 16).toInt()
                             val value = if (rawIndex >= 0) stringAt(strings, rawIndex) else typedValue(strings, valueType, valueData)
-                            if (elementName == "manifest") {
-                                when (name) {
-                                    "package" -> packageName = value
-                                    "split" -> splitName = value
-                                    "configForSplit" -> configForSplit = value
+                            if (name != null) attributes[name] = value
+                            attrOffset += attributeSize
+                        }
+
+                        when (elementName) {
+                            "manifest" -> {
+                                packageName = attributes["package"] ?: packageName
+                                splitName = attributes["split"] ?: splitName
+                                configForSplit = attributes["configForSplit"] ?: configForSplit
+                                versionCode = attributes["versionCode"] ?: versionCode
+                                versionCodeMajor = attributes["versionCodeMajor"] ?: versionCodeMajor
+                                versionName = attributes["versionName"] ?: versionName
+                            }
+                            "uses-sdk" -> {
+                                minSdkVersion = attributes["minSdkVersion"] ?: minSdkVersion
+                                targetSdkVersion = attributes["targetSdkVersion"] ?: targetSdkVersion
+                            }
+                            "uses-split" -> attributes["name"]?.takeIf { it.isNotBlank() }?.let(usesSplits::add)
+                            "uses-permission", "uses-permission-sdk-23", "uses-permission-sdk-m", "uses-permission-sdk-28" ->
+                                attributes["name"]?.takeIf { it.isNotBlank() }?.let(permissions::add)
+                            "permission", "permission-group", "permission-tree" ->
+                                attributes["name"]?.takeIf { it.isNotBlank() }?.let(declaredPermissions::add)
+                            "uses-feature" ->
+                                attributes["name"]?.takeIf { it.isNotBlank() }?.let(features::add)
+                            "uses-library", "uses-native-library" ->
+                                attributes["name"]?.takeIf { it.isNotBlank() }?.let(usesLibraries::add)
+                            "application" -> {
+                                applicationName = attributes["name"] ?: applicationName
+                                applicationLabel = attributes["label"] ?: applicationLabel
+                                debuggable = attributes["debuggable"]?.toBooleanStrictOrNull() ?: debuggable
+                                allowBackup = attributes["allowBackup"]?.toBooleanStrictOrNull() ?: allowBackup
+                                usesCleartextTraffic = attributes["usesCleartextTraffic"]?.toBooleanStrictOrNull() ?: usesCleartextTraffic
+                            }
+                            "activity", "activity-alias", "service", "receiver", "provider" -> {
+                                val name = attributes["name"]
+                                if (!name.isNullOrBlank()) {
+                                    components += AndroidComponentRecord(
+                                        type = elementName,
+                                        name = name,
+                                        exported = attributes["exported"]?.toBooleanStrictOrNull(),
+                                        enabled = attributes["enabled"]?.toBooleanStrictOrNull(),
+                                        permission = attributes["permission"],
+                                        process = attributes["process"],
+                                        targetActivity = attributes["targetActivity"],
+                                    )
                                 }
                             }
-                            if (elementName == "uses-split" && name == "name" && !value.isNullOrBlank()) usesSplits += value
-                            attrOffset += attributeSize
                         }
                     }
                 }
                 offset += chunkSize
             }
-            if (packageName.isNullOrBlank()) AndroidManifestMetadata(parseStatus = "INCOMPLETE: atributo package não encontrado.")
-            else AndroidManifestMetadata(packageName, splitName, configForSplit, usesSplits.toList(), "PARSED")
+
+            val details = AndroidManifestDetailsRecord(
+                versionCode = versionCode,
+                versionCodeMajor = versionCodeMajor,
+                versionName = versionName,
+                minSdkVersion = minSdkVersion,
+                targetSdkVersion = targetSdkVersion,
+                applicationName = applicationName,
+                applicationLabel = applicationLabel,
+                debuggable = debuggable,
+                allowBackup = allowBackup,
+                usesCleartextTraffic = usesCleartextTraffic,
+                permissions = permissions.toList(),
+                declaredPermissions = declaredPermissions.toList(),
+                features = features.toList(),
+                usesLibraries = usesLibraries.toList(),
+                components = components,
+            )
+            if (packageName.isNullOrBlank()) {
+                AndroidManifestMetadata(parseStatus = "INCOMPLETE: atributo package não encontrado.", details = details)
+            } else {
+                AndroidManifestMetadata(
+                    packageName = packageName,
+                    splitName = splitName,
+                    configForSplit = configForSplit,
+                    usesSplits = usesSplits.toList(),
+                    parseStatus = "PARSED",
+                    details = details,
+                )
+            }
         } catch (exception: Exception) {
             AndroidManifestMetadata(parseStatus = "INVALID: ${exception.message ?: "falha ao interpretar XML binário"}")
         }
@@ -109,6 +194,9 @@ class BinaryAndroidManifestParser {
         TYPE_INT_DEC -> data.toString()
         TYPE_INT_HEX -> "0x${data.toUInt().toString(16)}"
         TYPE_INT_BOOLEAN -> (data != 0).toString()
+        TYPE_REFERENCE -> "@0x${data.toUInt().toString(16)}"
+        TYPE_ATTRIBUTE -> "?0x${data.toUInt().toString(16)}"
+        TYPE_FLOAT -> java.lang.Float.intBitsToFloat(data).toString()
         else -> null
     }
 
@@ -125,6 +213,9 @@ class BinaryAndroidManifestParser {
         const val TYPE_INT_DEC = 0x10
         const val TYPE_INT_HEX = 0x11
         const val TYPE_INT_BOOLEAN = 0x12
+        const val TYPE_REFERENCE = 0x01
+        const val TYPE_ATTRIBUTE = 0x02
+        const val TYPE_FLOAT = 0x04
         const val NO_INDEX = -1
         const val MAX_STRINGS = 100_000
     }
@@ -136,4 +227,5 @@ data class AndroidManifestMetadata(
     val configForSplit: String? = null,
     val usesSplits: List<String> = emptyList(),
     val parseStatus: String,
+    val details: AndroidManifestDetailsRecord? = null,
 )
