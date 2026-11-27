@@ -8,8 +8,8 @@ O ReverseLab investiga como tecnologias, sistemas e mecanismos de aplicativos s�
 
 - Fase 0 — implementação concluída; validação final pendente.
 - Último submódulo concluído: Fase 1.6 — inventário interno de APK/OBB/XAPK/APKS/AAB.
-- O submódulo 1.4 permanece parcial porque as associações de APK/splits/OBB ainda precisam de confirmação.
-- Próximo: Fase 1.7 — revisão de grupos e detecção de conjuntos incompletos.
+- O submódulo 1.4 permanece parcial: manifestos de APKs internos em XAPK/APKS são inventariados; a associação lógica desses membros e a completude do conjunto ainda precisam de tratamento.
+- Próximo: continuar Fase 1.4 com a associação lógica dos APKs internos já identificados, sem criar cópias ou amostras fictícias.
 - Testes, builds e validações estão reservados para a fase final do projeto, conforme o fluxo de execução vigente.
 
 ## Estrutura do repositório
