@@ -1378,8 +1378,8 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 
 | Submódulo | Escopo | Estado |
 |---|---|---|
-| 1.1 | Telas Início/Biblioteca e navegação funcional | Próximo |
-| 1.2 | Seletor SAF e integração das permissões persistentes | Pendente |
+| 1.1 | Telas Início/Biblioteca e navegação funcional | Concluído (implementação; validação final pendente) |
+| 1.2 | Seletor SAF e integração das permissões persistentes | Próximo |
 | 1.3 | Seleção múltipla e detecção real de formatos | Pendente |
 | 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Pendente |
 | 1.5 | Histórico de importação e ocupação de armazenamento | Pendente |
@@ -1391,4 +1391,13 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Commit de código: `4d3c995d3e3a184726b07beb612bebad48dc0b82`.
 - Pacote completo: `ReverseLab_CHECKPOINT_006.zip`, incluindo o estado integral do projeto.
 - Integridade estrutural do ZIP: confirmada após a geração final.
+- Build e testes: não executados; permanecem na validação final.
+
+
+### 22.12 Checkpoint 007
+
+- Submódulo: 1.1 — telas Início/Biblioteca e navegação funcional.
+- Implementação: central de comando, três áreas da Biblioteca, navegação contextual e estados vazios explícitos.
+- Commit de código: `a1b313db661003fc0dd1295ec85e2060a02b3043`.
+- Pacote completo: `ReverseLab_CHECKPOINT_007.zip`, incluindo o estado integral do projeto.
 - Build e testes: não executados; permanecem na validação final.

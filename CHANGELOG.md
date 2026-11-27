@@ -22,7 +22,9 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Persistência SQLite de execuções e histórico transacional de estados, sem API de exclusão.
 - Exportação de backup ZIP com manifesto, snapshot SQLite consistente e controle de autorização do destino.
 - Documentação do formato de backup, escopo e limitações de restauração.
-- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_006.zip`, verificados estruturalmente.
+- Tela inicial como central de comando, com atalhos reais para Analisar e para as três áreas da Biblioteca.
+- Navegação funcional de Projetos, Biblioteca Técnica e Biblioteca Visual, com estados vazios explícitos.
+- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_007.zip`, verificados estruturalmente.
 
 ### Deferred
 - Execução de builds, testes e validações para a fase final, conforme a política de execução vigente.
