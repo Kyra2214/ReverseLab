@@ -93,3 +93,15 @@
 - O parser agora mostra valores e alternativas por APK; não escolhe variantes nem afirma cobertura total.
 - Próxima pendência: interpretar dimensões adicionais de targeting e definir critérios de completude por dispositivo com evidências suficientes.
 - Build/testes não executados por instrução; validação final permanece pendente.
+
+## Atualização 2026-11-27 — targeting e salvaguardas APKS/XAPK
+
+- Commit da correlação conservadora com truncamento: `7919e058dce62ad6ca871acdca381746a9c5e610`.
+- Commit de targeting decodificado: `f6c09d3f39856c6523b28378e5c0d847cae21c4a`.
+- Commit de persistência dos resumos de targeting: `a246710676a7294553a27bdcae95aeab10597812`.
+- Commit de UI de targeting: `2cf49c2c3dcb7f971a07b7b6afe5c5ec8c160314`.
+- Commits de proteção contra alertas falsos e overflow: `9a12a90eaa9774b599c5c832f09d7bafac06352f`, `84dbd99c47a6a5b10e4cb445da9a078f60861f86`, `301fa6d2e6bed9132b5169dff56a281764c62930`.
+- Último checkpoint de documentação anterior: `8ddae0dace9b62ed0b5cabbbc9e753863210d416`.
+- O analisador não acusa caminhos como ausentes se a lista de APKs internos estiver limitada ou truncada.
+- Próxima pendência: completar targeting adicional e avaliação de variantes por dispositivo; depois avançar para o próximo item da Fase 1.
+- Build/testes não executados, conforme instrução.
