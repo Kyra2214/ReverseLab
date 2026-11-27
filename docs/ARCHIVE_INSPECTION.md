@@ -56,3 +56,9 @@ A versão atual do parser de `toc.pb` também decodifica targeting de ABI, multi
 ### Validação estrutural de variantes APKS
 
 A análise por variante verifica módulos sem APK descrito, dependências de módulos ausentes, duplicidade de número de variante, caminhos APK duplicados e quantidade de master splits em módulos distribuídos como split APK. Registros duplicados são preservados pelo parser para que possam ser sinalizados, em vez de serem descartados durante a leitura. Essas verificações identificam inconsistências no TOC fornecido, mas não garantem compatibilidade para todo dispositivo.
+
+## Metadados completos do AndroidManifest APK
+
+O parser de Android Binary XML agora extrai também versionCode/versionCodeMajor/versionName, SDK mínimo/alvo, application name/label, flags debuggable/allowBackup/usesCleartextTraffic, permissões usadas e declaradas, features, bibliotecas declaradas e componentes activity/activity-alias/service/receiver/provider. Para componentes, registra exported/enabled/permission/process/targetActivity quando declarados. Referências de recursos são mantidas como referências hexadecimais, sem resolver resources.arsc nesta etapa.
+
+As listas são limitadas a 4.096 itens e componentes a 10.000 por manifesto; o resultado marca truncamento quando o limite é atingido. Os metadados são persistidos no SQLite versão 8 e exibidos no histórico de inspeção. A ausência de exported permanece nula, sem inferir valor a partir de intent-filters.
