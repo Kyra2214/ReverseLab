@@ -1571,3 +1571,9 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - O leitor protobuf rejeita varints que excedem 64 bits.
 - Targeting não determina automaticamente compatibilidade nem completude por dispositivo.
 - Build/testes não executados; validação final permanece pendente.
+
+### 22.31 — Exibição das correspondências externas
+
+- A tela Analisar agora resolve os IDs de amostras externas retornados pela correlação virtual para seus nomes visíveis, facilitando a revisão do vínculo por package name.
+- A apresentação não altera associação persistida nem cria amostras derivadas.
+- Build/testes não executados; validação final pendente.
