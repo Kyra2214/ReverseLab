@@ -135,3 +135,13 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - `toc.pb` limitado a 4 MiB; APKs internos continuam limitados a 32 por inspeção.
 - Targeting é registrado como presente, mas ABI/idioma/densidade ainda não são interpretados semanticamente.
 - A presença de variantes no TOC não comprova completude para todos os dispositivos.
+
+## 2026-11-27
+
+### Added
+- Decodificação de targeting no `toc.pb` para ABI, multi-ABI, idioma, densidade de tela e SDK mínimo, incluindo valores e alternativas.
+- Exibição dos resumos de targeting por APK na tela Analisar e persistência junto ao inventário APKS.
+
+### Limits
+- Targeting de textura, sanitizer, grupos de dispositivos e países ainda não é interpretado semanticamente.
+- A presença de variantes e targeting no TOC não comprova cobertura completa de todos os dispositivos.
