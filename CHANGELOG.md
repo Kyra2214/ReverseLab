@@ -54,7 +54,7 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Nenhum arquivo importado ou derivado é removido durante a revisão de associações.
 
 ### Added
-- Analisador estrutural conservador de conjuntos APK/split/OBB, distinguindo ausência de base, ambiguidade, manifesto ausente, inventário pendente e identidade não verificada sem declarar completude prematuramente.
+- Analisador estrutural conservador de conjuntos APK/split/OBB, integrado ao histórico da tela Analisar, distinguindo ausência de base, ambiguidade, manifesto ausente, inventário pendente e identidade não verificada sem declarar completude prematuramente.
 
 ### Deferred
 - Integração da avaliação estrutural na tela de histórico e persistência de resultados derivados.
