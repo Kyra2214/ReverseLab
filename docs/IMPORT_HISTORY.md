@@ -27,3 +27,8 @@ A confirmação manual não declara o conjunto tecnicamente completo. A completu
 ## Avaliação estrutural de conjuntos
 
 O histórico calcula e apresenta, por grupo de associação, o resultado do `PackageSetCompletenessAnalyzer`. Os estados distinguem ausência de APK base, múltiplas bases, manifesto estruturalmente ausente, inventário pendente e identidade ainda não verificada. A avaliação é derivada dos registros e inventários existentes; não altera amostras nem arquivos. A presença de manifestos não prova que todos os splits obrigatórios foram fornecidos.
+
+
+### Identidade de manifesto e correlação de splits
+
+O inventário de APK individual pode persistir package name, split name, configForSplit, dependências uses-split e estado de parsing do Android Binary XML. A avaliação do grupo compara package name entre base e splits, exige splitName nos itens classificados como split, detecta nomes duplicados e sinaliza dependências/configurações que apontam para módulos ausentes. O resultado `IDENTITY_MATCHED_COMPLETENESS_UNVERIFIED` significa apenas que a identidade declarada e as relações observadas coincidem; não prova que todos os splits necessários foram fornecidos.
