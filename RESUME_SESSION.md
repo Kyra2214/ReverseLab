@@ -105,3 +105,10 @@
 - O analisador não acusa caminhos como ausentes se a lista de APKs internos estiver limitada ou truncada.
 - Próxima pendência: completar targeting adicional e avaliação de variantes por dispositivo; depois avançar para o próximo item da Fase 1.
 - Build/testes não executados, conforme instrução.
+
+## Atualização 2026-11-27 — apresentação de vínculos virtuais
+
+- Commit: `f0b6aa41a05d6965e888913d8d7fd3fd9448b49d`.
+- A UI da tela Analisar agora apresenta nomes dos APKs externos correspondentes, resolvidos a partir dos IDs do analisador no lote atual.
+- Não há alteração da associação persistida dos registros nem cópia/extração de membros virtuais.
+- Último estado de documentação antes desta nota: `6e8f5ed4cc2791f49d79c836187733af671cc6a9`.
