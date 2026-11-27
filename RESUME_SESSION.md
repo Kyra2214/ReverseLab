@@ -4,7 +4,6 @@
 - Commit de referência antes da implementação: `a69ea8f772035778975dd78b0927b455a815cd2b`.
 - Commit do submódulo 0.1: `b4eb0b9e9059ae1b1df0bbc14d8f0e9030a123c6`.
 - Commit do submódulo 0.2: `576fdd210bc0857af9318f0dc9e02ad50e852d7e`.
-- Último commit documental: `6093e5675ff90abf0dc9e98fa7b40a356f38f201`.
 - Fase atual: Fase 0 — Fundação e governança.
 - Últimos submódulos concluídos: 0.1 — estrutura Android modular; 0.2 — contratos de domínio e estados.
 - Próximo submódulo: 0.3 — política de arquivos, permissões e preservação.
