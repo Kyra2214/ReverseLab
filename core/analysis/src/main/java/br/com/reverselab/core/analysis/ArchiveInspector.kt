@@ -62,6 +62,7 @@ class ArchiveInspector {
         var apkEntryCount = 0
         var obbEntryCount = 0
         var truncated = false
+        var manifestMetadata: AndroidManifestMetadata? = null
 
         val enumeration: Enumeration<out ZipEntry> = zip.entries()
         while (enumeration.hasMoreElements()) {
@@ -115,6 +116,19 @@ class ArchiveInspector {
             if (normalizedPath == "bundleconfig.pb") hasBundleConfig = true
             if (normalizedPath.endsWith(".apk")) apkEntryCount++
             if (normalizedPath.endsWith(".obb")) obbEntryCount++
+        }
+
+        val rootManifest = zip.getEntry("AndroidManifest.xml")
+        if (rootManifest != null && rootManifest.size in 1..MAX_MANIFEST_BYTES) {
+            manifestMetadata = zip.getInputStream(rootManifest).use { input ->
+                val bytes = input.readNBytes(MAX_MANIFEST_BYTES.toInt() + 1)
+                if (bytes.size > MAX_MANIFEST_BYTES) AndroidManifestMetadata(parseStatus = "LIMIT_EXCEEDED: manifesto excede o limite de leitura.")
+                else BinaryAndroidManifestParser().parse(bytes)
+            }
+            if (manifestMetadata?.parseStatus != "PARSED") addGlobalWarning("Manifesto Android não interpretado: ${manifestMetadata?.parseStatus ?: "resultado ausente"}")
+        } else if (rootManifest != null) {
+            manifestMetadata = AndroidManifestMetadata(parseStatus = "LIMIT_EXCEEDED: manifesto excede o limite de leitura.")
+            addGlobalWarning("Manifesto Android excede o limite de leitura e não foi interpretado.")
         }
 
         val detectedType = when {
@@ -172,6 +186,11 @@ class ArchiveInspector {
             suspiciousEntryCount = suspiciousEntryCount,
             warnings = warnings.take(MAX_WARNINGS),
             truncated = truncated,
+            manifestPackageName = manifestMetadata?.packageName,
+            manifestSplitName = manifestMetadata?.splitName,
+            manifestConfigForSplit = manifestMetadata?.configForSplit,
+            manifestUsesSplits = manifestMetadata?.usesSplits ?: emptyList(),
+            manifestParseStatus = manifestMetadata?.parseStatus,
         )
     }
 
@@ -220,6 +239,7 @@ class ArchiveInspector {
         const val MAX_ENTRY_UNCOMPRESSED_BYTES = 2L * 1024L * 1024L * 1024L
         const val MAX_COMPRESSION_RATIO = 1_000L
         const val MAX_WARNINGS = 100
+        const val MAX_MANIFEST_BYTES = 2L * 1024L * 1024L
         val DEX_ENTRY = Regex("classes(\\d*)\\.dex")
         val WINDOWS_DRIVE_PREFIX = Regex("^[a-zA-Z]:")
         val CONTAINER_FORMATS = setOf("APK", "OBB", "XAPK", "APKS", "AAB", "ZIP")
