@@ -1518,6 +1518,6 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Metadados por caminho virtual: package name, splitName, configForSplit, uses-split e estado de parsing.
 - Persistência SQLite versão 5 com migração aditiva.
 - UI de inspeção apresenta as identidades declaradas por entrada.
-- Limites: 32 APKs internos, 128 entradas por APK, 2 MiB por manifesto e 16 MiB agregados.
+- Limites: 32 APKs internos, 1ª entrada por APK, 2 MiB por manifesto e 16 MiB agregados.
 - Ainda pendente: associação lógica entre entradas internas e amostras externas/base, interpretação de toc.pb/manifest.json e confirmação conservadora da completude.
 - Builds/testes permanecem para a validação final; ZIPs desativados por instrução do usuário.
