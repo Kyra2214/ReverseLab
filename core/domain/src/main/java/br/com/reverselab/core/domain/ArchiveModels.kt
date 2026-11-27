@@ -46,6 +46,29 @@ data class XapkManifestRecord(
     init { require(parseStatus.isNotBlank()) }
 }
 
+data class ApksTocApkRecord(
+    val path: String,
+    val moduleName: String?,
+    val splitId: String?,
+    val isMasterSplit: Boolean?,
+    val metadataKind: String?,
+    val hasTargeting: Boolean,
+)
+
+data class ApksTocVariantRecord(
+    val variantNumber: Int,
+    val moduleNames: List<String>,
+    val apks: List<ApksTocApkRecord>,
+)
+
+data class ApksTocRecord(
+    val packageName: String?,
+    val variants: List<ApksTocVariantRecord>,
+    val parseStatus: String,
+) {
+    init { require(parseStatus.isNotBlank()) }
+}
+
 data class ArchiveInventoryRecord(
     val id: ArchiveInspectionId,
     val sampleId: SampleId,
@@ -74,6 +97,7 @@ data class ArchiveInventoryRecord(
     val manifestParseStatus: String? = null,
     val nestedApkManifests: List<NestedApkManifestRecord> = emptyList(),
     val xapkManifest: XapkManifestRecord? = null,
+    val apksToc: ApksTocRecord? = null,
 ) {
     init {
         require(inspectedAtEpochMillis > 0)
