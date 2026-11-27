@@ -372,11 +372,21 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
     )
 
     private fun addManifestMetadataColumns(db: SQLiteDatabase) {
-        db.execSQL("ALTER TABLE archive_inventories ADD COLUMN manifest_package_name TEXT")
-        db.execSQL("ALTER TABLE archive_inventories ADD COLUMN manifest_split_name TEXT")
-        db.execSQL("ALTER TABLE archive_inventories ADD COLUMN manifest_config_for_split TEXT")
-        db.execSQL("ALTER TABLE archive_inventories ADD COLUMN manifest_uses_splits_json TEXT NOT NULL DEFAULT '[]'")
-        db.execSQL("ALTER TABLE archive_inventories ADD COLUMN manifest_parse_status TEXT")
+        addColumnIfMissing(db, "manifest_package_name", "TEXT")
+        addColumnIfMissing(db, "manifest_split_name", "TEXT")
+        addColumnIfMissing(db, "manifest_config_for_split", "TEXT")
+        addColumnIfMissing(db, "manifest_uses_splits_json", "TEXT NOT NULL DEFAULT '[]'")
+        addColumnIfMissing(db, "manifest_parse_status", "TEXT")
+    }
+
+    private fun addColumnIfMissing(db: SQLiteDatabase, column: String, definition: String) {
+        val exists = db.rawQuery("PRAGMA table_info(archive_inventories)", null).use { cursor ->
+            val nameIndex = cursor.getColumnIndexOrThrow("name")
+            var found = false
+            while (cursor.moveToNext()) if (cursor.getString(nameIndex) == column) found = true
+            found
+        }
+        if (!exists) db.execSQL("ALTER TABLE archive_inventories ADD COLUMN $column $definition")
     }
 
     private fun createAssociationReviewTable(db: SQLiteDatabase) {
