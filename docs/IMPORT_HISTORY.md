@@ -22,3 +22,8 @@ Não existe ação de limpeza automática. O histórico não oferece exclusão d
 Cada lote também apresenta as revisões feitas pelo usuário: confirmação de grupo, separação de amostras ou vínculo manual a um APK base. O registro inclui amostra afetada, ação, nível de confiança anterior e novo e horário. A revisão e a atualização dos vínculos são persistidas na mesma transação SQLite, evitando histórico parcial em caso de falha.
 
 A confirmação manual não declara o conjunto tecnicamente completo. A completude depende da futura análise dos manifestos e metadados dos APKs.
+
+
+## Avaliação estrutural de conjuntos
+
+O histórico calcula e apresenta, por grupo de associação, o resultado do `PackageSetCompletenessAnalyzer`. Os estados distinguem ausência de APK base, múltiplas bases, manifesto estruturalmente ausente, inventário pendente e identidade ainda não verificada. A avaliação é derivada dos registros e inventários existentes; não altera amostras nem arquivos. A presença de manifestos não prova que todos os splits obrigatórios foram fornecidos.
