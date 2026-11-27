@@ -545,6 +545,11 @@ private fun ArchiveInventorySummary(inventory: ArchiveInventoryRecord) {
     Column(modifier = Modifier.padding(start = 8.dp, top = 4.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text("Estrutura: ${inventory.detectedContainerType ?: "não confirmada"} • ${inventory.status.name} • ${inventory.entryCount} entrada(s)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
         Text("Manifesto: ${if (inventory.hasAndroidManifest) "sim" else "não"} • DEX: ${inventory.dexEntryCount} • APK internos: ${inventory.apkEntryCount} • OBB internos: ${inventory.obbEntryCount}", style = MaterialTheme.typography.labelSmall)
+        inventory.manifestParseStatus?.let { Text("Manifesto binário: $it", style = MaterialTheme.typography.labelSmall) }
+        inventory.manifestPackageName?.let { Text("Package name: $it", style = MaterialTheme.typography.labelSmall) }
+        inventory.manifestSplitName?.let { Text("Split name: $it", style = MaterialTheme.typography.labelSmall) }
+        inventory.manifestConfigForSplit?.let { Text("Configuração para split: $it", style = MaterialTheme.typography.labelSmall) }
+        if (inventory.manifestUsesSplits.isNotEmpty()) Text("Dependências de split: ${inventory.manifestUsesSplits.joinToString()}", style = MaterialTheme.typography.labelSmall)
         Text("resources.arsc: ${if (inventory.hasResourcesTable) "sim" else "não"} • bibliotecas nativas: ${if (inventory.hasNativeLibraries) "sim" else "não"}", style = MaterialTheme.typography.labelSmall)
         inventory.warnings.take(4).forEach { warning ->
             Text("Atenção: $warning", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
