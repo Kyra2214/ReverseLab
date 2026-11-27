@@ -3,6 +3,7 @@ package br.com.reverselab.core.storage
 import android.content.Context
 import br.com.reverselab.core.domain.ArchiveInventoryRecord
 import br.com.reverselab.core.domain.ImportBatchId
+import br.com.reverselab.core.domain.SampleAssociationReviewRecord
 import br.com.reverselab.core.domain.SampleId
 import br.com.reverselab.core.domain.SampleImportStatus
 import br.com.reverselab.core.domain.SampleRecord
@@ -57,6 +58,7 @@ class ImportHistoryRepository(
         duplicateCandidates = samples.count { it.duplicateOfSampleId != null },
         formats = samples.map { it.formatCode }.distinct().sorted(),
         samples = samples,
+        associationReviews = catalog.listAssociationReviews(batchId),
     )
 
     private companion object { const val SAMPLES_DIRECTORY = "samples" }
@@ -80,6 +82,7 @@ data class ImportBatchSummary(
     val duplicateCandidates: Int,
     val formats: List<String>,
     val samples: List<SampleRecord>,
+    val associationReviews: List<SampleAssociationReviewRecord>,
 )
 
 data class StorageUsageSnapshot(

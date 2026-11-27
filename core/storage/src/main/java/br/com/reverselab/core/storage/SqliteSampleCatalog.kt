@@ -7,12 +7,16 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.UUID
 import br.com.reverselab.core.domain.ArchiveEntryRecord
 import br.com.reverselab.core.domain.ArchiveInspectionId
 import br.com.reverselab.core.domain.ArchiveInspectionStatus
 import br.com.reverselab.core.domain.ArchiveInventoryRecord
 import br.com.reverselab.core.domain.ImportBatchId
 import br.com.reverselab.core.domain.SampleAssociationConfidence
+import br.com.reverselab.core.domain.SampleAssociationReviewAction
+import br.com.reverselab.core.domain.SampleAssociationReviewRecord
+import br.com.reverselab.core.domain.SampleAssociationUpdate
 import br.com.reverselab.core.domain.SampleCatalog
 import br.com.reverselab.core.domain.SampleGroupId
 import br.com.reverselab.core.domain.SampleId
@@ -50,10 +54,12 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         db.execSQL("CREATE INDEX index_samples_sha256 ON samples(sha256)")
         db.execSQL("CREATE INDEX index_samples_group ON samples(association_group_id)")
         createArchiveInventoryTable(db)
+        createAssociationReviewTable(db)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion < 2) createArchiveInventoryTable(db)
+        if (oldVersion < 3) createAssociationReviewTable(db)
         if (newVersion > DATABASE_VERSION) error("Versão futura do catálogo de amostras não suportada: $newVersion")
     }
 
@@ -131,6 +137,72 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
             null, null, "inspected_at DESC",
         ).use { cursor ->
             buildList { while (cursor.moveToNext()) add(cursor.toArchiveInventory()) }
+        }
+
+
+    @Synchronized
+    override fun reviewAssociations(updates: List<SampleAssociationUpdate>, reviewedAtEpochMillis: Long) {
+        require(updates.isNotEmpty())
+        require(reviewedAtEpochMillis > 0)
+        require(updates.map { it.sampleId }.distinct().size == updates.size)
+        val db = writableDatabase
+        db.beginTransaction()
+        try {
+            updates.forEach { update ->
+                val previous = db.query(
+                    TABLE_SAMPLES,
+                    arrayOf("import_batch_id", "association_group_id", "association_confidence"),
+                    "id = ?",
+                    arrayOf(update.sampleId.value),
+                    null, null, null,
+                ).use { cursor ->
+                    if (!cursor.moveToFirst()) null else Triple(
+                        ImportBatchId(cursor.getString(0)),
+                        SampleGroupId(cursor.getString(1)),
+                        SampleAssociationConfidence.valueOf(cursor.getString(2)),
+                    )
+                } ?: error("Amostra não encontrada para revisão de associação: ${update.sampleId.value}")
+
+                val changed = db.update(
+                    TABLE_SAMPLES,
+                    ContentValues().apply {
+                        put("association_group_id", update.newGroupId.value)
+                        put("association_confidence", update.newConfidence.name)
+                    },
+                    "id = ?",
+                    arrayOf(update.sampleId.value),
+                )
+                check(changed == 1) { "Não foi possível atualizar a associação da amostra ${update.sampleId.value}." }
+
+                db.insertOrThrow(
+                    TABLE_ASSOCIATION_REVIEWS,
+                    null,
+                    ContentValues().apply {
+                        put("id", UUID.randomUUID().toString())
+                        put("import_batch_id", previous.first.value)
+                        put("sample_id", update.sampleId.value)
+                        put("previous_group_id", previous.second.value)
+                        put("new_group_id", update.newGroupId.value)
+                        put("previous_confidence", previous.third.name)
+                        put("new_confidence", update.newConfidence.name)
+                        put("action", update.action.name)
+                        put("reviewed_at", reviewedAtEpochMillis)
+                    },
+                )
+            }
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+    }
+
+    @Synchronized
+    override fun listAssociationReviews(batchId: ImportBatchId): List<SampleAssociationReviewRecord> =
+        readableDatabase.query(
+            TABLE_ASSOCIATION_REVIEWS, null, "import_batch_id = ?", arrayOf(batchId.value),
+            null, null, "reviewed_at DESC",
+        ).use { cursor ->
+            buildList { while (cursor.moveToNext()) add(cursor.toAssociationReview()) }
         }
 
     private fun querySamples(selection: String?, selectionArgs: Array<String>?): List<SampleRecord> =
@@ -270,6 +342,38 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         db.execSQL("CREATE INDEX IF NOT EXISTS index_archive_inventory_sample ON archive_inventories(sample_id, inspected_at DESC)")
     }
 
+
+    private fun Cursor.toAssociationReview() = SampleAssociationReviewRecord(
+        id = getString(getColumnIndexOrThrow("id")),
+        importBatchId = ImportBatchId(getString(getColumnIndexOrThrow("import_batch_id"))),
+        sampleId = SampleId(getString(getColumnIndexOrThrow("sample_id"))),
+        previousGroupId = SampleGroupId(getString(getColumnIndexOrThrow("previous_group_id"))),
+        newGroupId = SampleGroupId(getString(getColumnIndexOrThrow("new_group_id"))),
+        previousConfidence = SampleAssociationConfidence.valueOf(getString(getColumnIndexOrThrow("previous_confidence"))),
+        newConfidence = SampleAssociationConfidence.valueOf(getString(getColumnIndexOrThrow("new_confidence"))),
+        action = SampleAssociationReviewAction.valueOf(getString(getColumnIndexOrThrow("action"))),
+        reviewedAtEpochMillis = getLong(getColumnIndexOrThrow("reviewed_at")),
+    )
+
+    private fun createAssociationReviewTable(db: SQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS sample_association_reviews (
+                id TEXT PRIMARY KEY NOT NULL,
+                import_batch_id TEXT NOT NULL,
+                sample_id TEXT NOT NULL,
+                previous_group_id TEXT NOT NULL,
+                new_group_id TEXT NOT NULL,
+                previous_confidence TEXT NOT NULL,
+                new_confidence TEXT NOT NULL,
+                action TEXT NOT NULL,
+                reviewed_at INTEGER NOT NULL
+            )
+            """.trimIndent(),
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_association_reviews_batch ON sample_association_reviews(import_batch_id, reviewed_at DESC)")
+    }
+
     private fun Cursor.toSampleRecord() = SampleRecord(
         id = SampleId(getString(getColumnIndexOrThrow("id"))),
         importBatchId = ImportBatchId(getString(getColumnIndexOrThrow("import_batch_id"))),
@@ -295,8 +399,9 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
 
     private companion object {
         const val DATABASE_NAME = "reverselab_samples.db"
-        const val DATABASE_VERSION = 2
+        const val DATABASE_VERSION = 3
         const val TABLE_SAMPLES = "samples"
         const val TABLE_ARCHIVE_INVENTORIES = "archive_inventories"
+        const val TABLE_ASSOCIATION_REVIEWS = "sample_association_reviews"
     }
 }

@@ -23,6 +23,8 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -44,7 +46,11 @@ import br.com.reverselab.core.analysis.SafFormatInspector
 import br.com.reverselab.core.domain.ArchiveInventoryRecord
 import br.com.reverselab.core.domain.ImportBatchId
 import br.com.reverselab.core.domain.SampleAssociationConfidence
+import br.com.reverselab.core.domain.SampleAssociationReviewAction
+import br.com.reverselab.core.domain.SampleAssociationUpdate
 import br.com.reverselab.core.domain.SampleCatalog
+import br.com.reverselab.core.domain.SampleGroupId
+import br.com.reverselab.core.domain.SampleRole
 import br.com.reverselab.core.domain.SampleId
 import br.com.reverselab.core.domain.SampleRecord
 import br.com.reverselab.core.storage.ImportBatchSummary
@@ -89,6 +95,7 @@ fun AnalyzeScreen(
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var isImporting by remember { mutableStateOf(false) }
     var inspectingSampleId by remember { mutableStateOf<SampleId?>(null) }
+    var isReviewingAssociation by remember { mutableStateOf(false) }
     DisposableEffect(inspectionExecutor) {
         onDispose { inspectionExecutor.shutdown() }
     }
@@ -100,6 +107,33 @@ fun AnalyzeScreen(
                     mainHandler.post { historySnapshotState.value = snapshot }
                 } catch (exception: Exception) {
                     mainHandler.post { statusMessage = "Não foi possível atualizar o histórico de importação." }
+                }
+            }
+        }
+    }
+    val submitAssociationReview = remember(sampleCatalog, historyRepository, inspectionExecutor, mainHandler) {
+        { updates: List<SampleAssociationUpdate> ->
+            if (updates.isNotEmpty() && !isReviewingAssociation) {
+                isReviewingAssociation = true
+                inspectionExecutor.execute {
+                    try {
+                        sampleCatalog.reviewAssociations(updates, System.currentTimeMillis())
+                        val updatedSnapshot = try { historyRepository.loadSnapshot() } catch (_: Exception) { null }
+                        mainHandler.post {
+                            if (updatedSnapshot != null) historySnapshotState.value = updatedSnapshot
+                            isReviewingAssociation = false
+                            statusMessage = if (updatedSnapshot == null) {
+                                "Revisão salva, mas o histórico não foi atualizado. Use Atualizar para tentar novamente."
+                            } else {
+                                "Revisão de associação registrada no histórico."
+                            }
+                        }
+                    } catch (exception: Exception) {
+                        mainHandler.post {
+                            isReviewingAssociation = false
+                            statusMessage = "Não foi possível salvar a revisão. Nenhuma exclusão ou alteração parcial foi aplicada."
+                        }
+                    }
                 }
             }
         }
@@ -248,7 +282,50 @@ fun AnalyzeScreen(
                 } else {
                     items(snapshot.batches) { batch ->
                         ImportBatchCard(
-                            batch, snapshot.archiveInventories, inspectingSampleId,
+                            batch = batch,
+                            archiveInventories = snapshot.archiveInventories,
+                            inspectingSampleId = inspectingSampleId,
+                            isReviewingAssociation = isReviewingAssociation,
+                            onConfirmGroup = { members ->
+                                submitAssociationReview(
+                                    members.map { member ->
+                                        SampleAssociationUpdate(
+                                            sampleId = member.id,
+                                            newGroupId = member.associationGroupId,
+                                            newConfidence = SampleAssociationConfidence.USER_CONFIRMED,
+                                            action = SampleAssociationReviewAction.CONFIRM_GROUP,
+                                        )
+                                    },
+                                )
+                            },
+                            onSeparateGroup = { members ->
+                                submitAssociationReview(
+                                    members.map { member ->
+                                        SampleAssociationUpdate(
+                                            sampleId = member.id,
+                                            newGroupId = SampleGroupId("sample:${member.id.value}"),
+                                            newConfidence = SampleAssociationConfidence.USER_REJECTED,
+                                            action = SampleAssociationReviewAction.SEPARATE_GROUP,
+                                        )
+                                    },
+                                )
+                            },
+                            onAssignSample = { sample, base ->
+                                val confirmedGroupId = SampleGroupId("sample:${base.id.value}")
+                                submitAssociationReview(
+                                    listOf(
+                                        SampleAssociationUpdate(sample.id, confirmedGroupId, SampleAssociationConfidence.USER_CONFIRMED, SampleAssociationReviewAction.ASSIGN_TO_BASE),
+                                        SampleAssociationUpdate(base.id, confirmedGroupId, SampleAssociationConfidence.USER_CONFIRMED, SampleAssociationReviewAction.ASSIGN_TO_BASE),
+                                    ),
+                                )
+                            },
+                            onSeparateSample = { sample ->
+                                submitAssociationReview(
+                                    listOf(
+                                        SampleAssociationUpdate(sample.id, SampleGroupId("sample:${sample.id.value}"), SampleAssociationConfidence.USER_REJECTED, SampleAssociationReviewAction.SEPARATE_GROUP),
+                                    ),
+                                )
+                            },
                             onInspectSample = { sample ->
                                 val relativePath = sample.internalRelativePath
                                 if (sample.status.name != "IMPORTED" || relativePath == null) {
@@ -332,10 +409,20 @@ private fun ImportBatchCard(
     batch: ImportBatchSummary,
     archiveInventories: Map<SampleId, ArchiveInventoryRecord>,
     inspectingSampleId: SampleId?,
+    isReviewingAssociation: Boolean,
+    onConfirmGroup: (List<SampleRecord>) -> Unit,
+    onSeparateGroup: (List<SampleRecord>) -> Unit,
+    onAssignSample: (SampleRecord, SampleRecord) -> Unit,
+    onSeparateSample: (SampleRecord) -> Unit,
     onInspectSample: (SampleRecord) -> Unit,
 ) {
     var expanded by remember(batch.batchId) { mutableStateOf(false) }
-    Card(onClick = { expanded = !expanded }, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth()) {
+    val baseCandidates = batch.samples.filter { it.role == SampleRole.BASE_APK_CANDIDATE && it.status.name == "IMPORTED" }
+    Card(
+        onClick = { expanded = !expanded },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Text("Lote ${batch.batchId.value.take(8)}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Text(formatDate(batch.importedAtEpochMillis), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -343,6 +430,10 @@ private fun ImportBatchCard(
             Text("Importados: ${batch.importedSamples} • Parciais: ${batch.partialSamples} • Pendentes: ${batch.pendingSamples} • Falhas: ${batch.failedSamples}", style = MaterialTheme.typography.bodySmall)
             Text("Formatos: ${batch.formats.joinToString()}", style = MaterialTheme.typography.bodySmall)
             if (batch.duplicateCandidates > 0) Text("Possíveis duplicatas: ${batch.duplicateCandidates}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+            if (batch.associationReviews.isNotEmpty()) Text("Revisões de associação registradas: ${batch.associationReviews.size}", style = MaterialTheme.typography.labelSmall)
+            if (baseCandidates.isEmpty() && batch.samples.any { it.role == SampleRole.SPLIT_APK_CANDIDATE || it.role == SampleRole.OBB_CANDIDATE }) {
+                Text("Nenhum APK base importado com sucesso neste lote. O conjunto pode estar incompleto, mas isso ainda não pode ser confirmado sem os manifestos.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
+            }
             Text(if (expanded) "Ocultar amostras" else "Ver amostras", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
             if (expanded) {
                 batch.samples.forEach { sample ->
@@ -351,6 +442,28 @@ private fun ImportBatchCard(
                         Text("${sample.formatCode} • ${sample.status.name} • ${formatBytes(sample.sizeBytes)}", style = MaterialTheme.typography.labelSmall)
                         sample.sha256?.let { Text("SHA-256: $it", style = MaterialTheme.typography.labelSmall) }
                         Text(associationLabel(sample.associationConfidence), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (sample.role == SampleRole.BASE_APK_CANDIDATE && sample.associationConfidence == SampleAssociationConfidence.HEURISTIC_SINGLE_BASE_IN_BATCH) {
+                            val groupMembers = batch.samples.filter { it.associationGroupId == sample.associationGroupId }
+                            if (groupMembers.size > 1) {
+                                AssociationReviewControls(groupMembers.size, !isReviewingAssociation, { onConfirmGroup(groupMembers) }, { onSeparateGroup(groupMembers) })
+                            }
+                        }
+                        if (
+                            (sample.role == SampleRole.SPLIT_APK_CANDIDATE || sample.role == SampleRole.OBB_CANDIDATE) &&
+                            sample.associationConfidence in setOf(SampleAssociationConfidence.AMBIGUOUS_BATCH, SampleAssociationConfidence.USER_REJECTED, SampleAssociationConfidence.IMPORT_BATCH_ONLY) &&
+                            baseCandidates.isNotEmpty()
+                        ) {
+                            AssociationAssignmentRow(
+                                sample = sample,
+                                baseCandidates = baseCandidates,
+                                enabled = !isReviewingAssociation,
+                                onAssign = { base -> onAssignSample(sample, base) },
+                                onSeparate = { onSeparateSample(sample) },
+                            )
+                        }
+                        if (sample.associationConfidence == SampleAssociationConfidence.USER_CONFIRMED) {
+                            Text("Completude do conjunto ainda não verificada. A análise de manifesto será necessária.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+                        }
                         archiveInventories[sample.id]?.let { ArchiveInventorySummary(it) }
                         if (sample.formatCode.uppercase() in setOf("APK", "OBB", "XAPK", "APKS", "AAB", "ZIP") && sample.status.name == "IMPORTED") {
                             OutlinedButton(enabled = inspectingSampleId == null, onClick = { onInspectSample(sample) }) {
@@ -361,6 +474,54 @@ private fun ImportBatchCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AssociationReviewControls(
+    memberCount: Int,
+    enabled: Boolean,
+    onConfirm: () -> Unit,
+    onSeparate: () -> Unit,
+) {
+    Column(modifier = Modifier.padding(start = 8.dp, top = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text("Associação automática candidata com $memberCount amostra(s). A completude do pacote permanece desconhecida.", style = MaterialTheme.typography.labelSmall)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(enabled = enabled, onClick = onConfirm) { Text("Confirmar grupo") }
+            OutlinedButton(enabled = enabled, onClick = onSeparate) { Text("Separar amostras") }
+        }
+    }
+}
+
+@Composable
+private fun AssociationAssignmentRow(
+    sample: SampleRecord,
+    baseCandidates: List<SampleRecord>,
+    enabled: Boolean,
+    onAssign: (SampleRecord) -> Unit,
+    onSeparate: () -> Unit,
+) {
+    var menuExpanded by remember(sample.id) { mutableStateOf(false) }
+    var selectedBaseId by remember(sample.id) { mutableStateOf(baseCandidates.firstOrNull()?.id?.value.orEmpty()) }
+    val selectedBase = baseCandidates.firstOrNull { it.id.value == selectedBaseId }
+    Column(modifier = Modifier.padding(start = 8.dp, top = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text("Vínculo não confirmado. Escolha manualmente o APK base relacionado:", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+        OutlinedButton(enabled = enabled && baseCandidates.isNotEmpty(), onClick = { menuExpanded = true }) {
+            Text(selectedBase?.displayName ?: "Nenhum APK base disponível")
+        }
+        DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+            baseCandidates.forEach { base ->
+                DropdownMenuItem(text = { Text(base.displayName) }, onClick = {
+                    selectedBaseId = base.id.value
+                    menuExpanded = false
+                })
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(enabled = enabled && selectedBase != null, onClick = { selectedBase?.let(onAssign) }) { Text("Vincular") }
+            OutlinedButton(enabled = enabled, onClick = onSeparate) { Text("Separar") }
+        }
+        Text("A completude do conjunto continuará desconhecida até a análise dos manifestos.", style = MaterialTheme.typography.labelSmall)
     }
 }
 
@@ -391,6 +552,7 @@ private fun associationLabel(confidence: SampleAssociationConfidence): String = 
     SampleAssociationConfidence.HEURISTIC_SINGLE_BASE_IN_BATCH -> "Associação heurística; requer confirmação"
     SampleAssociationConfidence.AMBIGUOUS_BATCH -> "Associação ambígua; revisão necessária"
     SampleAssociationConfidence.USER_CONFIRMED -> "Associação confirmada pelo usuário"
+    SampleAssociationConfidence.USER_REJECTED -> "Associação separada pelo usuário"
     SampleAssociationConfidence.MANIFEST_VERIFIED -> "Manifesto verificado"
 }
 

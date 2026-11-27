@@ -198,7 +198,11 @@ private object PackageAssociationResolver {
             SampleRole.SPLIT_APK_CANDIDATE,
             SampleRole.OBB_CANDIDATE,
         )
-        return if (baseApks.size == 1) {
+        val importedAttachments = records.filter {
+            it.status == SampleImportStatus.IMPORTED &&
+                (it.role == SampleRole.SPLIT_APK_CANDIDATE || it.role == SampleRole.OBB_CANDIDATE)
+        }
+        return if (baseApks.size == 1 && importedAttachments.isNotEmpty()) {
             val groupId = SampleGroupId("sample:${baseApks.single().id.value}")
             records.map { record ->
                 if (record.status == SampleImportStatus.IMPORTED && record.role in attachableRoles) {

@@ -71,4 +71,33 @@ interface SampleCatalog {
     )
     fun saveArchiveInventory(inventory: ArchiveInventoryRecord)
     fun listArchiveInventories(sampleId: SampleId): List<ArchiveInventoryRecord>
+    fun reviewAssociations(updates: List<SampleAssociationUpdate>, reviewedAtEpochMillis: Long)
+    fun listAssociationReviews(batchId: ImportBatchId): List<SampleAssociationReviewRecord>
+}
+
+
+enum class SampleAssociationReviewAction { CONFIRM_GROUP, SEPARATE_GROUP, ASSIGN_TO_BASE }
+
+data class SampleAssociationUpdate(
+    val sampleId: SampleId,
+    val newGroupId: SampleGroupId,
+    val newConfidence: SampleAssociationConfidence,
+    val action: SampleAssociationReviewAction,
+)
+
+data class SampleAssociationReviewRecord(
+    val id: String,
+    val importBatchId: ImportBatchId,
+    val sampleId: SampleId,
+    val previousGroupId: SampleGroupId,
+    val newGroupId: SampleGroupId,
+    val previousConfidence: SampleAssociationConfidence,
+    val newConfidence: SampleAssociationConfidence,
+    val action: SampleAssociationReviewAction,
+    val reviewedAtEpochMillis: Long,
+) {
+    init {
+        require(id.isNotBlank())
+        require(reviewedAtEpochMillis > 0)
+    }
 }
