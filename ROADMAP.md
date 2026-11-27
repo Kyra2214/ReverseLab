@@ -1503,3 +1503,10 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - `MANIFEST_VERIFIED` só é aplicado quando o package name foi extraído com sucesso; OBB continua heurístico.
 - Fase 1.4 continua parcial: APKs aninhados em XAPK/APKS ainda não são convertidos em registros individuais nem associados por manifesto; AAB protobuf também permanece sem parser.
 - Não foram executados builds/testes. ZIPs desativados por instrução do usuário.
+
+### 22.24 Salvaguardas de associação por manifesto
+
+- Grupos com múltiplas bases de mesmo package agora preservam todas as bases e splits no mesmo grupo ambíguo, permitindo revisão explícita.
+- Migração SQLite da versão 4 verifica colunas existentes antes de adicionar metadados do manifesto, inclusive em atualização de catálogos antigos.
+- A avaliação de conjunto documenta corretamente que a identidade coincidente não comprova completude.
+- Ainda parciais: 1.4 (APKs aninhados de XAPK/APKS) e 1.7 (completude de conjuntos compostos e splits requeridos).
