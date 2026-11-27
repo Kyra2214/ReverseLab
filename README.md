@@ -7,7 +7,7 @@ O ReverseLab investiga como tecnologias, sistemas e mecanismos de aplicativos s�
 ## Estado atual
 
 - Fase 0 — Fundação e governança: em andamento.
-- Último submódulo concluído: 0.2 — contratos de domínio. Próximo: 0.3 — política de arquivos, permissões e preservação.
+- Último submódulo concluído: 0.3 — política de arquivos e permissões. Próximo: 0.4 — decisões arquiteturais e licenças.
 - A aplicação possui um esqueleto inicial em Kotlin e Jetpack Compose.
 - Recursos de importação, análise estática, CryptoLab, IA e Knowledge Vault ainda serão implementados na ordem do [roadmap](ROADMAP.md).
 - Testes, builds e validações estão reservados para a fase final do projeto, conforme o fluxo de execução vigente.
@@ -43,5 +43,6 @@ ReverseLab/
 - [Roadmap completo](ROADMAP.md)
 - [Arquitetura inicial](docs/ARCHITECTURE.md)
 - [Contratos de domínio](docs/DOMAIN_CONTRACTS.md)
+- [Política de arquivos e permissões](docs/STORAGE_POLICY.md)
 - [Changelog](CHANGELOG.md)
 - [Estado de retomada](RESUME_SESSION.md)

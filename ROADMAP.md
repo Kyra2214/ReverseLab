@@ -1300,7 +1300,7 @@ Esta seção registra o estado observado do código. A validação de build e te
 |---|---|---|
 | 0.1 | Estrutura inicial Android modular e esqueleto de navegação | Concluído (implementação; validação final pendente) |
 | 0.2 | Contratos de domínio, estados e convenções compartilhadas | Concluído (implementação; validação final pendente) |
-| 0.3 | Política de arquivos, permissões e preservação | Pendente |
+| 0.3 | Política de arquivos, permissões e preservação | Concluído (implementação; validação final pendente) |
 | 0.4 | Decisões arquiteturais e inventário de dependências/licenças | Pendente |
 | 0.5 | Tratamento de erros, logs e estados persistentes | Pendente |
 | 0.6 | Estratégia de backup e exportação | Pendente |
@@ -1343,4 +1343,13 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Commit de código: `576fdd210bc0857af9318f0dc9e02ad50e852d7e`.
 - Pacote completo: `ReverseLab_CHECKPOINT_002.zip`, incluindo o estado integral do projeto.
 - Integridade estrutural do ZIP: confirmada; `unzip -t` não reportou erros.
+- Build e testes: não executados; permanecem na validação final.
+
+
+### 22.7 Checkpoint 003
+
+- Submódulo: 0.3 — política de arquivos, permissões e preservação.
+- Commit de código: `34d539bd53e4bf81459b48d8297b4048147b9d41`.
+- Pacote completo: `ReverseLab_CHECKPOINT_003.zip`, incluindo o estado integral do projeto.
+- Integridade estrutural do ZIP: confirmada após geração do checkpoint.
 - Build e testes: não executados; permanecem na validação final.

@@ -12,7 +12,10 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Máquina de estados com transições explícitas para processamento e retomada.
 - Regras de integridade para caminhos de origem, SHA-256 e referências de evidência.
 - Documentação dos contratos em `docs/DOMAIN_CONTRACTS.md`.
-- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` e `ReverseLab_CHECKPOINT_002.zip`, verificados estruturalmente.
+- Gate de governança para exclusão, sobrescrita, limpeza e deduplicação física, com confirmação exata de escopo.
+- Persistência de permissão de leitura SAF por URI, sem solicitar acesso amplo ao armazenamento.
+- Documentação da política de arquivos e permissões.
+- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip`, `ReverseLab_CHECKPOINT_002.zip` e `ReverseLab_CHECKPOINT_003.zip`, verificados estruturalmente.
 
 ### Deferred
 - Execução de builds, testes e validações para a fase final, conforme a política de execução vigente.
