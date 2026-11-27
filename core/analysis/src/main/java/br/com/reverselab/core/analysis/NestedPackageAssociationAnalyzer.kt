@@ -48,7 +48,17 @@ class NestedPackageAssociationAnalyzer {
                         .filter { it.isNotBlank() && it != "base" && it !in suppliedNames }.distinct()
 
                     val reasons = mutableListOf<String>()
+                    val xapkMetadata = inventories[container.id]?.xapkManifest
+                    val xapkPackageMismatch = xapkMetadata?.parseStatus == "PARSED" &&
+                        !xapkMetadata.packageName.isNullOrBlank() && xapkMetadata.packageName != packageName
+                    val declaredMissingPaths = xapkMetadata?.splitApkPaths.orEmpty().filterNot { declared ->
+                        nested.any { it.entryPath == declared || it.entryPath.endsWith("/$declared") }
+                    }
                     val status = when {
+                        xapkPackageMismatch -> {
+                            reasons += "package_name do manifest.json (${xapkMetadata?.packageName}) diverge do package declarado pelos APKs internos ($packageName)."
+                            NestedPackageAssociationStatus.PACKAGE_MISMATCH
+                        }
                         externalBases.size > 1 -> {
                             reasons += "Mais de um APK base externo com o mesmo package name foi encontrado no lote."
                             NestedPackageAssociationStatus.AMBIGUOUS
@@ -77,6 +87,9 @@ class NestedPackageAssociationAnalyzer {
                             reasons += "Há apenas splits internos e não foi possível localizar um APK base correspondente no lote."
                             NestedPackageAssociationStatus.EXTERNAL_BASE_NOT_FOUND
                         }
+                    }
+                    if (declaredMissingPaths.isNotEmpty()) {
+                        reasons += "manifest.json referencia APKs que não foram identificados no inventário interno: ${declaredMissingPaths.joinToString()}."
                     }
                     if (duplicateSplits.isNotEmpty()) {
                         reasons += "splitName duplicado entre membros internos/externos: ${duplicateSplits.joinToString()}."
@@ -126,6 +139,7 @@ enum class NestedPackageAssociationStatus {
     MATCHED_EXTERNAL_BASE,
     SELF_CONTAINED,
     EXTERNAL_BASE_NOT_FOUND,
+    PACKAGE_MISMATCH,
     AMBIGUOUS,
     STRUCTURE_REQUIRES_REVIEW,
     IDENTITY_UNVERIFIED,
