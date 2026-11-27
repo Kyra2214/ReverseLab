@@ -567,6 +567,20 @@ private fun ArchiveInventorySummary(inventory: ArchiveInventoryRecord) {
         inventory.manifestSplitName?.let { Text("Split name: $it", style = MaterialTheme.typography.labelSmall) }
         inventory.manifestConfigForSplit?.let { Text("Configuração para split: $it", style = MaterialTheme.typography.labelSmall) }
         if (inventory.manifestUsesSplits.isNotEmpty()) Text("Dependências de split: ${inventory.manifestUsesSplits.joinToString()}", style = MaterialTheme.typography.labelSmall)
+        inventory.xapkManifest?.let { metadata ->
+            Text(
+                "manifest.json XAPK • ${metadata.parseStatus}" +
+                    (metadata.packageName?.let { " • package=$it" } ?: ""),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            metadata.appName?.let { Text("Nome declarado: $it", style = MaterialTheme.typography.labelSmall) }
+            metadata.versionName?.let { Text("Versão declarada: $it", style = MaterialTheme.typography.labelSmall) }
+            metadata.versionCode?.let { Text("Version code: $it", style = MaterialTheme.typography.labelSmall) }
+            if (metadata.splitApkPaths.isNotEmpty()) {
+                Text("APKs declarados no manifest.json: ${metadata.splitApkPaths.joinToString()}", style = MaterialTheme.typography.labelSmall)
+            }
+        }
         if (inventory.nestedApkManifests.isNotEmpty()) {
             Text("Manifestos de APKs internos (${inventory.nestedApkManifests.size}):", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold)
             inventory.nestedApkManifests.forEach { nested ->
