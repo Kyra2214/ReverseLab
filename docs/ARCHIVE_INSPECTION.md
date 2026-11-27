@@ -52,3 +52,7 @@ Os dados são persistidos no SQLite versão 7 por migração aditiva e apresenta
 O leitor também decodifica os valores e alternativas de ABI, multi-ABI, idioma, densidade de tela e SDK mínimo nas descrições APK. Os dados são apresentados como targeting declarado pelo Bundletool, não como recomendação de instalação. Outras dimensões, como textura, sanitizer, grupos de dispositivos e países, ainda não são interpretadas semanticamente.
 
 A versão atual do parser de `toc.pb` também decodifica targeting de ABI, multi-ABI, idioma, densidade e SDK mínimo. Cada APK mantém os valores e alternativas retornados pelo protobuf. A leitura é descritiva e não seleciona variantes automaticamente.
+
+### Validação estrutural de variantes APKS
+
+A análise por variante verifica módulos sem APK descrito, dependências de módulos ausentes, duplicidade de número de variante, caminhos APK duplicados e quantidade de master splits em módulos distribuídos como split APK. Registros duplicados são preservados pelo parser para que possam ser sinalizados, em vez de serem descartados durante a leitura. Essas verificações identificam inconsistências no TOC fornecido, mas não garantem compatibilidade para todo dispositivo.
