@@ -7,9 +7,9 @@ O ReverseLab investiga como tecnologias, sistemas e mecanismos de aplicativos s�
 ## Estado atual
 
 - Fase 0 — implementação concluída; validação final pendente.
-- Último submódulo concluído: Fase 1.5 — histórico de importação e ocupação da pasta privada de amostras.
-- Os submódulos 1.3 e 1.4 permanecem parciais, com inspeção interna de contêineres e confirmação de associações pendentes.
-- Próximo: Fase 1.6 — inventário interno de APK/OBB/XAPK/APKS/AAB.
+- Último submódulo concluído: Fase 1.6 — inventário interno de APK/OBB/XAPK/APKS/AAB.
+- O submódulo 1.4 permanece parcial porque as associações de APK/splits/OBB ainda precisam de confirmação.
+- Próximo: Fase 1.7 — revisão de grupos e detecção de conjuntos incompletos.
 - Testes, builds e validações estão reservados para a fase final do projeto, conforme o fluxo de execução vigente.
 
 ## Estrutura do repositório
@@ -52,6 +52,7 @@ ReverseLab/
 - [Detecção inicial de formatos](docs/FORMAT_DETECTION.md)
 - [Pipeline de importação](docs/IMPORT_PIPELINE.md)
 - [Histórico e ocupação de armazenamento](docs/IMPORT_HISTORY.md)
+- [Inventário interno de contêineres](docs/ARCHIVE_INSPECTION.md)
 - [Decisões arquiteturais](docs/decisions/)
 - [Inventário de dependências e licenças](DEPENDENCIES.md)
 - [Changelog](CHANGELOG.md)

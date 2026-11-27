@@ -22,6 +22,10 @@ Após a seleção, um executor em segundo plano lê somente 32 bytes do cabeçal
 
 A tela também apresenta o histórico agrupado por lote e a ocupação real da pasta privada de amostras. O usuário pode atualizar o histórico manualmente. A ocupação não representa o espaço total do aplicativo.
 
+## Inventário interno de contêineres
+
+Dentro de cada lote expandido, amostras importadas com formato de contêiner podem receber uma inspeção estrutural manual. O inventário mostra entradas, tamanhos, marcadores de manifesto/DEX/recursos/bibliotecas e alertas. A operação lê o diretório central ZIP, não extrai nem executa entradas e preserva o histórico de inspeções anteriores.
+
 ## Áreas ainda em construção
 
 IA e Ajustes possuem destinos de navegação próprios, mas seus fluxos funcionais serão entregues nas fases correspondentes. A interface identifica essas áreas como em desenvolvimento e não apresenta controles sem ação.

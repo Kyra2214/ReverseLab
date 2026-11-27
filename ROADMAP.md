@@ -1380,11 +1380,11 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 |---|---|---|
 | 1.1 | Telas Início/Biblioteca e navegação funcional | Concluído (implementação; validação final pendente) |
 | 1.2 | Seletor SAF e integração das permissões persistentes | Concluído (implementação; validação final pendente) |
-| 1.3 | Seleção múltipla e detecção real de formatos | Parcial: cabeçalho detectado; estrutura interna pendente |
+| 1.3 | Seleção múltipla e detecção real de formatos | Concluído (cabeçalho e estrutura interna; validação final pendente) |
 | 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Parcial: importação e hash concluídos; associações heurísticas aguardam validação |
 | 1.5 | Histórico de importação e ocupação de armazenamento | Concluído (implementação; validação final pendente) |
-| 1.6 | Inventário interno e verificação de contêineres APK/OBB/XAPK/APKS/AAB | Próximo |
-| 1.7 | Revisão/confirmação de grupos e detecção de conjuntos incompletos | Pendente |
+| 1.6 | Inventário interno e verificação de contêineres APK/OBB/XAPK/APKS/AAB | Concluído (implementação; validação final pendente) |
+| 1.7 | Revisão e confirmação de grupos e detecção de conjuntos incompletos | Próximo |
 
 ### 22.11 Checkpoint 006
 
@@ -1448,3 +1448,19 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - 1.4: confirmação de relações entre APK base, splits e OBB; identificação de conjuntos incompletos sem promover heurísticas a fatos.
 - 1.6: inventariar entradas de contêineres com limites de segurança e validar estruturas internas reconhecíveis.
 - 1.7: apresentar candidatos de associação, permitir confirmação explícita do usuário e sinalizar conjuntos incompletos/ambíguos.
+
+
+### 22.18 Checkpoint 012
+
+- Submódulo: 1.6 — inventário interno e verificação de contêineres.
+- Implementação: inventário ZIP sem extração, detecção de AndroidManifest/DEX/resources.arsc/lib nativa, marcadores XAPK/APKS/AAB, limites de volume, alertas de caminhos/tamanhos/taxa de compressão e histórico de inspeções no SQLite.
+- Commits de código: `41778e97743dc6b3bb1d90d48249f47bd50b0684` e `0c59e7eaa16203e8dd4c5fe163d32d7d68b83c5e`.
+- Pacote completo: `ReverseLab_CHECKPOINT_012.zip`, incluindo o estado integral do projeto.
+- Integridade estrutural do ZIP: confirmada após a geração final.
+- Build e testes: não executados; permanecem na validação final.
+
+### 22.19 Atualização das pendências da Fase 1
+
+- 1.3: concluído com detecção de cabeçalho e inventário interno de estruturas reconhecíveis.
+- 1.4: permanece parcial; as relações APK/splits/OBB ainda são candidatas heurísticas e precisam de confirmação e verificação de conjuntos incompletos.
+- 1.7: próximo; revisão explícita das associações e sinalização de conjuntos incompletos/ambíguos.

@@ -30,9 +30,12 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Importação controlada para área privada, com registro PENDING antes da cópia e hash SHA-256 calculado em streaming.
 - Catálogo SQLite de amostras, identificação de duplicatas sem deduplicação física e associação heurística de APK base, splits e OBB com estado de confiança explícito.
 - Histórico de importação agrupado por lote e medição de bytes/arquivos na pasta privada de amostras, sem limpeza automática.
-- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_011.zip`, verificados estruturalmente.
+- Inventário interno de APK/OBB/XAPK/APKS/AAB e ZIP por metadados do diretório central, sem extração, com limites de segurança e alertas estruturais.
+- Histórico persistente de cada inspeção interna e migração SQLite aditiva do catálogo de amostras.
+- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_012.zip`, verificados estruturalmente.
 
 ### Deferred
-- Inspeção interna de contêineres e confirmação de associações entre APK base, splits e OBB, pendentes na Fase 1.
+- Confirmação de associações entre APK base, splits e OBB e identificação de conjuntos incompletos, pendentes na Fase 1.
+- Interpretação de AndroidManifest.xml, certificados e conteúdo DEX, nas fases seguintes.
 - Execução de builds, testes e validações para a fase final, conforme a política de execução vigente.
 - Gradle Wrapper binário oficial pendente de inclusão.
