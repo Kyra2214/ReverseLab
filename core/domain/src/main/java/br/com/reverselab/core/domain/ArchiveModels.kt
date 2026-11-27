@@ -35,6 +35,17 @@ data class NestedApkManifestRecord(
     }
 }
 
+data class XapkManifestRecord(
+    val packageName: String?,
+    val appName: String?,
+    val versionName: String?,
+    val versionCode: String?,
+    val splitApkPaths: List<String>,
+    val parseStatus: String,
+) {
+    init { require(parseStatus.isNotBlank()) }
+}
+
 data class ArchiveInventoryRecord(
     val id: ArchiveInspectionId,
     val sampleId: SampleId,
@@ -62,6 +73,7 @@ data class ArchiveInventoryRecord(
     val manifestUsesSplits: List<String> = emptyList(),
     val manifestParseStatus: String? = null,
     val nestedApkManifests: List<NestedApkManifestRecord> = emptyList(),
+    val xapkManifest: XapkManifestRecord? = null,
 ) {
     init {
         require(inspectedAtEpochMillis > 0)
