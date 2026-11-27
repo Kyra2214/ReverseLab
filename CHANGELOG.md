@@ -52,3 +52,10 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 ### Clarified
 - Confirmação humana de associação não equivale à validação técnica de completude; comparação de manifestos e package name continua pendente.
 - Nenhum arquivo importado ou derivado é removido durante a revisão de associações.
+
+### Added
+- Analisador estrutural conservador de conjuntos APK/split/OBB, distinguindo ausência de base, ambiguidade, manifesto ausente, inventário pendente e identidade não verificada sem declarar completude prematuramente.
+
+### Deferred
+- Integração da avaliação estrutural na tela de histórico e persistência de resultados derivados.
+- Decodificação e comparação de AndroidManifest.xml, package name, splitName, ABI, densidade, idioma e dependências na Fase 2.
