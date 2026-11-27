@@ -1299,7 +1299,7 @@ Esta seção registra o estado observado do código. A validação de build e te
 | Submódulo | Escopo | Estado |
 |---|---|---|
 | 0.1 | Estrutura inicial Android modular e esqueleto de navegação | Concluído (implementação; validação final pendente) |
-| 0.2 | Contratos de domínio, estados e convenções compartilhadas | Pendente |
+| 0.2 | Contratos de domínio, estados e convenções compartilhadas | Concluído (implementação; validação final pendente) |
 | 0.3 | Política de arquivos, permissões e preservação | Pendente |
 | 0.4 | Decisões arquiteturais e inventário de dependências/licenças | Pendente |
 | 0.5 | Tratamento de erros, logs e estados persistentes | Pendente |
@@ -1325,3 +1325,13 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Integridade estrutural do ZIP: confirmada; `unzip -t` não reportou erros.
 - SHA-256: `8931db2a3ec23d844c99c8827d349231e437efb004ae97ba7a6aeeb15ffb0bf4`.
 - Build e testes do aplicativo: não executados; permanecem na validação final.
+
+
+### 22.6 Checkpoint 002
+
+- Submódulo: 0.2 — contratos de domínio, estados e convenções compartilhadas.
+- Commit de código: `576fdd210bc0857af9318f0dc9e02ad50e852d7e`.
+- Pacote completo: `ReverseLab_CHECKPOINT_002.zip`, incluindo o estado integral do projeto.
+- Integridade estrutural do ZIP: confirmada; `unzip -t` não reportou erros.
+- SHA-256: `9c6f23c66726a74c15743267131295edf71597d47788939d3e8bfe79897bd526`.
+- Build e testes: não executados; permanecem na validação final.
