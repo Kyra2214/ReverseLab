@@ -57,7 +57,7 @@ class NestedPackageAssociationAnalyzer {
                         !apksToc?.packageName.isNullOrBlank() && apksToc?.packageName != packageName
                     val containerInventory = inventories[container.id]
                     val tocPathCoverageComplete = containerInventory != null &&
-                        (containerInventory.nestedApkManifests.size < 32 || containerInventory.apkEntryCount <= containerInventory.nestedApkManifests.size)
+                        (!containerInventory.truncated && (containerInventory.nestedApkManifests.size < 32 || containerInventory.apkEntryCount <= containerInventory.nestedApkManifests.size))
                     val tocMissingPaths = if (tocPathCoverageComplete) {
                         apksToc?.variants.orEmpty().flatMap { it.apks }.map { it.path }.toSet()
                             .filterNot { declared -> nested.any { it.entryPath == declared || it.entryPath.endsWith("/$declared") } }
