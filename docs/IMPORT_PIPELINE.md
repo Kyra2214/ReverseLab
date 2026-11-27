@@ -64,3 +64,9 @@ A interpretação de targeting cobre ABI, multi-ABI, idioma, densidade e SDK mí
 A tela apresenta targeting por APK: ABI/multi-ABI, idioma, densidade e SDK mínimo, com valores e alternativas. O analisador usa os metadados do TOC para verificar package name, caminhos declarados e dependências entre módulos. O limite de 32 APKs e o estado de truncamento impedem conclusões falsas sobre entradas não inspecionadas.
 
 A validação de `toc.pb` também verifica se cada módulo declarado possui APK descrito na variante, se dependências apontam para módulos presentes, se módulos split possuem exatamente um master split, e se há números de variante, módulos ou caminhos APK duplicados. O parser preserva duplicatas para revisão. Uma inconsistência gera estado de revisão estrutural, não exclusão ou correção automática.
+
+### Extração de metadados do AndroidManifest
+
+A leitura do Android Binary XML de APK individual foi ampliada para versão, SDK, permissões, features, bibliotecas e componentes Android. Os componentes incluem activity, activity-alias, service, receiver e provider, com atributos de exportação, habilitação, permissão, processo e targetActivity quando presentes. Referências a recursos permanecem identificadores hexadecimais até que o resolvedor de resources.arsc seja implementado.
+
+Os resultados são persistidos no SQLite versão 8. Listas de manifesto têm limite de 4.096 itens e componentes limite de 10.000, com sinalização explícita de truncamento. Nenhum valor omitido é inferido silenciosamente.
