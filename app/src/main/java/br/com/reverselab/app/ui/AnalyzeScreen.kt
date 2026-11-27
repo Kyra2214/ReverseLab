@@ -594,6 +594,13 @@ private fun ArchiveInventorySummary(inventory: ArchiveInventoryRecord) {
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    if (apk.targetingSummary.isNotEmpty()) {
+                        Text(
+                            "Targeting: ${apk.targetingSummary.joinToString(" | ")}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
                 if (variant.apks.size > 40) {
                     Text("Mais ${variant.apks.size - 40} entradas APK nesta variante.", style = MaterialTheme.typography.labelSmall)
