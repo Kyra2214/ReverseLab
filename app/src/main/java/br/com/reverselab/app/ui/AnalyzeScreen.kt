@@ -550,6 +550,19 @@ private fun ArchiveInventorySummary(inventory: ArchiveInventoryRecord) {
         inventory.manifestSplitName?.let { Text("Split name: $it", style = MaterialTheme.typography.labelSmall) }
         inventory.manifestConfigForSplit?.let { Text("Configuração para split: $it", style = MaterialTheme.typography.labelSmall) }
         if (inventory.manifestUsesSplits.isNotEmpty()) Text("Dependências de split: ${inventory.manifestUsesSplits.joinToString()}", style = MaterialTheme.typography.labelSmall)
+        if (inventory.nestedApkManifests.isNotEmpty()) {
+            Text("Manifestos de APKs internos (${inventory.nestedApkManifests.size}):", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold)
+            inventory.nestedApkManifests.forEach { nested ->
+                Text(
+                    "${nested.entryPath} • ${nested.packageName ?: nested.parseStatus}" +
+                        (nested.splitName?.let { " • split=$it" } ?: ""),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (nested.configForSplit != null) Text("Configuração para: ${nested.configForSplit}", style = MaterialTheme.typography.labelSmall)
+                if (nested.usesSplits.isNotEmpty()) Text("Depende de: ${nested.usesSplits.joinToString()}", style = MaterialTheme.typography.labelSmall)
+            }
+        }
         Text("resources.arsc: ${if (inventory.hasResourcesTable) "sim" else "não"} • bibliotecas nativas: ${if (inventory.hasNativeLibraries) "sim" else "não"}", style = MaterialTheme.typography.labelSmall)
         inventory.warnings.take(4).forEach { warning ->
             Text("Atenção: $warning", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
