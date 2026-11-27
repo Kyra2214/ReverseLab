@@ -46,3 +46,9 @@ Para APKs individuais, `ArchiveInspector` lê a entrada raiz `AndroidManifest.xm
 O inventário abre entradas APK como fluxos ZIP aninhados e procura somente a entrada raiz `AndroidManifest.xml`. São persistidos caminho virtual, package name, split, configForSplit, uses-split e estado do parsing. Nenhum APK interno é extraído, salvo como amostra independente ou alterado; o contêiner original permanece a única amostra importada.
 
 Limites por inspeção: até 32 APKs internos, 1ª entrada ZIP de cada APK interno e 16 MiB agregados de manifestos internos, além do limite individual de 2 MiB. Esses metadados permitem futura correlação lógica, mas não comprovam que todas as variantes necessárias foram fornecidas.
+
+### Manifesto externo XAPK
+
+O `manifest.json` da raiz é lido com limite de 256 KiB. O inventário persiste package name, nome, versão, version code, caminhos declarados em `split_apks` e estado do parsing. A UI apresenta esses dados e a análise virtual compara o package name externo com os manifestos binários dos APKs internos, além de sinalizar caminhos declarados que não foram encontrados. A migração SQLite 6 adiciona o campo de metadados sem substituir ou apagar inventários anteriores.
+
+A associação continua restrita ao lote de importação. Nenhum APK interno vira amostra independente, nenhum arquivo é extraído e a divergência entre manifest.json e manifestos binários é sinalizada como incompatibilidade. O metadado externo não comprova a presença de todas as variantes. APKS `toc.pb` e AAB protobuf permanecem sem interpretação nesta etapa.
