@@ -43,10 +43,48 @@ class PackageSetCompletenessAnalyzer {
             return result(group, imported, PackageSetStatus.STRUCTURALLY_INCOMPLETE, reasons)
         }
         if (missingInventory.isNotEmpty()) return result(group, imported, PackageSetStatus.UNKNOWN, reasons)
-        reasons += "Manifestos foram localizados estruturalmente, mas package name, splitName e dependências ainda não foram comparados."
-        reasons += "A presença de um APK base e de splits não prova que todos os splits obrigatórios foram fornecidos."
+        val baseManifest = inventories[bases.single().id]
+        val splitManifests = splits.mapNotNull { sample -> inventories[sample.id]?.let { sample to it } }
+        val parsedMembers = apkMembers.mapNotNull { sample -> inventories[sample.id]?.let { sample to it } }
+        if (parsedMembers.size != apkMembers.size || parsedMembers.any { it.second.manifestParseStatus != "PARSED" || it.second.manifestPackageName.isNullOrBlank() }) {
+            reasons += "Um ou mais manifestos não puderam fornecer package name interpretável."
+            return result(group, imported, PackageSetStatus.IDENTITY_UNVERIFIED, reasons)
+        }
+        val packageNames = parsedMembers.mapNotNull { it.second.manifestPackageName }.distinct()
+        if (packageNames.size != 1) {
+            reasons += "Os APKs associados declaram package name diferentes: " + packageNames.joinToString()
+            return result(group, imported, PackageSetStatus.PACKAGE_MISMATCH, reasons)
+        }
+        if (!baseManifest?.manifestSplitName.isNullOrBlank()) {
+            reasons += "O APK marcado como base declara splitName; a classificação de papéis pode estar incorreta."
+            return result(group, imported, PackageSetStatus.STRUCTURALLY_INCOMPLETE, reasons)
+        }
+        val splitNames = splitManifests.mapNotNull { it.second.manifestSplitName }
+        if (splitNames.size != splits.size || splitNames.any { it.isBlank() }) {
+            reasons += "Um ou mais arquivos classificados como split não declaram splitName."
+            return result(group, imported, PackageSetStatus.STRUCTURALLY_INCOMPLETE, reasons)
+        }
+        if (splitNames.distinct().size != splitNames.size) {
+            reasons += "Há splitName duplicado no conjunto associado."
+            return result(group, imported, PackageSetStatus.AMBIGUOUS, reasons)
+        }
+        val suppliedNames = splitNames.toSet()
+        val missingDependencies = splitManifests.flatMap { it.second.manifestUsesSplits }
+            .filter { it !in suppliedNames }.distinct()
+        if (missingDependencies.isNotEmpty()) {
+            reasons += "Dependências de split referenciadas mas ausentes: " + missingDependencies.joinToString()
+            return result(group, imported, PackageSetStatus.INCOMPLETE, reasons)
+        }
+        val missingConfigTargets = splitManifests.mapNotNull { it.second.manifestConfigForSplit }
+            .filter { it.isNotBlank() && it != "base" && it !in suppliedNames }.distinct()
+        if (missingConfigTargets.isNotEmpty()) {
+            reasons += "Splits de configuração apontam para módulos ausentes: " + missingConfigTargets.joinToString()
+            return result(group, imported, PackageSetStatus.INCOMPLETE, reasons)
+        }
+        reasons += "Package name coincide entre APK base e splits; splitName e dependências declaradas foram correlacionados."
+        reasons += "A completude ainda não pode ser garantida: o conjunto pode exigir splits adicionais não referenciados pelos manifestos presentes."
         if (obbs.isNotEmpty()) reasons += "OBB é conteúdo de expansão e não comprova nem substitui splits APK."
-        return result(group, imported, PackageSetStatus.IDENTITY_UNVERIFIED, reasons)
+        return result(group, imported, PackageSetStatus.IDENTITY_MATCHED_COMPLETENESS_UNVERIFIED, reasons)
     }
 
     private fun result(group: List<SampleRecord>, imported: List<SampleRecord>, status: PackageSetStatus, reasons: List<String>) = PackageSetAssessment(
@@ -61,7 +99,7 @@ class PackageSetCompletenessAnalyzer {
     }
 }
 
-enum class PackageSetStatus { NOT_A_MULTI_FILE_SET, INCOMPLETE, STRUCTURALLY_INCOMPLETE, AMBIGUOUS, UNKNOWN, IDENTITY_UNVERIFIED }
+enum class PackageSetStatus { NOT_A_MULTI_FILE_SET, INCOMPLETE, STRUCTURALLY_INCOMPLETE, PACKAGE_MISMATCH, AMBIGUOUS, UNKNOWN, IDENTITY_UNVERIFIED, IDENTITY_MATCHED_COMPLETENESS_UNVERIFIED }
 
 data class PackageSetAssessment(
     val groupId: String,
