@@ -42,6 +42,11 @@ data class ArchiveInventoryRecord(
     val suspiciousEntryCount: Int,
     val warnings: List<String>,
     val truncated: Boolean,
+    val manifestPackageName: String? = null,
+    val manifestSplitName: String? = null,
+    val manifestConfigForSplit: String? = null,
+    val manifestUsesSplits: List<String> = emptyList(),
+    val manifestParseStatus: String? = null,
 ) {
     init {
         require(inspectedAtEpochMillis > 0)
