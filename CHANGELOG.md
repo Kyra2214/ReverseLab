@@ -145,3 +145,13 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 ### Limits
 - Targeting de textura, sanitizer, grupos de dispositivos e países ainda não é interpretado semanticamente.
 - A presença de variantes e targeting no TOC não comprova cobertura completa de todos os dispositivos.
+
+## 2026-11-27
+
+### Added
+- Decodificação de targeting APKS para ABI, multi-ABI, idioma, densidade e SDK mínimo, incluindo alternativas.
+- Proteção contra falsos alertas de APK ausente quando o inventário interno atingiu o limite de 32 entradas ou foi truncado.
+- Validação de overflow em varints protobuf.
+
+### Clarified
+- A ausência de um caminho no inventário só é reportada quando a cobertura de inspeção do contêiner é completa.
