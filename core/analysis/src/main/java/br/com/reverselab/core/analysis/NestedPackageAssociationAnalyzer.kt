@@ -55,8 +55,13 @@ class NestedPackageAssociationAnalyzer {
                     val tocPackageParsed = apksToc?.parseStatus == "PARSED" || apksToc?.parseStatus == "PARSED_WITHOUT_PACKAGE"
                     val tocPackageMismatch = tocPackageParsed &&
                         !apksToc?.packageName.isNullOrBlank() && apksToc?.packageName != packageName
-                    val tocMissingPaths = apksToc?.variants.orEmpty().flatMap { it.apks }.map { it.path }.toSet()
-                        .filterNot { declared -> nested.any { it.entryPath == declared || it.entryPath.endsWith("/$declared") } }
+                    val containerInventory = inventories[container.id]
+                    val tocPathCoverageComplete = containerInventory != null &&
+                        (containerInventory.nestedApkManifests.size < 32 || containerInventory.apkEntryCount <= containerInventory.nestedApkManifests.size)
+                    val tocMissingPaths = if (tocPathCoverageComplete) {
+                        apksToc?.variants.orEmpty().flatMap { it.apks }.map { it.path }.toSet()
+                            .filterNot { declared -> nested.any { it.entryPath == declared || it.entryPath.endsWith("/$declared") } }
+                    } else emptyList()
                     val tocMissingModuleDependencies = apksToc?.variants.orEmpty().flatMap { variant ->
                         val names = variant.modules.map { it.name }.toSet()
                         variant.modules.flatMap { module ->
