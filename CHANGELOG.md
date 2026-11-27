@@ -18,7 +18,7 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Três ADRs para arquitetura modular, preservação de dados e toolchain fixada.
 - Catálogo central de versões Gradle e inventário inicial de dependências/licenças.
 - Modelo de erros com códigos, severidade, retry e IDs de correlação.
-- Logs estruturados com redação de credenciais, tokens e segredos em URLs.
+- Logs estruturados com redação de credenciais, tokens, segredos em URLs e cabeçalhos de autenticação.
 - Persistência SQLite de execuções e histórico transacional de estados, sem API de exclusão.
 - Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_005.zip`, verificados estruturalmente.
 

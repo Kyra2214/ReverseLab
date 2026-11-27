@@ -1368,5 +1368,7 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 
 - Submódulo: 0.5 — tratamento de erros, logs e estados persistentes.
 - Implementação: modelo de erros, logs estruturados com redação, armazenamento SQLite de execuções e trilha transacional de mudanças de estado.
+- Commit de código: `cc865c8694bde2c73935d1262cbdfa930605f47a`.
 - Pacote completo: `ReverseLab_CHECKPOINT_005.zip`, incluindo o estado integral do projeto.
+- Integridade estrutural do ZIP: confirmada após a geração final.
 - Build e testes: não executados; permanecem na validação final.

@@ -7,7 +7,7 @@ O ReverseLab investiga como tecnologias, sistemas e mecanismos de aplicativos s�
 ## Estado atual
 
 - Fase 0 — Fundação e governança: em andamento.
-- Último submódulo concluído: 0.4 — decisões arquiteturais e inventário inicial de dependências/licenças. Próximo: 0.5 — erros, logs e estados persistentes.
+- Último submódulo concluído: 0.5 — erros, logs e estados persistentes. Próximo: 0.6 — backup e exportação dos dados.
 - A aplicação possui um esqueleto inicial em Kotlin e Jetpack Compose.
 - Recursos de importação, análise estática, CryptoLab, IA e Knowledge Vault ainda serão implementados na ordem do [roadmap](ROADMAP.md).
 - Testes, builds e validações estão reservados para a fase final do projeto, conforme o fluxo de execução vigente.

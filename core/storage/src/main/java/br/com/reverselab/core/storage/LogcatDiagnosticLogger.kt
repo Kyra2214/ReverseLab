@@ -36,7 +36,7 @@ object SensitiveDataRedactor {
         RegexOption.IGNORE_CASE,
     )
     private val bearerValue = Regex("(?i)(bearer\\s+)[A-Za-z0-9._~+/-]+=*")
-    private val querySecret = Regex("(?i)(access_token|api_key|token|password|secret)=([^&\\s]+)")
+    private val querySecret = Regex("(?i)(access_token|refresh_token|client_secret|api_key|token|password|secret|authorization)=([^&\\s]+)")
 
     fun redact(key: String, value: String): String {
         if (sensitiveKey.matches(key)) return "[REDACTED]"

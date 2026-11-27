@@ -6,7 +6,7 @@
 - Commit do submódulo 0.2: `576fdd210bc0857af9318f0dc9e02ad50e852d7e`.
 - Commit do submódulo 0.3: `34d539bd53e4bf81459b48d8297b4048147b9d41`.
 - Commit do submódulo 0.4: `b34dc6556e02f94216f502a081c864dbb354b2fa`.
-- Commit do submódulo 0.5: pendente de publicação neste checkpoint.
+- Commit do submódulo 0.5: `cc865c8694bde2c73935d1262cbdfa930605f47a`.
 - Fase atual: Fase 0 — Fundação e governança.
 - Últimos submódulos concluídos: 0.1 — estrutura Android modular; 0.2 — contratos de domínio e estados; 0.3 — política de arquivos e permissões; 0.4 — decisões arquiteturais e inventário inicial de dependências/licenças; 0.5 — erros, logs e estados persistentes.
 - Próximo submódulo: 0.6 — estratégia de backup e exportação dos dados do usuário.
@@ -16,5 +16,5 @@
 - Checkpoint 002: `ReverseLab_CHECKPOINT_002.zip`, integridade estrutural confirmada.
 - Checkpoint 003: `ReverseLab_CHECKPOINT_003.zip`, integridade estrutural confirmada.
 - Checkpoint 004: `ReverseLab_CHECKPOINT_004.zip`, integridade estrutural confirmada.
-- Checkpoint 005: `ReverseLab_CHECKPOINT_005.zip`, pacote integral do estado atual.
+- Checkpoint 005: `ReverseLab_CHECKPOINT_005.zip`, pacote integral do estado atual, integridade estrutural confirmada.
 - Percentual global estimado: inferior a 1%; 5 submódulos de 6 da Fase 0 concluídos. A validação final continua pendente.
