@@ -83,3 +83,18 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - A migração do inventário detecta colunas já existentes, inclusive quando um catálogo antigo cria a tabela durante o mesmo upgrade.
 - Grupos com múltiplos APKs base de mesmo package permanecem juntos como ambíguos, em vez de separar as bases dos splits.
 - Documentação do avaliador atualizada para refletir o uso real dos manifestos binários.
+
+
+## 2026-11-27
+
+### Added
+- Leitura limitada de manifestos Android Binary XML em APKs aninhados de XAPK/APKS, sem extração em disco.
+- Persistência dos caminhos virtuais, package name, split, configForSplit, dependências uses-split e status de parsing dos APKs internos.
+- Migração SQLite 5 para armazenar manifestos aninhados, preservando inventários antigos.
+- Apresentação dos manifestos internos no resumo de inspeção da tela Analisar.
+
+### Limits
+- APKs internos continuam sendo referências virtuais ao contêiner original, não amostras independentes.
+- A correlação lógica desses membros com APKs externos/base e a confirmação de completude permanecem pendentes.
+- Limites: 32 APKs internos, 128 entradas por APK, 2 MiB por manifesto e 16 MiB agregados.
+- Builds/testes não executados; ficam para a validação final. ZIPs não gerados por instrução do usuário.
