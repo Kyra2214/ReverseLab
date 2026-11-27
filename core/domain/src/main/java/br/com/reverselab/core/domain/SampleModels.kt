@@ -69,6 +69,7 @@ interface SampleCatalog {
         groupId: SampleGroupId,
         confidence: SampleAssociationConfidence,
     )
+    fun updateRole(id: SampleId, role: SampleRole)
     fun saveArchiveInventory(inventory: ArchiveInventoryRecord)
     fun listArchiveInventories(sampleId: SampleId): List<ArchiveInventoryRecord>
     fun reviewAssociations(updates: List<SampleAssociationUpdate>, reviewedAtEpochMillis: Long)
