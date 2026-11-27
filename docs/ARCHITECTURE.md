@@ -23,6 +23,8 @@ Fundação inicial criada na Fase 0. Esta arquitetura é a separação inicial d
 - Decisões arquiteturais: `docs/decisions/`.
 - Dependências e licenças: `DEPENDENCIES.md`.
 - Versões centralizadas: `gradle/libs.versions.toml`.
+- Política de preservação: `docs/STORAGE_POLICY.md`.
+- Backup e exportação: `docs/BACKUP_EXPORT.md`.
 
 ## Decisões iniciais
 

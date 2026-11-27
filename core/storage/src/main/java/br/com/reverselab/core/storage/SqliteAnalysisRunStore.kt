@@ -16,6 +16,9 @@ import br.com.reverselab.core.domain.ProjectId
 import br.com.reverselab.core.domain.SampleId
 import br.com.reverselab.core.domain.canTransitionTo
 import org.json.JSONArray
+import java.io.FileInputStream
+import java.io.IOException
+import java.io.OutputStream
 
 class SqliteAnalysisRunStore(context: Context) : SQLiteOpenHelper(
     context.applicationContext,
@@ -23,6 +26,26 @@ class SqliteAnalysisRunStore(context: Context) : SQLiteOpenHelper(
     null,
     DATABASE_VERSION,
 ), AnalysisRunStore {
+    private val appContext = context.applicationContext
+
+    init {
+        setWriteAheadLoggingEnabled(true)
+    }
+
+    /** Writes a consistent database snapshot without closing the caller's output stream. */
+    @Synchronized
+    fun writeSnapshotTo(outputStream: OutputStream) {
+        val db = writableDatabase
+        db.rawQuery("PRAGMA wal_checkpoint(FULL)", null).use { result ->
+            if (!result.moveToFirst() || result.getInt(0) != 0) {
+                throw IOException("Não foi possível concluir o checkpoint do banco SQLite.")
+            }
+        }
+        close()
+        val databaseFile = appContext.getDatabasePath(DATABASE_NAME)
+        if (!databaseFile.isFile) throw IOException("Arquivo do banco local não encontrado.")
+        FileInputStream(databaseFile).use { input -> input.copyTo(outputStream) }
+    }
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(
@@ -69,14 +92,17 @@ class SqliteAnalysisRunStore(context: Context) : SQLiteOpenHelper(
         error("Migração SQLite não definida: $oldVersion -> $newVersion")
     }
 
+    @Synchronized
     override fun insert(run: AnalysisRun) {
         writableDatabase.insertOrThrow(TABLE_RUNS, null, run.toContentValues())
     }
 
+    @Synchronized
     override fun findById(id: AnalysisRunId): AnalysisRun? = readableDatabase.query(
         TABLE_RUNS, null, "id = ?", arrayOf(id.value), null, null, null, "1",
     ).use { cursor -> if (cursor.moveToFirst()) cursor.toAnalysisRun() else null }
 
+    @Synchronized
     override fun findByProject(projectId: ProjectId): List<AnalysisRun> =
         readableDatabase.query(
             TABLE_RUNS, null, "project_id = ?", arrayOf(projectId.value),
@@ -87,6 +113,7 @@ class SqliteAnalysisRunStore(context: Context) : SQLiteOpenHelper(
             }
         }
 
+    @Synchronized
     override fun transitionState(
         id: AnalysisRunId,
         expected: ProcessingState,
