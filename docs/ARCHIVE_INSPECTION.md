@@ -35,4 +35,4 @@ A etapa seguinte deve interpretar package name e versões no manifesto binário,
 
 ## Leitura de manifestos de APKs internos
 
-Para XAPK/APKS, o inspetor percorre até 32 entradas APK, abre cada uma como fluxo ZIP aninhado e lê somente o manifesto raiz. Não há extração em disco, cópia adicional nem execução. A leitura é limitada a 128 entradas por APK, 2 MiB por manifesto e 16 MiB agregados. O resultado mantém o caminho virtual e a identidade declarada, sem criar amostra independente nem afirmar completude.
+Para XAPK/APKS, o inspetor percorre até 32 entradas APK, abre cada uma como fluxo ZIP aninhado e lê somente o manifesto raiz. Não há extração em disco, cópia adicional nem execução. A leitura é limitada a 1ª entrada por APK, 2 MiB por manifesto e 16 MiB agregados. O resultado mantém o caminho virtual e a identidade declarada, sem criar amostra independente nem afirmar completude.
