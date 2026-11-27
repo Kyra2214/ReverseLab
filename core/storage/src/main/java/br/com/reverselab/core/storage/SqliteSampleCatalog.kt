@@ -127,6 +127,17 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
     }
 
     @Synchronized
+    override fun updateRole(id: SampleId, role: SampleRole) {
+        val changed = writableDatabase.update(
+            TABLE_SAMPLES,
+            ContentValues().apply { put("role", role.name) },
+            "id = ?",
+            arrayOf(id.value),
+        )
+        check(changed == 1) { "Amostra não encontrada para atualização de papel: ${id.value}" }
+    }
+
+    @Synchronized
     override fun saveArchiveInventory(inventory: ArchiveInventoryRecord) {
         writableDatabase.insertOrThrow(TABLE_ARCHIVE_INVENTORIES, null, inventory.toContentValues())
     }
