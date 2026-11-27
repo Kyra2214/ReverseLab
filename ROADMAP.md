@@ -1542,3 +1542,14 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - UI apresenta os metadados; o analisador cruza package name externo com manifestos internos e sinaliza divergências e caminhos declarados não encontrados.
 - APKS `toc.pb`, AAB protobuf, variantes ABI/densidade/idioma e confirmação de completude permanecem pendentes.
 - Build/testes não executados, conforme a política de validação final. Nenhum ZIP gerado.
+
+### 22.28 — Interpretação de toc.pb em APKS
+
+- Novo `ApksTocParser`: leitor protobuf limitado a 4 MiB para `BuildApksResult` do Bundletool.
+- Extrai package name, variantes, módulos, dependências, caminhos APK, split IDs, master split, tipo de metadado e presença de targeting.
+- Campos desconhecidos são ignorados por wire type; varints, comprimentos, truncamento, quantidade de campos e caminhos recebem validação.
+- `ArchiveInspector` compara os caminhos declarados com as entradas internas sem extração. Se o limite de 32 APKs impedir cobertura integral, a análise informa cobertura parcial e não acusa falsamente APKs não inspecionados como ausentes.
+- Persistência SQLite versão 7 por migração aditiva; UI apresenta variantes, módulos e descrições APK.
+- Analisador de associação compara package name do TOC com manifestos internos e verifica caminhos e dependências de módulos por variante.
+- A leitura do TOC não prova que todas as variantes de um dispositivo foram fornecidas; targeting ainda é indicado apenas como presente, sem interpretação semântica detalhada.
+- Build/testes não executados, conforme política de validação final. Nenhum ZIP gerado.
