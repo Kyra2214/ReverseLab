@@ -31,7 +31,7 @@
 - Importação Fase 1.4: o `SampleImportCoordinator` agora inspeciona APKs importados, persiste inventário/manifesto, corrige BASE/SPLIT pelo atributo split e agrupa por package name com confiança MANIFEST_VERIFIED. OBB permanece heurístico. XAPK/APKS ainda não expandem seus APKs internos como amostras individuais.
 
 - Ajuste adicional `285c864`: em múltiplas bases com mesmo package, bases e splits permanecem no mesmo grupo ambíguo para revisão. `e011363` atualiza o contrato documental do avaliador.
-- Estado de execução: 1.4 e 1.7 parcialmente implementados. Próxima pendência de 1.4: ler metadados de APKs aninhados em XAPK/APKS e correlacioná-los sem descartar o contêiner original. Próxima pendência de 1.7: estender parsing para estruturas compostas e refinar os requisitos de completude sem inferir splits ausentes.
+- Estado de execução: 1.4 e 1.7 parcialmente implementados. Pendência atual de 1.4: correlacionar logicamente os manifestos virtuais de APKs internos com amostras/base sem descartar ou duplicar o contêiner original. Próxima pendência de 1.7: estender parsing para estruturas compostas e refinar os requisitos de completude sem inferir splits ausentes.
 
 
 ## Atualização 2026-11-27
@@ -40,5 +40,7 @@
 - Implementado: parsing por fluxo ZIP aninhado, sem extração; persistência SQLite 5; exibição de package/split/configForSplit/uses-split por caminho virtual; limites explícitos de leitura.
 - Não implementado ainda: associação lógica desses membros a amostras externas ou bases, parsing de toc.pb/manifest.json e prova de completude de variantes.
 - Estado: Fase 1.4 parcialmente implementada; Fase 1.7 parcialmente implementada. Nenhum build/teste executado.
-- Próximo requisito: correlação segura dos APKs internos por package name/splitName, mantendo as entradas como referências virtuais vinculadas ao contêiner original.
+- Próximo requisito: correlação segura dos APKs internos por package name/splitName, mantendo as entradas como referências virtuais vinculadas ao contêiner original. O parser lê conservadoramente apenas a primeira entrada ZIP do APK interno; quando o manifesto não está nela, registra MANIFEST_NOT_FIRST sem percorrer dados potencialmente expansivos.
 - ZIPs: ignorados por instrução explícita do usuário.
+
+- Commit mais recente: `a6c82205e437344865cf2fd671b4a9458054a45e`.
