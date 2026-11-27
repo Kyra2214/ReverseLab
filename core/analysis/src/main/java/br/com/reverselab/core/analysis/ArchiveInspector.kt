@@ -208,7 +208,7 @@ class ArchiveInspector {
         return normalized.startsWith('/') ||
             normalized.split('/').any { it == ".." } ||
             WINDOWS_DRIVE_PREFIX.containsMatchIn(normalized) ||
-            path.contains('\\u0000')
+            path.contains('\u0000')
     }
 
     private companion object {
