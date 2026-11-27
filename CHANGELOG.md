@@ -59,3 +59,15 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 ### Deferred
 - Integração da avaliação estrutural na tela de histórico e persistência de resultados derivados.
 - Decodificação e comparação de AndroidManifest.xml, package name, splitName, ABI, densidade, idioma e dependências na Fase 2.
+
+
+### Added
+- Parser de Android Binary XML para extrair package, split, configForSplit e uses-split de APKs individuais, com limite de leitura.
+- Persistência dos metadados do manifesto no inventário SQLite, com migração aditiva para catálogo versão 4.
+- Correlação de package name, splitName, dependências e alvos configForSplit na avaliação de grupos APK/splits; divergências e referências ausentes são sinalizadas.
+- Exibição dos metadados de manifesto no histórico da amostra.
+
+### Limitations
+- Manifestos de APKs aninhados em XAPK/APKS e manifestos protobuf de AAB ainda não são decodificados.
+- A identidade coincidente não comprova a presença de todos os splits requeridos; a avaliação permanece conservadora.
+- Builds e testes permanecem reservados para a validação final.
