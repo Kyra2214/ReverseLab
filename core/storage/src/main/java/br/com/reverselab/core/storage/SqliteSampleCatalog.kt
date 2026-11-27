@@ -64,6 +64,7 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         if (oldVersion < 5) addNestedManifestColumn(db)
         if (oldVersion < 6) addXapkManifestColumn(db)
         if (oldVersion < 7) addApksTocColumn(db)
+        if (oldVersion < 8) addManifestDetailsColumn(db)
         if (newVersion > DATABASE_VERSION) error("Versão futura do catálogo de amostras não suportada: $newVersion")
     }
 
@@ -272,7 +273,38 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         put("nested_apk_manifests_json", nestedApkManifests.toNestedJson())
         put("xapk_manifest_metadata_json", xapkManifest?.toXapkJson())
         put("apks_toc_metadata_json", apksToc?.toApksTocJson())
+        put("manifest_details_json", manifestDetails?.toManifestDetailsJson())
     }
+
+    private fun br.com.reverselab.core.domain.AndroidManifestDetailsRecord.toManifestDetailsJson(): String = JSONObject().apply {
+        put("versionCode", versionCode)
+        put("versionCodeMajor", versionCodeMajor)
+        put("versionName", versionName)
+        put("minSdkVersion", minSdkVersion)
+        put("targetSdkVersion", targetSdkVersion)
+        put("applicationName", applicationName)
+        put("applicationLabel", applicationLabel)
+        put("debuggable", debuggable)
+        put("allowBackup", allowBackup)
+        put("usesCleartextTraffic", usesCleartextTraffic)
+        put("permissions", permissions.toJsonArray())
+        put("declaredPermissions", declaredPermissions.toJsonArray())
+        put("features", features.toJsonArray())
+        put("usesLibraries", usesLibraries.toJsonArray())
+        put("truncated", truncated)
+        put("components", JSONArray().apply {
+            components.forEach { component ->
+                put(JSONObject()
+                    .put("type", component.type)
+                    .put("name", component.name)
+                    .put("exported", component.exported)
+                    .put("enabled", component.enabled)
+                    .put("permission", component.permission)
+                    .put("process", component.process)
+                    .put("targetActivity", component.targetActivity))
+            }
+        })
+    }.toString()
 
     private fun br.com.reverselab.core.domain.ApksTocRecord.toApksTocJson(): String = JSONObject().apply {
         put("packageName", packageName)
@@ -384,6 +416,41 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
             manifestConfigForSplit = getNullableString("manifest_config_for_split"),
             manifestUsesSplits = JSONArray(getString(getColumnIndexOrThrow("manifest_uses_splits_json"))).toStringList(),
             manifestParseStatus = getNullableString("manifest_parse_status"),
+            manifestDetails = getNullableString("manifest_details_json")?.let { raw ->
+                val root = JSONObject(raw)
+                val componentArray = root.optJSONArray("components") ?: JSONArray()
+                br.com.reverselab.core.domain.AndroidManifestDetailsRecord(
+                    versionCode = root.optString("versionCode").takeIf { it.isNotBlank() && it != "null" },
+                    versionCodeMajor = root.optString("versionCodeMajor").takeIf { it.isNotBlank() && it != "null" },
+                    versionName = root.optString("versionName").takeIf { it.isNotBlank() && it != "null" },
+                    minSdkVersion = root.optString("minSdkVersion").takeIf { it.isNotBlank() && it != "null" },
+                    targetSdkVersion = root.optString("targetSdkVersion").takeIf { it.isNotBlank() && it != "null" },
+                    applicationName = root.optString("applicationName").takeIf { it.isNotBlank() && it != "null" },
+                    applicationLabel = root.optString("applicationLabel").takeIf { it.isNotBlank() && it != "null" },
+                    debuggable = if (root.has("debuggable") && !root.isNull("debuggable")) root.getBoolean("debuggable") else null,
+                    allowBackup = if (root.has("allowBackup") && !root.isNull("allowBackup")) root.getBoolean("allowBackup") else null,
+                    usesCleartextTraffic = if (root.has("usesCleartextTraffic") && !root.isNull("usesCleartextTraffic")) root.getBoolean("usesCleartextTraffic") else null,
+                    permissions = root.optJSONArray("permissions").toStringList(),
+                    declaredPermissions = root.optJSONArray("declaredPermissions").toStringList(),
+                    features = root.optJSONArray("features").toStringList(),
+                    usesLibraries = root.optJSONArray("usesLibraries").toStringList(),
+                    truncated = root.optBoolean("truncated", false),
+                    components = buildList {
+                        for (index in 0 until componentArray.length()) {
+                            val item = componentArray.getJSONObject(index)
+                            add(br.com.reverselab.core.domain.AndroidComponentRecord(
+                                type = item.getString("type"),
+                                name = item.getString("name"),
+                                exported = if (item.has("exported") && !item.isNull("exported")) item.getBoolean("exported") else null,
+                                enabled = if (item.has("enabled") && !item.isNull("enabled")) item.getBoolean("enabled") else null,
+                                permission = item.optString("permission").takeIf { it.isNotBlank() && it != "null" },
+                                process = item.optString("process").takeIf { it.isNotBlank() && it != "null" },
+                                targetActivity = item.optString("targetActivity").takeIf { it.isNotBlank() && it != "null" },
+                            ))
+                        }
+                    },
+                )
+            },
             apksToc = getNullableString("apks_toc_metadata_json")?.let { raw ->
                 val root = JSONObject(raw)
                 val variants = root.optJSONArray("variants") ?: JSONArray()
@@ -492,7 +559,8 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
                 manifest_parse_status TEXT,
                 nested_apk_manifests_json TEXT NOT NULL DEFAULT '[]',
                 xapk_manifest_metadata_json TEXT,
-                apks_toc_metadata_json TEXT
+                apks_toc_metadata_json TEXT,
+                manifest_details_json TEXT
             )
             """.trimIndent(),
         )
@@ -511,6 +579,10 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         action = SampleAssociationReviewAction.valueOf(getString(getColumnIndexOrThrow("action"))),
         reviewedAtEpochMillis = getLong(getColumnIndexOrThrow("reviewed_at")),
     )
+
+    private fun addManifestDetailsColumn(db: SQLiteDatabase) {
+        addColumnIfMissing(db, "manifest_details_json", "TEXT")
+    }
 
     private fun addApksTocColumn(db: SQLiteDatabase) {
         addColumnIfMissing(db, "apks_toc_metadata_json", "TEXT")
@@ -586,7 +658,7 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
 
     private companion object {
         const val DATABASE_NAME = "reverselab_samples.db"
-        const val DATABASE_VERSION = 7
+        const val DATABASE_VERSION = 8
         const val TABLE_SAMPLES = "samples"
         const val TABLE_ARCHIVE_INVENTORIES = "archive_inventories"
         const val TABLE_ASSOCIATION_REVIEWS = "sample_association_reviews"
