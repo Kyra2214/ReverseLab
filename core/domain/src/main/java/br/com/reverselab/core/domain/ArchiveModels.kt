@@ -53,6 +53,7 @@ data class ApksTocApkRecord(
     val isMasterSplit: Boolean?,
     val metadataKind: String?,
     val hasTargeting: Boolean,
+    val targetingSummary: List<String> = emptyList(),
 )
 
 data class ApksTocModuleRecord(
