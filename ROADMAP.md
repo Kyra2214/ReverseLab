@@ -1381,10 +1381,10 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 | 1.1 | Telas Início/Biblioteca e navegação funcional | Concluído (implementação; validação final pendente) |
 | 1.2 | Seletor SAF e integração das permissões persistentes | Concluído (implementação; validação final pendente) |
 | 1.3 | Seleção múltipla e detecção real de formatos | Concluído (cabeçalho e estrutura interna; validação final pendente) |
-| 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Parcial: importação e hash concluídos; associações heurísticas aguardam validação |
+| 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Parcial: importação, manifesto binário, inventário virtual XAPK/APKS, correlação por lote e leitura do manifest.json XAPK implementados; toc.pb/AAB e confirmação de completude pendentes |
 | 1.5 | Histórico de importação e ocupação de armazenamento | Concluído (implementação; validação final pendente) |
 | 1.6 | Inventário interno e verificação de contêineres APK/OBB/XAPK/APKS/AAB | Concluído (implementação; validação final pendente) |
-| 1.7 | Revisão e confirmação de grupos e detecção de conjuntos incompletos | Parcial: revisão manual, separação, vínculo ao APK base e auditoria implementados; completude técnica por manifesto pendente |
+| 1.7 | Revisão e confirmação de grupos e detecção de conjuntos incompletos | Parcial: revisão auditada e correlação de identidade/splits, inclusive membros virtuais; prova de completude e interpretação de variantes ainda pendentes |
 
 ### 22.11 Checkpoint 006
 
@@ -1532,3 +1532,13 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Limites anteriores de leitura permanecem: até 32 APKs internos, somente a primeira entrada ZIP de cada APK, 2 MiB por manifesto e 16 MiB agregados.
 - Estado: implementação da correlação lógica de 1.4 concluída em nível de análise/apresentação; interpretação de toc.pb/manifest.json e confirmação de completude continuam pendentes.
 - Build e testes não executados, conforme a política de validação final. Nenhum ZIP gerado.
+
+### 22.27 — Interpretação do manifest.json XAPK
+
+- O `ArchiveInspector` lê o `manifest.json` da raiz com limite de 256 KiB, sem extração.
+- Metadados tipados: package name, nome, versão, version code, caminhos declarados em `split_apks` e status do parsing.
+- Caminhos inseguros são descartados; limites de tamanho são aplicados também quando o ZIP não declara tamanho confiável.
+- Persistência SQLite versão 6 por migração aditiva; inventários antigos recebem valor nulo e continuam legíveis.
+- UI apresenta os metadados; o analisador cruza package name externo com manifestos internos e sinaliza divergências e caminhos declarados não encontrados.
+- APKS `toc.pb`, AAB protobuf, variantes ABI/densidade/idioma e confirmação de completude permanecem pendentes.
+- Build/testes não executados, conforme a política de validação final. Nenhum ZIP gerado.
