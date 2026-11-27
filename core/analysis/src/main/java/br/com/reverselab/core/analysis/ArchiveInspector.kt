@@ -138,7 +138,7 @@ class ArchiveInspector {
                             var scannedEntries = 0
                             var parsed: AndroidManifestMetadata? = null
                             var parseStatus = "MANIFEST_NOT_FOUND"
-                            while (scannedEntries < MAX_NESTED_APK_ENTRIES) {
+                            while (scannedEntries < 1) {
                                 val inner = nestedZip.nextEntry ?: break
                                 scannedEntries++
                                 if (inner.name == "AndroidManifest.xml") {
@@ -149,7 +149,7 @@ class ArchiveInspector {
                                     parseStatus = parsed?.parseStatus ?: "LIMIT_EXCEEDED: limite agregado de manifestos internos excedido."
                                     break
                                 }
-                                nestedZip.closeEntry()
+                                parseStatus = "MANIFEST_NOT_FIRST: manifesto não é a primeira entrada do APK interno."
                             }
                             NestedApkManifestRecord(
                                 entryPath = nestedPath.take(MAX_ENTRY_PATH_LENGTH),
@@ -318,7 +318,7 @@ class ArchiveInspector {
         const val MAX_WARNINGS = 100
         const val MAX_MANIFEST_BYTES = 2L * 1024L * 1024L
         const val MAX_NESTED_APKS = 32
-        const val MAX_NESTED_APK_ENTRIES = 128
+        const val MAX_NESTED_APK_ENTRIES = 1
         const val MAX_TOTAL_NESTED_MANIFEST_BYTES = 16L * 1024L * 1024L
         val DEX_ENTRY = Regex("classes(\\d*)\\.dex")
         val WINDOWS_DRIVE_PREFIX = Regex("^[a-zA-Z]:")
