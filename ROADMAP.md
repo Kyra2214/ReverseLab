@@ -1521,3 +1521,14 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Limites: 32 APKs internos, 1ª entrada por APK, 2 MiB por manifesto e 16 MiB agregados.
 - Ainda pendente: associação lógica entre entradas internas e amostras externas/base, interpretação de toc.pb/manifest.json e confirmação conservadora da completude.
 - Builds/testes permanecem para a validação final; ZIPs desativados por instrução do usuário.
+
+### 22.26 — Correlação lógica de APKs virtuais em XAPK/APKS
+
+- Novo `NestedPackageAssociationAnalyzer`: correlaciona package name de APKs internos com APKs externos somente dentro do mesmo lote de importação.
+- Reconhece base externa correspondente, conjunto aparentemente autocontido, ausência de base, identidade não interpretada, ambiguidade e conflitos estruturais de split/dependências.
+- A correlação é virtual: não cria amostras, não extrai APKs internos, não move arquivos e não altera a associação persistida do contêiner.
+- A tela Analisar apresenta o resultado por contêiner, package name, caminhos virtuais e motivos.
+- A identidade coincidente não comprova completude de variantes; resultados com duplicidade ou dependências ausentes exigem revisão.
+- Limites anteriores de leitura permanecem: até 32 APKs internos, somente a primeira entrada ZIP de cada APK, 2 MiB por manifesto e 16 MiB agregados.
+- Estado: implementação da correlação lógica de 1.4 concluída em nível de análise/apresentação; interpretação de toc.pb/manifest.json e confirmação de completude continuam pendentes.
+- Build e testes não executados, conforme a política de validação final. Nenhum ZIP gerado.
