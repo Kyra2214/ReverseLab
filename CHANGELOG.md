@@ -20,7 +20,9 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Modelo de erros com códigos, severidade, retry e IDs de correlação.
 - Logs estruturados com redação de credenciais, tokens, segredos em URLs e cabeçalhos de autenticação.
 - Persistência SQLite de execuções e histórico transacional de estados, sem API de exclusão.
-- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_005.zip`, verificados estruturalmente.
+- Exportação de backup ZIP com manifesto, snapshot SQLite consistente e controle de autorização do destino.
+- Documentação do formato de backup, escopo e limitações de restauração.
+- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_006.zip`, verificados estruturalmente.
 
 ### Deferred
 - Execução de builds, testes e validações para a fase final, conforme a política de execução vigente.

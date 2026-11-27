@@ -1372,3 +1372,23 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Pacote completo: `ReverseLab_CHECKPOINT_005.zip`, incluindo o estado integral do projeto.
 - Integridade estrutural do ZIP: confirmada após a geração final.
 - Build e testes: não executados; permanecem na validação final.
+
+
+### 22.10 Decomposição operacional da Fase 1
+
+| Submódulo | Escopo | Estado |
+|---|---|---|
+| 1.1 | Telas Início/Biblioteca e navegação funcional | Próximo |
+| 1.2 | Seletor SAF e integração das permissões persistentes | Pendente |
+| 1.3 | Seleção múltipla e detecção real de formatos | Pendente |
+| 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Pendente |
+| 1.5 | Histórico de importação e ocupação de armazenamento | Pendente |
+
+### 22.11 Checkpoint 006
+
+- Submódulo: 0.6 — estratégia de backup e exportação dos dados do usuário.
+- Implementação: exportador ZIP com manifesto e snapshot SQLite consistente, destino SAF e gate de confirmação para sobrescrita.
+- Commit de código: `4d3c995d3e3a184726b07beb612bebad48dc0b82`.
+- Pacote completo: `ReverseLab_CHECKPOINT_006.zip`, incluindo o estado integral do projeto.
+- Integridade estrutural do ZIP: confirmada após a geração final.
+- Build e testes: não executados; permanecem na validação final.
