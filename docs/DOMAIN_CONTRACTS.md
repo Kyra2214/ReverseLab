@@ -33,3 +33,8 @@
 ## Persistência de execuções
 
 `AnalysisRunStore` define inserção, consulta por ID/projeto e transição condicional de estado. Não expõe exclusão de histórico. A implementação SQLite registra eventos de transição para permitir auditoria e retomada.
+
+
+## Revisão de associações de amostras
+
+SampleAssociationUpdate representa a alteração solicitada pelo usuário e SampleAssociationReviewRecord registra os valores anteriores e novos, a ação e o instante da revisão. O catálogo não oferece exclusão de amostras. A implementação SQLite atualiza os vínculos e grava a auditoria em uma única transação. USER_REJECTED significa que a associação foi explicitamente separada pelo usuário; não significa que o pacote foi tecnicamente analisado ou considerado incompatível.

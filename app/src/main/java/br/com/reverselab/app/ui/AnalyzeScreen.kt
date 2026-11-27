@@ -431,6 +431,14 @@ private fun ImportBatchCard(
             Text("Formatos: ${batch.formats.joinToString()}", style = MaterialTheme.typography.bodySmall)
             if (batch.duplicateCandidates > 0) Text("Possíveis duplicatas: ${batch.duplicateCandidates}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
             if (batch.associationReviews.isNotEmpty()) Text("Revisões de associação registradas: ${batch.associationReviews.size}", style = MaterialTheme.typography.labelSmall)
+            batch.associationReviews.forEach { review ->
+                val reviewedSampleName = batch.samples.firstOrNull { it.id == review.sampleId }?.displayName ?: review.sampleId.value
+                Text(
+                    "${associationReviewActionLabel(review.action)} • $reviewedSampleName • ${review.previousConfidence.name} → ${review.newConfidence.name} • ${formatDate(review.reviewedAtEpochMillis)}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             if (baseCandidates.isEmpty() && batch.samples.any { it.role == SampleRole.SPLIT_APK_CANDIDATE || it.role == SampleRole.OBB_CANDIDATE }) {
                 Text("Nenhum APK base importado com sucesso neste lote. O conjunto pode estar incompleto, mas isso ainda não pode ser confirmado sem os manifestos.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
             }
@@ -545,6 +553,12 @@ private fun EmptyListCard(message: String) {
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant), modifier = Modifier.fillMaxWidth()) {
         Text(message, modifier = Modifier.padding(18.dp), style = MaterialTheme.typography.bodyMedium)
     }
+}
+
+private fun associationReviewActionLabel(action: SampleAssociationReviewAction): String = when (action) {
+    SampleAssociationReviewAction.CONFIRM_GROUP -> "Grupo confirmado"
+    SampleAssociationReviewAction.SEPARATE_GROUP -> "Amostra separada"
+    SampleAssociationReviewAction.ASSIGN_TO_BASE -> "Vínculo manual ao APK base"
 }
 
 private fun associationLabel(confidence: SampleAssociationConfidence): String = when (confidence) {

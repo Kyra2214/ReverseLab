@@ -16,9 +16,11 @@
 - Commits do submódulo 1.6: `41778e97743dc6b3bb1d90d48249f47bd50b0684` e `0c59e7eaa16203e8dd4c5fe163d32d7d68b83c5e`.
 - Fase 0: implementação dos seis submódulos concluída; validação final pendente.
 - Fase 1: 1.1, 1.2, 1.3, 1.5 e 1.6 concluídos; 1.4 parcial; 1.7 é o próximo.
-- Próximo submódulo: 1.7 — revisão e confirmação de grupos e detecção de conjuntos incompletos.
+- Submódulo 1.7: revisão manual de associações implementada parcialmente no commit 55199248a6fda06c1488edcb0ac37e14ae69d6ae; integração do estado USER_REJECTED e apresentação detalhada do histórico corrigidas no checkpoint seguinte. A detecção técnica de completude por manifesto permanece pendente.
+- Próximo foco: concluir os limites residuais da Fase 1, especialmente validação estrutural de conjuntos e critérios de completude por manifesto, antes de avançar para a Fase 2.
 - Testes/builds: não executados por regra de execução; ficam acumulados para a validação final.
 - Pendência técnica: Gradle Wrapper binário oficial não foi obtido neste ambiente; não foi criado binário fictício.
 - Checkpoints 001 a 011: pacotes completos e integridade estrutural confirmada.
-- Checkpoint 012: `ReverseLab_CHECKPOINT_012.zip`, pacote integral do estado atual, integridade estrutural confirmada.
-- Progresso global estimado: inferior a 1%; Fase 0 com 6/6 submódulos de implementação concluídos; Fase 1 com 1.1, 1.2, 1.3, 1.5 e 1.6 concluídos e 1.4 parcial. A validação final continua pendente.
+- Checkpoint 012: `ReverseLab_CHECKPOINT_012.zip` corresponde ao submódulo 1.6; não representa o commit posterior 55199248a6fda06c1488edcb0ac37e14ae69d6ae.
+- Checkpoint 013: pacote ZIP do commit mais recente ainda precisa ser gerado e ter integridade estrutural verificada.
+- Progresso global estimado: inferior a 1%; Fase 0 com 6/6 submódulos de implementação concluídos; Fase 1 com 1.1, 1.2, 1.3, 1.5 e 1.6 implementados, 1.4 parcial e 1.7 parcialmente implementado. Validação final pendente. A validação final continua pendente.

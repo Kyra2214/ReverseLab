@@ -39,3 +39,16 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Interpretação de AndroidManifest.xml, certificados e conteúdo DEX, nas fases seguintes.
 - Execução de builds, testes e validações para a fase final, conforme a política de execução vigente.
 - Gradle Wrapper binário oficial pendente de inclusão.
+
+
+## 2026-11-27
+
+### Added
+- Revisão explícita de associações entre APK base, splits e OBB: confirmar grupo, separar grupo, vincular individualmente a um APK base ou separar uma amostra.
+- Estado de domínio USER_REJECTED para registrar associações rejeitadas pelo usuário.
+- Auditoria transacional SQLite das revisões, com valores anteriores/novos, ação e horário.
+- Histórico das decisões de associação apresentado no lote de importação.
+
+### Clarified
+- Confirmação humana de associação não equivale à validação técnica de completude; comparação de manifestos e package name continua pendente.
+- Nenhum arquivo importado ou derivado é removido durante a revisão de associações.

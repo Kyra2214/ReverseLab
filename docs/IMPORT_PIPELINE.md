@@ -20,10 +20,13 @@ O registro PENDING é criado antes da cópia. Se a operação falhar, o estado �
 - Nomes iniciados por split_ ou config. são candidatos a split APK.
 - OBB é classificado como candidato a expansão.
 - XAPK, APKS e AAB são tratados como contêineres individuais nesta etapa.
-- Se um lote tiver exatamente um APK base importado com sucesso, splits e OBB importados no mesmo lote recebem associação heurística a esse grupo.
+- Se um lote tiver exatamente um APK base importado com sucesso e ao menos um split/OBB importado, os itens anexáveis recebem uma associação heurística candidata.
 - Se houver mais de um APK base, splits e OBB permanecem em grupo ambíguo de lote. Se não houver base, a associação fica limitada ao lote.
+- O usuário pode confirmar o grupo heurístico, separar todos os seus membros, vincular manualmente um split/OBB a um APK base ou separar individualmente um item.
+- Cada revisão é gravada na auditoria em uma única transação SQLite, preservando grupo e confiança anteriores/novos, ação e horário.
+- A interface apresenta o histórico de revisões junto ao lote. USER_REJECTED registra explicitamente que o usuário separou aquela amostra.
 
-Associação heurística não é confirmação de que os arquivos pertencem ao mesmo pacote. A interface sinaliza essa condição. A validação por package name, manifesto e metadados internos será feita em etapa posterior; associações confirmadas pelo usuário ou por manifesto terão confiança distinta.
+Associação heurística não é confirmação de que os arquivos pertencem ao mesmo pacote. A confirmação humana registra uma decisão do usuário, mas não equivale à verificação técnica por manifesto. A completude real do conjunto continua desconhecida até a leitura e comparação de manifestos, package name e metadados internos; essa verificação permanece pendente.
 
 ## Identidade e procedência
 

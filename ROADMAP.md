@@ -1384,7 +1384,7 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 | 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Parcial: importação e hash concluídos; associações heurísticas aguardam validação |
 | 1.5 | Histórico de importação e ocupação de armazenamento | Concluído (implementação; validação final pendente) |
 | 1.6 | Inventário interno e verificação de contêineres APK/OBB/XAPK/APKS/AAB | Concluído (implementação; validação final pendente) |
-| 1.7 | Revisão e confirmação de grupos e detecção de conjuntos incompletos | Próximo |
+| 1.7 | Revisão e confirmação de grupos e detecção de conjuntos incompletos | Parcial: revisão manual, separação, vínculo ao APK base e auditoria implementados; completude técnica por manifesto pendente |
 
 ### 22.11 Checkpoint 006
 
@@ -1447,7 +1447,7 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - 1.3: inspeção dos arquivos internos dos contêineres, além da assinatura inicial do cabeçalho.
 - 1.4: confirmação de relações entre APK base, splits e OBB; identificação de conjuntos incompletos sem promover heurísticas a fatos.
 - 1.6: inventariar entradas de contêineres com limites de segurança e validar estruturas internas reconhecíveis.
-- 1.7: apresentar candidatos de associação, permitir confirmação explícita do usuário e sinalizar conjuntos incompletos/ambíguos.
+- 1.7: revisão manual de associações e trilha de auditoria implementadas; a sinalização preliminar de ausência de APK base existe, mas a detecção técnica de conjuntos incompletos/ambíguos por manifesto permanece pendente.
 
 
 ### 22.18 Checkpoint 012
@@ -1464,3 +1464,12 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - 1.3: concluído com detecção de cabeçalho e inventário interno de estruturas reconhecíveis.
 - 1.4: permanece parcial; as relações APK/splits/OBB ainda são candidatas heurísticas e precisam de confirmação e verificação de conjuntos incompletos.
 - 1.7: próximo; revisão explícita das associações e sinalização de conjuntos incompletos/ambíguos.
+
+
+### 22.20 Checkpoint 013 — revisão manual de associações
+
+- Submódulo: 1.7 — revisão e confirmação de grupos de amostras (implementação parcial).
+- Commit: será registrado após a publicação deste checkpoint.
+- Implementação: ações para confirmar grupo heurístico, separar grupo, vincular split/OBB a um APK base e separar amostra individual; persistência transacional da auditoria; estado USER_REJECTED; exibição das decisões no histórico do lote.
+- Limite conhecido: a confirmação humana não valida a completude do pacote. A leitura e comparação de manifestos/package name continua pendente.
+- Build e testes: não executados, conforme a política de execução; permanecem acumulados para a validação final.
