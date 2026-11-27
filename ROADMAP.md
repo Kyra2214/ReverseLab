@@ -1510,3 +1510,14 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Migração SQLite da versão 4 verifica colunas existentes antes de adicionar metadados do manifesto, inclusive em atualização de catálogos antigos.
 - A avaliação de conjunto documenta corretamente que a identidade coincidente não comprova completude.
 - Ainda parciais: 1.4 (APKs aninhados de XAPK/APKS) e 1.7 (completude de conjuntos compostos e splits requeridos).
+
+
+### 22.25 Inspeção de manifestos aninhados em XAPK/APKS (implementação parcial de 1.4)
+
+- O `ArchiveInspector` percorre entradas APK de XAPK/APKS e lê somente o AndroidManifest.xml interno, sem extrair ou persistir APKs adicionais.
+- Metadados por caminho virtual: package name, splitName, configForSplit, uses-split e estado de parsing.
+- Persistência SQLite versão 5 com migração aditiva.
+- UI de inspeção apresenta as identidades declaradas por entrada.
+- Limites: 32 APKs internos, 128 entradas por APK, 2 MiB por manifesto e 16 MiB agregados.
+- Ainda pendente: associação lógica entre entradas internas e amostras externas/base, interpretação de toc.pb/manifest.json e confirmação conservadora da completude.
+- Builds/testes permanecem para a validação final; ZIPs desativados por instrução do usuário.
