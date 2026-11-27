@@ -1484,3 +1484,14 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Integração concluída: a tela Analisar apresenta os estados e motivos da avaliação por grupo.
 - Pendências: implementar decodificação de manifesto e correlação técnica por package name/splitName/dependências; manter 1.4/1.7 parciais até atender os critérios.
 - ZIPs desativados por instrução atual do usuário. Build/testes continuam reservados à etapa final.
+
+
+### 22.22 Parsing e correlação de identidade de manifestos (parcial)
+
+- Parser `BinaryAndroidManifestParser` criado para Android Binary XML, limitado a 2 MiB por manifesto.
+- APK individual: extração de package, split, configForSplit e uses-split pelo `ArchiveInspector`, sem extrair o pacote completo nem executar conteúdo.
+- Persistência no inventário SQLite com migração aditiva para versão 4 e proteção contra colunas duplicadas em upgrades antigos.
+- Avaliador de grupos compara package name, exige splitName para amostras classificadas como split, detecta duplicidade e referências ausentes em uses-split/configForSplit.
+- UI apresenta os metadados extraídos no histórico.
+- Limites: APKs aninhados em XAPK/APKS e manifesto protobuf de AAB ainda não são lidos; package identity coincidente não prova completude de todos os splits. 1.7 e 1.4 permanecem parciais.
+- Build/testes não executados, conforme instrução; permanecem para a validação final. ZIPs não gerados por instrução do usuário.
