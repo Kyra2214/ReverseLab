@@ -4,6 +4,7 @@ import br.com.reverselab.core.domain.ArchiveEntryRecord
 import br.com.reverselab.core.domain.ArchiveInspectionId
 import br.com.reverselab.core.domain.ArchiveInspectionStatus
 import br.com.reverselab.core.domain.ArchiveInventoryRecord
+import br.com.reverselab.core.domain.NestedApkManifestRecord
 import br.com.reverselab.core.domain.SampleRecord
 import java.io.File
 import java.io.ByteArrayOutputStream
@@ -15,6 +16,7 @@ import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipException
 import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
 
 /** Inventories ZIP metadata only. It never extracts or executes archive entries. */
 class ArchiveInspector {
@@ -65,6 +67,8 @@ class ArchiveInspector {
         var obbEntryCount = 0
         var truncated = false
         var manifestMetadata: AndroidManifestMetadata? = null
+        val nestedApkManifests = mutableListOf<NestedApkManifestRecord>()
+        var nestedManifestBytes = 0L
 
         val enumeration: Enumeration<out ZipEntry> = zip.entries()
         while (enumeration.hasMoreElements()) {
@@ -118,6 +122,63 @@ class ArchiveInspector {
             if (normalizedPath == "bundleconfig.pb") hasBundleConfig = true
             if (normalizedPath.endsWith(".apk")) apkEntryCount++
             if (normalizedPath.endsWith(".obb")) obbEntryCount++
+        }
+
+
+        // Read only nested APK manifests. Entries remain virtual and are never extracted.
+        if (sample.formatCode.uppercase(Locale.ROOT) in setOf("XAPK", "APKS")) {
+            val nestedEntries = zip.entries()
+            while (nestedEntries.hasMoreElements() && nestedApkManifests.size < MAX_NESTED_APKS) {
+                val nestedEntry = nestedEntries.nextElement()
+                val nestedPath = nestedEntry.name.replace('\\', '/')
+                if (nestedEntry.isDirectory || !nestedPath.endsWith(".apk", ignoreCase = true) || isUnsafePath(nestedPath)) continue
+                val record = runCatching {
+                    zip.getInputStream(nestedEntry).use { apkInput ->
+                        ZipInputStream(apkInput).use { nestedZip ->
+                            var scannedEntries = 0
+                            var parsed: AndroidManifestMetadata? = null
+                            var parseStatus = "MANIFEST_NOT_FOUND"
+                            while (scannedEntries < MAX_NESTED_APK_ENTRIES) {
+                                val inner = nestedZip.nextEntry ?: break
+                                scannedEntries++
+                                if (inner.name == "AndroidManifest.xml") {
+                                    val bytes = nestedZip.readBounded(MAX_MANIFEST_BYTES.toInt() + 1)
+                                    nestedManifestBytes += bytes.size
+                                    parsed = if (bytes.size > MAX_MANIFEST_BYTES || nestedManifestBytes > MAX_TOTAL_NESTED_MANIFEST_BYTES) null
+                                    else BinaryAndroidManifestParser().parse(bytes)
+                                    parseStatus = parsed?.parseStatus ?: "LIMIT_EXCEEDED: limite agregado de manifestos internos excedido."
+                                    break
+                                }
+                                nestedZip.closeEntry()
+                            }
+                            NestedApkManifestRecord(
+                                entryPath = nestedPath.take(MAX_ENTRY_PATH_LENGTH),
+                                packageName = parsed?.packageName,
+                                splitName = parsed?.splitName,
+                                configForSplit = parsed?.configForSplit,
+                                usesSplits = parsed?.usesSplits ?: emptyList(),
+                                parseStatus = parseStatus,
+                            )
+                        }
+                    }
+                }.getOrElse { error ->
+                    NestedApkManifestRecord(
+                        entryPath = nestedPath.take(MAX_ENTRY_PATH_LENGTH),
+                        packageName = null,
+                        splitName = null,
+                        configForSplit = null,
+                        usesSplits = emptyList(),
+                        parseStatus = "READ_ERROR: ${error.javaClass.simpleName}",
+                    )
+                }
+                nestedApkManifests += record
+            }
+            if (nestedApkManifests.size >= MAX_NESTED_APKS && apkEntryCount > nestedApkManifests.size) {
+                addGlobalWarning("Inspeção de manifestos internos limitada a $MAX_NESTED_APKS APKs.")
+            }
+            if (nestedManifestBytes > MAX_TOTAL_NESTED_MANIFEST_BYTES) {
+                addGlobalWarning("Limite agregado de leitura de manifestos internos excedido.")
+            }
         }
 
         val rootManifest = zip.getEntry("AndroidManifest.xml")
@@ -193,6 +254,7 @@ class ArchiveInspector {
             manifestConfigForSplit = manifestMetadata?.configForSplit,
             manifestUsesSplits = manifestMetadata?.usesSplits ?: emptyList(),
             manifestParseStatus = manifestMetadata?.parseStatus,
+            nestedApkManifests = nestedApkManifests,
         )
     }
 
@@ -255,6 +317,9 @@ class ArchiveInspector {
         const val MAX_COMPRESSION_RATIO = 1_000L
         const val MAX_WARNINGS = 100
         const val MAX_MANIFEST_BYTES = 2L * 1024L * 1024L
+        const val MAX_NESTED_APKS = 32
+        const val MAX_NESTED_APK_ENTRIES = 128
+        const val MAX_TOTAL_NESTED_MANIFEST_BYTES = 16L * 1024L * 1024L
         val DEX_ENTRY = Regex("classes(\\d*)\\.dex")
         val WINDOWS_DRIVE_PREFIX = Regex("^[a-zA-Z]:")
         val CONTAINER_FORMATS = setOf("APK", "OBB", "XAPK", "APKS", "AAB", "ZIP")
