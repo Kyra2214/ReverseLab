@@ -60,6 +60,7 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion < 2) createArchiveInventoryTable(db)
         if (oldVersion < 3) createAssociationReviewTable(db)
+        if (oldVersion < 4) addManifestMetadataColumns(db)
         if (newVersion > DATABASE_VERSION) error("Versão futura do catálogo de amostras não suportada: $newVersion")
     }
 
@@ -249,6 +250,11 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         put("suspicious_entry_count", suspiciousEntryCount)
         put("warnings_json", warnings.toJson())
         put("truncated", if (truncated) 1 else 0)
+        put("manifest_package_name", manifestPackageName)
+        put("manifest_split_name", manifestSplitName)
+        put("manifest_config_for_split", manifestConfigForSplit)
+        put("manifest_uses_splits_json", manifestUsesSplits.toJson())
+        put("manifest_parse_status", manifestParseStatus)
     }
 
     private fun List<ArchiveEntryRecord>.toJson(): String = JSONArray().apply {
@@ -304,6 +310,11 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
             suspiciousEntryCount = getInt(getColumnIndexOrThrow("suspicious_entry_count")),
             warnings = JSONArray(getString(getColumnIndexOrThrow("warnings_json"))).toStringList(),
             truncated = getInt(getColumnIndexOrThrow("truncated")) != 0,
+            manifestPackageName = getNullableString("manifest_package_name"),
+            manifestSplitName = getNullableString("manifest_split_name"),
+            manifestConfigForSplit = getNullableString("manifest_config_for_split"),
+            manifestUsesSplits = JSONArray(getString(getColumnIndexOrThrow("manifest_uses_splits_json"))).toStringList(),
+            manifestParseStatus = getNullableString("manifest_parse_status"),
         )
     }
 
@@ -335,7 +346,12 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
                 obb_entry_count INTEGER NOT NULL,
                 suspicious_entry_count INTEGER NOT NULL,
                 warnings_json TEXT NOT NULL,
-                truncated INTEGER NOT NULL
+                truncated INTEGER NOT NULL,
+                manifest_package_name TEXT,
+                manifest_split_name TEXT,
+                manifest_config_for_split TEXT,
+                manifest_uses_splits_json TEXT NOT NULL DEFAULT '[]',
+                manifest_parse_status TEXT
             )
             """.trimIndent(),
         )
@@ -354,6 +370,14 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         action = SampleAssociationReviewAction.valueOf(getString(getColumnIndexOrThrow("action"))),
         reviewedAtEpochMillis = getLong(getColumnIndexOrThrow("reviewed_at")),
     )
+
+    private fun addManifestMetadataColumns(db: SQLiteDatabase) {
+        db.execSQL("ALTER TABLE archive_inventories ADD COLUMN manifest_package_name TEXT")
+        db.execSQL("ALTER TABLE archive_inventories ADD COLUMN manifest_split_name TEXT")
+        db.execSQL("ALTER TABLE archive_inventories ADD COLUMN manifest_config_for_split TEXT")
+        db.execSQL("ALTER TABLE archive_inventories ADD COLUMN manifest_uses_splits_json TEXT NOT NULL DEFAULT '[]'")
+        db.execSQL("ALTER TABLE archive_inventories ADD COLUMN manifest_parse_status TEXT")
+    }
 
     private fun createAssociationReviewTable(db: SQLiteDatabase) {
         db.execSQL(
@@ -399,7 +423,7 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
 
     private companion object {
         const val DATABASE_NAME = "reverselab_samples.db"
-        const val DATABASE_VERSION = 3
+        const val DATABASE_VERSION = 4
         const val TABLE_SAMPLES = "samples"
         const val TABLE_ARCHIVE_INVENTORIES = "archive_inventories"
         const val TABLE_ASSOCIATION_REVIEWS = "sample_association_reviews"
