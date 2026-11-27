@@ -1333,5 +1333,4 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Commit de código: `576fdd210bc0857af9318f0dc9e02ad50e852d7e`.
 - Pacote completo: `ReverseLab_CHECKPOINT_002.zip`, incluindo o estado integral do projeto.
 - Integridade estrutural do ZIP: confirmada; `unzip -t` não reportou erros.
-- SHA-256: `9c6f23c66726a74c15743267131295edf71597d47788939d3e8bfe79897bd526`.
 - Build e testes: não executados; permanecem na validação final.
