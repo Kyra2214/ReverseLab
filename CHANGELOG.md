@@ -71,3 +71,10 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Manifestos de APKs aninhados em XAPK/APKS e manifestos protobuf de AAB ainda não são decodificados.
 - A identidade coincidente não comprova a presença de todos os splits requeridos; a avaliação permanece conservadora.
 - Builds e testes permanecem reservados para a validação final.
+
+### Added
+- Importação em lote agora inspeciona manifestos de APKs individuais, corrige o papel base/split pelo atributo `split` e agrupa APKs pelo package name coincidente.
+- Associação baseada em manifesto recebe confiança MANIFEST_VERIFIED; OBB permanece explicitamente heurístico.
+
+### Deferred
+- Leitura de manifestos dos APKs internos de XAPK/APKS e promoção desses itens a amostras vinculadas.
