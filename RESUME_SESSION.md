@@ -27,3 +27,5 @@
 - Checkpoint 013: pacote ZIP do commit mais recente ainda precisa ser gerado e ter integridade estrutural verificada.
 - ZIPs: não gerar, por instrução atual do usuário.
 - Progresso global estimado: inferior a 1%; Fase 0 com 6/6 submódulos de implementação concluídos; Fase 1 com 1.1, 1.2, 1.3, 1.5 e 1.6 implementados, 1.4 parcial e 1.7 parcialmente implementado. Validação final pendente. A validação final continua pendente.
+
+- Importação Fase 1.4: o `SampleImportCoordinator` agora inspeciona APKs importados, persiste inventário/manifesto, corrige BASE/SPLIT pelo atributo split e agrupa por package name com confiança MANIFEST_VERIFIED. OBB permanece heurístico. XAPK/APKS ainda não expandem seus APKs internos como amostras individuais.
