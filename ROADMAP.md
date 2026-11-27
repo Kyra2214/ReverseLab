@@ -1473,3 +1473,13 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Implementação: ações para confirmar grupo heurístico, separar grupo, vincular split/OBB a um APK base e separar amostra individual; persistência transacional da auditoria; estado USER_REJECTED; exibição das decisões no histórico do lote.
 - Limite conhecido: a confirmação humana não valida a completude do pacote. A leitura e comparação de manifestos/package name continua pendente.
 - Build e testes: não executados, conforme a política de execução; permanecem acumulados para a validação final.
+
+
+### 22.21 Avaliação estrutural conservadora de conjuntos (em andamento)
+
+- Commit: `113d03c500358b33b7d944a6dc2271d21610ff56`.
+- Novo componente: `core/analysis/.../PackageSetCompletenessAnalyzer.kt`.
+- Classifica grupos sem anexos, sem APK base, ambíguos, estruturalmente incompletos, ainda sem inventário e com identidade ainda não verificada.
+- O componente não decodifica AndroidManifest.xml e não afirma completude apenas pela presença de um manifesto. A comparação de package name, splitName e dependências fica vinculada à Fase 2.
+- Pendências: integrar a avaliação ao histórico/UI; implementar decodificação de manifesto e correlação técnica; manter 1.4/1.7 parciais até atender os critérios.
+- ZIPs desativados por instrução atual do usuário. Build/testes continuam reservados à etapa final.
