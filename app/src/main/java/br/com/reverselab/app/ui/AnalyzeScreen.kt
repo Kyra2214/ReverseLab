@@ -2,6 +2,8 @@ package br.com.reverselab.app.ui
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,11 +34,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import br.com.reverselab.core.analysis.FileDetection
+import br.com.reverselab.core.analysis.SafFormatInspector
 import br.com.reverselab.core.storage.SafPermissionManager
+import java.util.concurrent.Executors
 
 private data class SelectedDocument(
     val uri: Uri,
     val displayName: String,
+    val detection: FileDetection? = null,
+    val isInspecting: Boolean = false,
 )
 
 @Composable
@@ -43,6 +51,12 @@ fun AnalyzeScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val permissionManager = remember(context.contentResolver) {
         SafPermissionManager(context.contentResolver)
+    }
+    val inspector = remember(context.contentResolver) { SafFormatInspector(context.contentResolver) }
+    val inspectionExecutor = remember { Executors.newSingleThreadExecutor() }
+    val mainHandler = remember { Handler(Looper.getMainLooper()) }
+    DisposableEffect(inspectionExecutor) {
+        onDispose { inspectionExecutor.shutdownNow() }
     }
     val selectedDocuments = remember(permissionManager) {
         mutableStateListOf<SelectedDocument>().apply {
@@ -60,9 +74,29 @@ fun AnalyzeScreen(modifier: Modifier = Modifier) {
         uris.forEach { uri ->
             try {
                 permissionManager.persistReadGrant(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                selectedDocuments.add(
-                    SelectedDocument(uri, resolveDisplayName(context.contentResolver, uri)),
-                )
+                val name = resolveDisplayName(context.contentResolver, uri)
+                val itemIndex = selectedDocuments.size
+                selectedDocuments.add(SelectedDocument(uri, name, isInspecting = true))
+                inspectionExecutor.execute {
+                    try {
+                        val detection = inspector.inspect(uri, name)
+                        mainHandler.post {
+                            if (itemIndex in selectedDocuments.indices) {
+                                selectedDocuments[itemIndex] = selectedDocuments[itemIndex].copy(
+                                    detection = detection,
+                                    isInspecting = false,
+                                )
+                            }
+                        }
+                    } catch (exception: Exception) {
+                        mainHandler.post {
+                            if (itemIndex in selectedDocuments.indices) {
+                                selectedDocuments[itemIndex] = selectedDocuments[itemIndex].copy(isInspecting = false)
+                            }
+                            selectionError = "Não foi possível identificar o formato de $name. O acesso de leitura foi mantido."
+                        }
+                    }
+                }
             } catch (exception: SecurityException) {
                 selectionError = "Não foi possível manter acesso de leitura a um dos arquivos selecionados."
             } catch (exception: IllegalArgumentException) {
@@ -77,7 +111,7 @@ fun AnalyzeScreen(modifier: Modifier = Modifier) {
     ) {
         Text("Analisar", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(
-            "Selecione arquivos pelo seletor seguro do Android. Nesta etapa o ReverseLab registra apenas a permissão de leitura; os arquivos ainda não são copiados nem analisados.",
+            "Selecione arquivos pelo seletor seguro do Android. O ReverseLab mantém permissão de leitura e identifica o tipo pelo cabeçalho, sem copiar, extrair ou executar o conteúdo.",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -92,7 +126,7 @@ fun AnalyzeScreen(modifier: Modifier = Modifier) {
             Text(message, color = MaterialTheme.colorScheme.error)
         }
         Text(
-            "Acessos persistentes concedidos (${selectedDocuments.size})",
+            "Arquivos selecionados (${selectedDocuments.size})",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
         )
@@ -102,7 +136,7 @@ fun AnalyzeScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    "Nenhum arquivo selecionado. Os acessos concedidos pelo Android aparecerão aqui.",
+                    "Nenhum arquivo selecionado. Use o seletor do Android para escolher uma ou mais amostras.",
                     modifier = Modifier.padding(18.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -131,6 +165,19 @@ fun AnalyzeScreen(modifier: Modifier = Modifier) {
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary,
                             )
+                            val detection = document.detection
+                            Text(
+                                when {
+                                    document.isInspecting -> "Inspecionando cabeçalho do arquivo…"
+                                    detection != null -> "Formato: ${detection.format.label} • ${detection.confidence.label}"
+                                    else -> "Formato ainda não inspecionado nesta sessão"
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            detection?.evidence?.forEach { evidence ->
+                                Text(evidence, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
                     }
                 }

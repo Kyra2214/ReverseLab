@@ -14,11 +14,11 @@ A raiz da Biblioteca apresenta três áreas distintas: Projetos, Biblioteca Téc
 
 Os estados vazios são explícitos e não simulam conteúdo. Os itens aparecerão quando os fluxos de importação e catalogação forem implementados.
 
-## Analisar: seleção SAF
+## Analisar: seleção e detecção inicial
 
 A tela Analisar abre o seletor múltiplo de documentos do Android. Cada URI selecionado recebe permissão persistente de leitura e é exibido pelo nome fornecido pelo provedor de documentos. A lista é reconstruída a partir das permissões persistentes concedidas anteriormente.
 
-Nesta etapa, selecionar um documento não significa importá-lo: não há cópia, extração, execução ou análise do conteúdo. A detecção de formato e a criação de amostras pertencem ao submódulo seguinte.
+Após a seleção, um executor em segundo plano lê apenas 32 bytes do cabeçalho e classifica assinaturas conhecidas. Não há cópia, extração, execução ou análise profunda do conteúdo. A detecção interna de pacotes e a criação de amostras pertencem à próxima etapa.
 
 ## Áreas ainda em construção
 
