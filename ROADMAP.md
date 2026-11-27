@@ -1380,8 +1380,8 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 |---|---|---|
 | 1.1 | Telas Início/Biblioteca e navegação funcional | Concluído (implementação; validação final pendente) |
 | 1.2 | Seletor SAF e integração das permissões persistentes | Concluído (implementação; validação final pendente) |
-| 1.3 | Seleção múltipla e detecção real de formatos | Próximo |
-| 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Pendente |
+| 1.3 | Seleção múltipla e detecção real de formatos | Concluído (implementação; validação final pendente) |
+| 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Próximo |
 | 1.5 | Histórico de importação e ocupação de armazenamento | Pendente |
 
 ### 22.11 Checkpoint 006
@@ -1409,4 +1409,13 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Implementação: seletor múltiplo do Android, persistência de permissão de leitura, restauração da lista de URIs e exibição do nome dos documentos.
 - Commit de código: `b504c53559407dd542a88177e0bc6f3eee434335`.
 - Pacote completo: `ReverseLab_CHECKPOINT_008.zip`, incluindo o estado integral do projeto.
+- Build e testes: não executados; permanecem na validação final.
+
+
+### 22.14 Checkpoint 009
+
+- Submódulo: 1.3 — seleção múltipla e detecção inicial de formatos.
+- Implementação: leitura de 32 bytes via SAF em executor de fundo; identificação preliminar de APK/OBB/XAPK/APKS/AAB, ZIP, DEX, ELF, imagens, áudio, vídeo e PDF.
+- Commit de código: `f1798cbcb17738393633ae477242e7153c7fdf77`.
+- Pacote completo: `ReverseLab_CHECKPOINT_009.zip`, incluindo o estado integral do projeto.
 - Build e testes: não executados; permanecem na validação final.
