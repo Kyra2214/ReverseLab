@@ -70,12 +70,11 @@ class NestedPackageAssociationAnalyzer {
                     }.distinct()
                     val tocStructuralIssues = apksToc?.variants.orEmpty().flatMap { variant ->
                         val moduleNames = variant.modules.map { it.name }
-                        val moduleNameSet = moduleNames.toSet()
                         val apkModuleNames = variant.apks.mapNotNull { it.moduleName }.toSet()
                         val missingApkModules = variant.modules.filterNot { it.name in apkModuleNames }
                             .map { "variante ${variant.variantNumber}: módulo ${it.name} sem APK descrito" }
                         val splitModules = variant.modules.filter { module ->
-                            variant.apks.any { it.moduleName == module.name && it.metadataKind in setOf("SPLIT", "INSTANT_SPLIT") }
+                            variant.apks.any { it.moduleName == module.name && (it.metadataKind == "SPLIT" || it.metadataKind == "INSTANT_SPLIT") }
                         }
                         val invalidMasterCounts = splitModules.mapNotNull { module ->
                             val masterCount = variant.apks.count { it.moduleName == module.name && it.isMasterSplit == true }
