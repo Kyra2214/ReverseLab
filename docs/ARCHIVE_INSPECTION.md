@@ -46,3 +46,7 @@ Para XAPK, o inventário também interpreta o `manifest.json` da raiz, limitado 
 Para APKS, o inspetor interpreta o protobuf `BuildApksResult` de Bundletool com leitor de wire format próprio, sem dependência externa e com limite de 4 MiB. São extraídos package name, variantes, módulos, dependências entre módulos, caminhos dos APKs, split IDs, indicação de master split, tipo de metadado e presença de targeting. Campos protobuf desconhecidos são ignorados conforme seu wire type; estruturas inválidas recebem estado explícito. Os caminhos são validados antes de serem aceitos. A comparação entre caminhos declarados e entradas internas respeita o limite de 32 APKs: quando a cobertura é parcial, o sistema não acusa falsamente os itens além do limite como ausentes.
 
 Os dados são persistidos no SQLite versão 7 por migração aditiva e apresentados na tela Analisar. A tabela de conteúdo descreve o pacote produzido, não substitui os manifestos binários de cada APK nem comprova que todas as variantes necessárias a um dispositivo específico estão presentes.
+
+### Targeting de dispositivos no toc.pb
+
+O leitor também decodifica os valores e alternativas de ABI, multi-ABI, idioma, densidade de tela e SDK mínimo nas descrições APK. Os dados são apresentados como targeting declarado pelo Bundletool, não como recomendação de instalação. Outras dimensões, como textura, sanitizer, grupos de dispositivos e países, ainda não são interpretadas semanticamente.
