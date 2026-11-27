@@ -296,7 +296,8 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
                                 .put("splitId", apk.splitId)
                                 .put("isMasterSplit", apk.isMasterSplit)
                                 .put("metadataKind", apk.metadataKind)
-                                .put("hasTargeting", apk.hasTargeting))
+                                .put("hasTargeting", apk.hasTargeting)
+                                .put("targetingSummary", apk.targetingSummary.toJsonArray()))
                         }
                     })
                 })
@@ -413,6 +414,7 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
                                         isMasterSplit = if (apk.has("isMasterSplit") && !apk.isNull("isMasterSplit")) apk.getBoolean("isMasterSplit") else null,
                                         metadataKind = apk.optString("metadataKind").takeIf { it.isNotBlank() && it != "null" },
                                         hasTargeting = apk.optBoolean("hasTargeting", false),
+                                        targetingSummary = apk.optJSONArray("targetingSummary").toStringList(),
                                     ))
                                 }
                             }
