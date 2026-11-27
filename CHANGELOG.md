@@ -155,3 +155,8 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 
 ### Clarified
 - A ausência de um caminho no inventário só é reportada quando a cobertura de inspeção do contêiner é completa.
+
+## 2026-11-27
+
+### Improved
+- A tela Analisar exibe os nomes dos APKs externos que correspondem aos manifestos virtuais do XAPK/APKS, além dos caminhos internos e motivos de associação.
