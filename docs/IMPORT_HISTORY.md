@@ -32,3 +32,6 @@ O histórico calcula e apresenta, por grupo de associação, o resultado do `Pac
 ### Identidade de manifesto e correlação de splits
 
 O inventário de APK individual pode persistir package name, split name, configForSplit, dependências uses-split e estado de parsing do Android Binary XML. A avaliação do grupo compara package name entre base e splits, exige splitName nos itens classificados como split, detecta nomes duplicados e sinaliza dependências/configurações que apontam para módulos ausentes. O resultado `IDENTITY_MATCHED_COMPLETENESS_UNVERIFIED` significa apenas que a identidade declarada e as relações observadas coincidem; não prova que todos os splits necessários foram fornecidos.
+
+
+Na importação de múltiplos APKs, a leitura bem-sucedida do manifesto corrige o papel base/split pelo atributo `split` e agrupa amostras pelo `package` declarado. A confiança `MANIFEST_VERIFIED` se aplica somente aos APKs cuja identidade foi efetivamente lida. O vínculo de OBB continua heurístico e não recebe confirmação de manifesto.
