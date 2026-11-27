@@ -68,6 +68,26 @@ class NestedPackageAssociationAnalyzer {
                             module.dependencies.filterNot { it in names }.map { dependency -> "${module.name} -> $dependency" }
                         }
                     }.distinct()
+                    val tocStructuralIssues = apksToc?.variants.orEmpty().flatMap { variant ->
+                        val moduleNames = variant.modules.map { it.name }
+                        val moduleNameSet = moduleNames.toSet()
+                        val apkModuleNames = variant.apks.mapNotNull { it.moduleName }.toSet()
+                        val missingApkModules = variant.modules.filterNot { it.name in apkModuleNames }
+                            .map { "variante ${variant.variantNumber}: módulo ${it.name} sem APK descrito" }
+                        val splitModules = variant.modules.filter { module ->
+                            variant.apks.any { it.moduleName == module.name && it.metadataKind in setOf("SPLIT", "INSTANT_SPLIT") }
+                        }
+                        val invalidMasterCounts = splitModules.mapNotNull { module ->
+                            val masterCount = variant.apks.count { it.moduleName == module.name && it.isMasterSplit == true }
+                            if (masterCount == 1) null else "variante ${variant.variantNumber}: módulo ${module.name} possui $masterCount master split"
+                        }
+                        val duplicatePaths = variant.apks.groupingBy { it.path }.eachCount()
+                            .filterValues { it > 1 }.keys.map { "variante ${variant.variantNumber}: caminho APK duplicado $it" }
+                        val duplicateModules = moduleNames.groupingBy { it }.eachCount()
+                            .filterValues { it > 1 }.keys.map { "variante ${variant.variantNumber}: módulo duplicado $it" }
+                        missingApkModules + invalidMasterCounts + duplicatePaths + duplicateModules
+                    } + apksToc?.variants.orEmpty().groupingBy { it.variantNumber }.eachCount()
+                        .filterValues { it > 1 }.keys.map { "número de variante duplicado $it" }
                     val declaredMissingPaths = if (tocPathCoverageComplete) {
                         xapkMetadata?.splitApkPaths.orEmpty().filterNot { declared ->
                             nested.any { it.entryPath == declared || it.entryPath.endsWith("/$declared") }
@@ -120,6 +140,9 @@ class NestedPackageAssociationAnalyzer {
                     if (tocMissingModuleDependencies.isNotEmpty()) {
                         reasons += "Dependências de módulos não presentes na variante: ${tocMissingModuleDependencies.joinToString()}."
                     }
+                    if (tocStructuralIssues.isNotEmpty()) {
+                        reasons += "Inconsistências estruturais no toc.pb: ${tocStructuralIssues.joinToString()}."
+                    }
                     if (duplicateSplits.isNotEmpty()) {
                         reasons += "splitName duplicado entre membros internos/externos: ${duplicateSplits.joinToString()}."
                     }
@@ -136,7 +159,7 @@ class NestedPackageAssociationAnalyzer {
                         containerSampleId = container.id.value,
                         containerName = container.displayName,
                         packageName = packageName,
-                        status = if (status != NestedPackageAssociationStatus.PACKAGE_MISMATCH && (duplicateSplits.isNotEmpty() || missingDependencies.isNotEmpty() || missingConfigTargets.isNotEmpty() || tocMissingPaths.isNotEmpty() || tocMissingModuleDependencies.isNotEmpty())) {
+                        status = if (status != NestedPackageAssociationStatus.PACKAGE_MISMATCH && (duplicateSplits.isNotEmpty() || missingDependencies.isNotEmpty() || missingConfigTargets.isNotEmpty() || tocMissingPaths.isNotEmpty() || tocMissingModuleDependencies.isNotEmpty() || tocStructuralIssues.isNotEmpty())) {
                             NestedPackageAssociationStatus.STRUCTURE_REQUIRES_REVIEW
                         } else status,
                         nestedEntryPaths = members.map { it.entryPath },
