@@ -60,3 +60,5 @@ O inspetor lê `toc.pb` com limite de 4 MiB e interpreta a mensagem protobuf pú
 Os caminhos do TOC são correlacionados com entradas APK do mesmo contêiner. A correlação respeita o limite de 32 APKs internos e não classifica como ausentes os caminhos que ficaram fora da janela de inspeção. Os manifestos binários internos continuam sendo a fonte para package/split de cada APK. A leitura do TOC não extrai arquivos, não executa código e não garante completude de variantes.
 
 A interpretação de targeting cobre ABI, multi-ABI, idioma, densidade e SDK mínimo, incluindo valores e alternativas declaradas por APK. Dimensões adicionais do protobuf permanecem preservadas apenas como presença genérica de targeting e não são inferidas.
+
+A tela apresenta targeting por APK: ABI/multi-ABI, idioma, densidade e SDK mínimo, com valores e alternativas. O analisador usa os metadados do TOC para verificar package name, caminhos declarados e dependências entre módulos. O limite de 32 APKs e o estado de truncamento impedem conclusões falsas sobre entradas não inspecionadas.
