@@ -238,6 +238,7 @@ class ApksTocParser {
             while (shift < 64) {
                 require(position < input.size) { "Truncated protobuf varint" }
                 val value = input[position++].toInt() and 0xff
+                if (shift == 63) require((value and 0xfe) == 0) { "Protobuf varint overflows 64 bits" }
                 result = result or ((value and 0x7f).toLong() shl shift)
                 if ((value and 0x80) == 0) return result
                 shift += 7
