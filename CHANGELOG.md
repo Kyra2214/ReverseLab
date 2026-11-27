@@ -98,3 +98,15 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - A correlação lógica desses membros com APKs externos/base e a confirmação de completude permanecem pendentes.
 - Limites: 32 APKs internos, 1ª entrada por APK, 2 MiB por manifesto e 16 MiB agregados.
 - Builds/testes não executados; ficam para a validação final. ZIPs não gerados por instrução do usuário.
+
+## 2026-11-27
+
+### Added
+- Correlação lógica de manifestos de APKs internos XAPK/APKS com APKs externos do mesmo lote, por package name.
+- Avaliação de base externa correspondente, conjunto autocontido, base ausente, ambiguidade, identidade não interpretada e conflitos de split/dependências.
+- Exibição dos resultados de associação virtual na tela Analisar, sem criar amostras independentes ou duplicar arquivos.
+
+### Limitations
+- A correlação não altera a associação persistida do contêiner e não prova completude de todas as variantes.
+- Interpretação de toc.pb/manifest.json e confirmação de completude permanecem pendentes.
+- Builds/testes seguem reservados à validação final.
