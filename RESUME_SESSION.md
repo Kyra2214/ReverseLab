@@ -121,3 +121,15 @@
 - O analisador agora identifica módulos sem APK, dependências ausentes, master split incorreto, duplicidades de módulo/caminho e números de variante repetidos.
 - Nenhuma entrada é apagada, deduplicada ou corrigida automaticamente.
 - Builds/testes continuam reservados para a validação final.
+
+## Atualização 2026-11-27 — início da Fase 2
+
+- Commit da expansão do parser Binary XML: `1f4c6415541a3312af524e20d3a0c008ec17c84e`.
+- Commit da integração no inventário: `f86dec3325d71a43f19ffa182d553058481fbe33`.
+- Commit do marcador de truncamento: `281a87da4eb92149ee93b66c9f9bfe9861e72bf0`.
+- Commit dos limites de listas/componentes: `f23dff4061e199bcb3250b3eacbd8d3abbfc6671`.
+- Commit da persistência SQLite 8: `87c61fbcc2245d013a637d59bc7de893c43e7b81`.
+- Commit da UI de manifesto: `108b1deb2c6a06d3943de641349c38223a017ad7`.
+- Metadados extraídos: versão, SDK, permissões, features, bibliotecas, application flags e componentes.
+- Referências de recursos permanecem sem resolução; não inferir exported ausente.
+- Builds/testes não executados por instrução; validação final permanece pendente.
