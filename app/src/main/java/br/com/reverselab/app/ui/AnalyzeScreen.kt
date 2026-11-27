@@ -613,6 +613,48 @@ private fun ArchiveInventorySummary(inventory: ArchiveInventoryRecord) {
                 }
             }
         }
+        inventory.manifestDetails?.let { details ->
+            Text("Detalhes do AndroidManifest", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+            val version = listOfNotNull(details.versionName, details.versionCode?.let { "code=$it" }, details.versionCodeMajor?.let { "major=$it" })
+            if (version.isNotEmpty()) Text("Versão: ${version.joinToString(" • ")}", style = MaterialTheme.typography.labelSmall)
+            if (details.minSdkVersion != null || details.targetSdkVersion != null) {
+                Text("SDK mínimo: ${details.minSdkVersion ?: "não declarado"} • alvo: ${details.targetSdkVersion ?: "não declarado"}", style = MaterialTheme.typography.labelSmall)
+            }
+            details.applicationName?.let { Text("Application: $it", style = MaterialTheme.typography.labelSmall) }
+            details.applicationLabel?.let { Text("Rótulo: $it", style = MaterialTheme.typography.labelSmall) }
+            val appFlags = listOfNotNull(
+                details.debuggable?.let { "debuggable=$it" },
+                details.allowBackup?.let { "allowBackup=$it" },
+                details.usesCleartextTraffic?.let { "cleartext=$it" },
+            )
+            if (appFlags.isNotEmpty()) Text("Flags: ${appFlags.joinToString(" • ")}", style = MaterialTheme.typography.labelSmall)
+            if (details.permissions.isNotEmpty()) {
+                Text("Permissões usadas (${details.permissions.size}): ${details.permissions.take(30).joinToString()}", style = MaterialTheme.typography.labelSmall)
+            }
+            if (details.declaredPermissions.isNotEmpty()) {
+                Text("Permissões declaradas (${details.declaredPermissions.size}): ${details.declaredPermissions.take(20).joinToString()}", style = MaterialTheme.typography.labelSmall)
+            }
+            if (details.features.isNotEmpty()) Text("Features: ${details.features.take(20).joinToString()}", style = MaterialTheme.typography.labelSmall)
+            if (details.usesLibraries.isNotEmpty()) Text("Bibliotecas declaradas: ${details.usesLibraries.take(20).joinToString()}", style = MaterialTheme.typography.labelSmall)
+            if (details.components.isNotEmpty()) {
+                Text("Componentes (${details.components.size}):", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold)
+                details.components.take(40).forEach { component ->
+                    Text(
+                        "${component.type}: ${component.name}" +
+                            (component.exported?.let { " • exported=$it" } ?: "") +
+                            (component.enabled?.let { " • enabled=$it" } ?: "") +
+                            (component.permission?.let { " • permission=$it" } ?: "") +
+                            (component.targetActivity?.let { " • target=$it" } ?: ""),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                if (details.components.size > 40) Text("Mais ${details.components.size - 40} componentes não exibidos.", style = MaterialTheme.typography.labelSmall)
+            }
+            if (details.truncated) {
+                Text("Metadados limitados por segurança; nem todos os itens foram retidos.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+            }
+        }
         inventory.xapkManifest?.let { metadata ->
             Text(
                 "manifest.json XAPK • ${metadata.parseStatus}" +
