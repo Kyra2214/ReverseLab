@@ -196,7 +196,7 @@ class ArchiveInspector {
 
         if (hasApksToc && sample.formatCode.equals("APKS", ignoreCase = true)) {
             apksTocMetadata = readApksToc(zip)
-            if (apksTocMetadata?.parseStatus !in setOf("PARSED", "PARSED_WITHOUT_PACKAGE")) {
+            if (apksTocMetadata?.parseStatus != "PARSED" && apksTocMetadata?.parseStatus != "PARSED_WITHOUT_PACKAGE") {
                 addGlobalWarning("toc.pb do APKS não pôde ser interpretado integralmente: ${apksTocMetadata?.parseStatus ?: "resultado ausente"}")
             }
             if (nestedApkManifests.size < MAX_NESTED_APKS || apkEntryCount <= nestedApkManifests.size) {
