@@ -21,6 +21,20 @@ data class ArchiveEntryRecord(
     }
 }
 
+data class NestedApkManifestRecord(
+    val entryPath: String,
+    val packageName: String?,
+    val splitName: String?,
+    val configForSplit: String?,
+    val usesSplits: List<String>,
+    val parseStatus: String,
+) {
+    init {
+        require(entryPath.isNotBlank())
+        require(parseStatus.isNotBlank())
+    }
+}
+
 data class ArchiveInventoryRecord(
     val id: ArchiveInspectionId,
     val sampleId: SampleId,
@@ -47,6 +61,7 @@ data class ArchiveInventoryRecord(
     val manifestConfigForSplit: String? = null,
     val manifestUsesSplits: List<String> = emptyList(),
     val manifestParseStatus: String? = null,
+    val nestedApkManifests: List<NestedApkManifestRecord> = emptyList(),
 ) {
     init {
         require(inspectedAtEpochMillis > 0)
