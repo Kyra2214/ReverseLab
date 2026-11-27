@@ -3,6 +3,8 @@ package br.com.reverselab.core.storage
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import br.com.reverselab.core.analysis.ArchiveInspector
+import br.com.reverselab.core.domain.ArchiveInventoryRecord
 import br.com.reverselab.core.domain.ImportBatchId
 import br.com.reverselab.core.domain.SampleAssociationConfidence
 import br.com.reverselab.core.domain.SampleCatalog
@@ -35,7 +37,30 @@ class SampleImportCoordinator(
         val results = documents.map { document ->
             importOne(batchId, document, importedAtEpochMillis)
         }
-        val resolved = PackageAssociationResolver.resolve(results.map { it.record })
+        val manifestInventories = mutableMapOf<SampleId, ArchiveInventoryRecord>()
+        val correctedRecords = results.map { result ->
+            val record = result.record
+            if (record.status == SampleImportStatus.IMPORTED && record.formatCode.equals("APK", ignoreCase = true)) {
+                val relativePath = record.internalRelativePath
+                if (relativePath != null) {
+                    val root = appContext.filesDir.canonicalFile
+                    val file = File(root, relativePath).canonicalFile
+                    require(file.path.startsWith(root.path + File.separator)) {
+                        "O caminho interno da amostra saiu da pasta privada autorizada."
+                    }
+                    val inventory = ArchiveInspector().inspect(record, file, importedAtEpochMillis)
+                    catalog.saveArchiveInventory(inventory)
+                    manifestInventories[record.id] = inventory
+                    if (inventory.manifestParseStatus == "PARSED") {
+                        val correctedRole = if (inventory.manifestSplitName.isNullOrBlank()) SampleRole.BASE_APK_CANDIDATE else SampleRole.SPLIT_APK_CANDIDATE
+                        if (correctedRole != record.role) catalog.updateRole(record.id, correctedRole)
+                        record.copy(role = correctedRole)
+                    } else record
+                } else record
+            } else record
+        }
+        val heuristicallyResolved = PackageAssociationResolver.resolve(correctedRecords)
+        val resolved = PackageAssociationResolver.resolveManifestIdentity(heuristicallyResolved, manifestInventories)
         resolved.forEach { record ->
             catalog.updateAssociation(record.id, record.associationGroupId, record.associationConfidence)
         }
@@ -186,6 +211,40 @@ data class SampleImportResult(
 )
 
 private object PackageAssociationResolver {
+    fun resolveManifestIdentity(
+        records: List<SampleRecord>,
+        inventories: Map<SampleId, ArchiveInventoryRecord>,
+    ): List<SampleRecord> {
+        val updated = records.associateBy { it.id }.toMutableMap()
+        val manifestGroups = records.mapNotNull { sample ->
+            inventories[sample.id]?.manifestPackageName?.takeIf { it.isNotBlank() }?.let { it to sample }
+        }.groupBy({ it.first }, { it.second })
+        manifestGroups.forEach { (packageName, members) ->
+            val bases = members.filter { it.role == SampleRole.BASE_APK_CANDIDATE }
+            val splits = members.filter { it.role == SampleRole.SPLIT_APK_CANDIDATE }
+            if (bases.size == 1 && splits.isNotEmpty()) {
+                val previousGroup = bases.single().associationGroupId
+                val groupId = SampleGroupId("manifest:" + packageName.sha256Hex())
+                (bases + splits).forEach { sample ->
+                    updated[sample.id] = sample.copy(associationGroupId = groupId, associationConfidence = SampleAssociationConfidence.MANIFEST_VERIFIED)
+                }
+                records.filter { it.role == SampleRole.OBB_CANDIDATE && it.associationGroupId == previousGroup }.forEach { sample ->
+                    updated[sample.id] = sample.copy(associationGroupId = groupId, associationConfidence = SampleAssociationConfidence.HEURISTIC_SINGLE_BASE_IN_BATCH)
+                }
+            } else if (bases.size > 1 && splits.isNotEmpty()) {
+                val groupId = SampleGroupId("manifest-ambiguous:" + packageName.sha256Hex())
+                splits.forEach { sample ->
+                    updated[sample.id] = sample.copy(associationGroupId = groupId, associationConfidence = SampleAssociationConfidence.AMBIGUOUS_BATCH)
+                }
+            }
+        }
+        return records.map { updated.getValue(it.id) }
+    }
+
+    private fun String.sha256Hex(): String = MessageDigest.getInstance("SHA-256")
+        .digest(toByteArray(Charsets.UTF_8))
+        .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+
     fun resolve(records: List<SampleRecord>): List<SampleRecord> = records
         .groupBy { it.importBatchId }
         .values
