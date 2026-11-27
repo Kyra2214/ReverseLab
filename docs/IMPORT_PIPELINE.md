@@ -34,4 +34,8 @@ Cada registro preserva SampleId, lote de importação, URI de origem, nome origi
 
 ## Limites desta etapa
 
-Ainda não há extração de APK/XAPK/APKS/OBB, decodificação de AndroidManifest.xml, resolução de package name, comparação de splitName, inspeção de splits por ABI/densidade/idioma ou análise de conteúdo. O original permanece intocado; a cópia privada é a amostra de trabalho.
+Ainda não há extração de APK/XAPK/APKS/OBB, decodificação de manifestos internos em APKs aninhados de XAPK/APKS, resolução de referências de recursos, leitura de manifestos protobuf de AAB ou inspeção completa de variantes por ABI/densidade/idioma. O original permanece intocado; a cópia privada é a amostra de trabalho.
+
+### Metadados de identidade do manifesto
+
+Para APKs individuais, `ArchiveInspector` lê a entrada raiz `AndroidManifest.xml` com limite de 2 MiB e usa `BinaryAndroidManifestParser` para interpretar o XML binário Android sem executar o pacote. São registrados `package`, `split`, `configForSplit` e referências `uses-split`, junto ao estado da interpretação. Os campos são persistidos no inventário SQLite (migração aditiva para versão 4). Manifestos ausentes, inválidos ou acima do limite permanecem sem identidade declarada e recebem estado/motivo explícito. O parser não resolve IDs de recursos nem decodifica manifestos protobuf de AAB.
