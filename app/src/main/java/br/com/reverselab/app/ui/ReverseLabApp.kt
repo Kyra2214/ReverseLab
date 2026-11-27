@@ -70,11 +70,7 @@ fun ReverseLabApp() {
                 onSelectArea = { selectedLibraryArea = it },
                 onBackToRoot = { selectedLibraryArea = LibraryArea.ROOT },
             )
-            2 -> FeaturePlaceholderScreen(
-                modifier = contentModifier,
-                title = "Analisar",
-                description = "A área de análise reunirá a importação de amostras, a fila de processamento e os resultados das investigações.",
-            )
+            2 -> AnalyzeScreen(modifier = contentModifier)
             3 -> FeaturePlaceholderScreen(
                 modifier = contentModifier,
                 title = "IA",

@@ -26,6 +26,10 @@ class SafPermissionManager(
         it.uri == uri && it.isReadPermission
     }
 
+    fun listPersistedReadGrants(): List<Uri> = contentResolver.persistedUriPermissions
+        .filter { it.isReadPermission }
+        .map { it.uri }
+
     /** Releases access only; it never deletes or modifies the referenced document. */
     fun releaseReadGrant(uri: Uri) {
         if (hasReadGrant(uri)) {
