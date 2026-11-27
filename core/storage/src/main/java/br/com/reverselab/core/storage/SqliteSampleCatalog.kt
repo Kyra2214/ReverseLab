@@ -62,6 +62,7 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         if (oldVersion < 3) createAssociationReviewTable(db)
         if (oldVersion < 4) addManifestMetadataColumns(db)
         if (oldVersion < 5) addNestedManifestColumn(db)
+        if (oldVersion < 6) addXapkManifestColumn(db)
         if (newVersion > DATABASE_VERSION) error("Versão futura do catálogo de amostras não suportada: $newVersion")
     }
 
@@ -268,7 +269,17 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         put("manifest_uses_splits_json", manifestUsesSplits.toJson())
         put("manifest_parse_status", manifestParseStatus)
         put("nested_apk_manifests_json", nestedApkManifests.toNestedJson())
+        put("xapk_manifest_metadata_json", xapkManifest?.toXapkJson())
     }
+
+    private fun br.com.reverselab.core.domain.XapkManifestRecord.toXapkJson(): String = JSONObject()
+        .put("packageName", packageName)
+        .put("appName", appName)
+        .put("versionName", versionName)
+        .put("versionCode", versionCode)
+        .put("splitApkPaths", splitApkPaths.toJsonArray())
+        .put("parseStatus", parseStatus)
+        .toString()
 
     private fun List<br.com.reverselab.core.domain.NestedApkManifestRecord>.toNestedJson(): String = JSONArray().apply {
         forEach { item ->
@@ -340,6 +351,17 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
             manifestConfigForSplit = getNullableString("manifest_config_for_split"),
             manifestUsesSplits = JSONArray(getString(getColumnIndexOrThrow("manifest_uses_splits_json"))).toStringList(),
             manifestParseStatus = getNullableString("manifest_parse_status"),
+            xapkManifest = getNullableString("xapk_manifest_metadata_json")?.let { raw ->
+                val item = JSONObject(raw)
+                br.com.reverselab.core.domain.XapkManifestRecord(
+                    packageName = item.optString("packageName").takeIf { it.isNotBlank() && it != "null" },
+                    appName = item.optString("appName").takeIf { it.isNotBlank() && it != "null" },
+                    versionName = item.optString("versionName").takeIf { it.isNotBlank() && it != "null" },
+                    versionCode = item.optString("versionCode").takeIf { it.isNotBlank() && it != "null" },
+                    splitApkPaths = item.optJSONArray("splitApkPaths").toStringList(),
+                    parseStatus = item.getString("parseStatus"),
+                )
+            },
             nestedApkManifests = JSONArray(getString(getColumnIndexOrThrow("nested_apk_manifests_json"))).let { array ->
                 buildList {
                     for (index in 0 until array.length()) {
@@ -392,7 +414,8 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
                 manifest_config_for_split TEXT,
                 manifest_uses_splits_json TEXT NOT NULL DEFAULT '[]',
                 manifest_parse_status TEXT,
-                nested_apk_manifests_json TEXT NOT NULL DEFAULT '[]'
+                nested_apk_manifests_json TEXT NOT NULL DEFAULT '[]',
+                xapk_manifest_metadata_json TEXT
             )
             """.trimIndent(),
         )
@@ -411,6 +434,10 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         action = SampleAssociationReviewAction.valueOf(getString(getColumnIndexOrThrow("action"))),
         reviewedAtEpochMillis = getLong(getColumnIndexOrThrow("reviewed_at")),
     )
+
+    private fun addXapkManifestColumn(db: SQLiteDatabase) {
+        addColumnIfMissing(db, "xapk_manifest_metadata_json", "TEXT")
+    }
 
     private fun addNestedManifestColumn(db: SQLiteDatabase) {
         addColumnIfMissing(db, "nested_apk_manifests_json", "TEXT NOT NULL DEFAULT '[]'")
@@ -478,7 +505,7 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
 
     private companion object {
         const val DATABASE_NAME = "reverselab_samples.db"
-        const val DATABASE_VERSION = 5
+        const val DATABASE_VERSION = 6
         const val TABLE_SAMPLES = "samples"
         const val TABLE_ARCHIVE_INVENTORIES = "archive_inventories"
         const val TABLE_ASSOCIATION_REVIEWS = "sample_association_reviews"
