@@ -57,3 +57,16 @@
 - Fase 1.4: correlação lógica e apresentação implementadas; interpretação de metadados toc.pb/manifest.json e revisão de completude continuam pendentes.
 - Fase 1.7: avaliação técnica de identidade e dependências ampliada para membros virtuais; revisão final de completude continua pendente.
 - Build/testes não executados por instrução; validação permanece acumulada para a etapa final. ZIPs ignorados.
+
+## Atualização 2026-11-27 — manifesto XAPK
+
+- Commit do modelo de domínio: `06ae0de0aa4fca892e8f2fa35a08e235907c1442`.
+- Commit da leitura limitada do `manifest.json`: `81d633d004f693090f62e6e7d27d39d953b21c95`.
+- Commit da persistência SQLite 6: `3020802362f42b245d9307fa33d361be893188c3`.
+- Commit da comparação de identidade e caminhos: `c7946e4378b6d93b4ba89c11ad3f810c92eb1a9c`.
+- Commit da exibição na tela Analisar: `5c98eae4c3f6abb95211cfa41d425ca991d8225b`.
+- Ajuste de precedência de incompatibilidade: `87cd5d7653221aa49bd4590622fbbb831f2efc65`.
+- SQLite versão 6 armazena package name, nome, versão, version code, caminhos de `split_apks` e status, preservando registros existentes por migração aditiva.
+- Limite do JSON: 256 KiB. Nenhum APK interno é extraído ou promovido a amostra independente.
+- Próxima pendência de 1.4/1.7: interpretar `toc.pb` de APKS e aprimorar a avaliação de variantes sem inferir completude indevida.
+- Builds/testes não executados por instrução; validação final permanece pendente.
