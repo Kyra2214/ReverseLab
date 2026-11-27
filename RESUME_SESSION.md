@@ -112,3 +112,12 @@
 - A UI da tela Analisar agora apresenta nomes dos APKs externos correspondentes, resolvidos a partir dos IDs do analisador no lote atual.
 - Não há alteração da associação persistida dos registros nem cópia/extração de membros virtuais.
 - Último estado de documentação antes desta nota: `6e8f5ed4cc2791f49d79c836187733af671cc6a9`.
+
+## Atualização 2026-11-27 — consistência interna APKS
+
+- Commit para preservar registros duplicados do TOC: `76f114e9a321f8543a3f2612a2368aefd8d4f466`.
+- Commit da análise estrutural: `2b71b88a2a5d0a6dce22d9f09b2e3b1d5b868c7e`.
+- Ajuste de compatibilidade nullable: `1acfff1662735e10d8e552baad6e71e3b141233e`.
+- O analisador agora identifica módulos sem APK, dependências ausentes, master split incorreto, duplicidades de módulo/caminho e números de variante repetidos.
+- Nenhuma entrada é apagada, deduplicada ou corrigida automaticamente.
+- Builds/testes continuam reservados para a validação final.
