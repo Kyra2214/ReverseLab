@@ -68,9 +68,11 @@ class NestedPackageAssociationAnalyzer {
                             module.dependencies.filterNot { it in names }.map { dependency -> "${module.name} -> $dependency" }
                         }
                     }.distinct()
-                    val declaredMissingPaths = xapkMetadata?.splitApkPaths.orEmpty().filterNot { declared ->
-                        nested.any { it.entryPath == declared || it.entryPath.endsWith("/$declared") }
-                    }
+                    val declaredMissingPaths = if (tocPathCoverageComplete) {
+                        xapkMetadata?.splitApkPaths.orEmpty().filterNot { declared ->
+                            nested.any { it.entryPath == declared || it.entryPath.endsWith("/$declared") }
+                        }
+                    } else emptyList()
                     val status = when {
                         xapkPackageMismatch -> {
                             reasons += "package_name do manifest.json (${xapkMetadata?.packageName}) diverge do package declarado pelos APKs internos ($packageName)."
