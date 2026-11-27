@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import br.com.reverselab.core.analysis.ArchiveInspector
+import br.com.reverselab.core.analysis.PackageSetCompletenessAnalyzer
 import br.com.reverselab.core.analysis.FileDetection
 import br.com.reverselab.core.analysis.SafFormatInspector
 import br.com.reverselab.core.domain.ArchiveInventoryRecord
@@ -418,6 +419,9 @@ private fun ImportBatchCard(
 ) {
     var expanded by remember(batch.batchId) { mutableStateOf(false) }
     val baseCandidates = batch.samples.filter { it.role == SampleRole.BASE_APK_CANDIDATE && it.status.name == "IMPORTED" }
+    val packageAssessments = remember(batch, archiveInventories) {
+        PackageSetCompletenessAnalyzer().assess(batch.samples, archiveInventories)
+    }
     Card(
         onClick = { expanded = !expanded },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -430,6 +434,9 @@ private fun ImportBatchCard(
             Text("Importados: ${batch.importedSamples} • Parciais: ${batch.partialSamples} • Pendentes: ${batch.pendingSamples} • Falhas: ${batch.failedSamples}", style = MaterialTheme.typography.bodySmall)
             Text("Formatos: ${batch.formats.joinToString()}", style = MaterialTheme.typography.bodySmall)
             if (batch.duplicateCandidates > 0) Text("Possíveis duplicatas: ${batch.duplicateCandidates}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+            packageAssessments.forEach { assessment ->
+                Text("Conjunto ${assessment.status.name}: ${assessment.reasons.joinToString(" ")}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+            }
             if (batch.associationReviews.isNotEmpty()) Text("Revisões de associação registradas: ${batch.associationReviews.size}", style = MaterialTheme.typography.labelSmall)
             batch.associationReviews.forEach { review ->
                 val reviewedSampleName = batch.samples.firstOrNull { it.id == review.sampleId }?.displayName ?: review.sampleId.value
