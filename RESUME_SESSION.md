@@ -18,7 +18,8 @@
 - Fase 1: 1.1, 1.2, 1.3, 1.5 e 1.6 concluídos; 1.4 parcial; 1.7 é o próximo.
 - Submódulo 1.7: revisão manual de associações implementada parcialmente no commit 55199248a6fda06c1488edcb0ac37e14ae69d6ae; integração do estado USER_REJECTED e apresentação detalhada do histórico corrigidas no checkpoint seguinte. A detecção técnica de completude por manifesto permanece pendente. Commit de integração/documentação: `ba052c9629df3d0b8c1f4aa0837db7e1aa2c10a0`.
 - Commit mais recente: `113d03c500358b33b7d944a6dc2271d21610ff56` adiciona `PackageSetCompletenessAnalyzer` no módulo core:analysis. O analisador é conservador e está integrado ao histórico da tela Analisar; identifica ausência de APK base, múltiplas bases, manifesto estruturalmente ausente, inventário pendente e identidade ainda não verificada.
-- Próximo foco: implementar decodificação/comparação de manifestos, package name e splitName e consolidar as verificações estruturais da importação. A Fase 1 permanece parcial.
+- Commit `155faf3` adicionou parser Android Binary XML; `bb3046b` integrou a leitura do manifesto ao inventário APK; `4fe5749` limitou leitura compatível com API mínima; `c3151fd` persistiu metadados com migração SQLite 4; `85a34dc` correlacionou package name/splitName/dependências; `26b03b0` exibiu metadados no histórico; `5df6e78` tornou a migração segura para catálogos antigos.
+- Fase 1.7 continua parcial: não há parsing de APKs aninhados em XAPK/APKS nem manifesto protobuf AAB; a presença de todos os splits obrigatórios não pode ser inferida apenas pelos manifestos presentes. Próximo foco: completar a análise de estruturas compostas e refinar a identificação de conjuntos incompletos.
 - Testes/builds: não executados por regra de execução; ficam acumulados para a validação final.
 - Pendência técnica: Gradle Wrapper binário oficial não foi obtido neste ambiente; não foi criado binário fictício.
 - Checkpoints 001 a 011: pacotes completos e integridade estrutural confirmada.
