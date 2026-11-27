@@ -78,3 +78,8 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 
 ### Deferred
 - Leitura de manifestos dos APKs internos de XAPK/APKS e promoção desses itens a amostras vinculadas.
+
+### Fixed
+- A migração do inventário detecta colunas já existentes, inclusive quando um catálogo antigo cria a tabela durante o mesmo upgrade.
+- Grupos com múltiplos APKs base de mesmo package permanecem juntos como ambíguos, em vez de separar as bases dos splits.
+- Documentação do avaliador atualizada para refletir o uso real dos manifestos binários.
