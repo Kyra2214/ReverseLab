@@ -63,6 +63,7 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         if (oldVersion < 4) addManifestMetadataColumns(db)
         if (oldVersion < 5) addNestedManifestColumn(db)
         if (oldVersion < 6) addXapkManifestColumn(db)
+        if (oldVersion < 7) addApksTocColumn(db)
         if (newVersion > DATABASE_VERSION) error("Versão futura do catálogo de amostras não suportada: $newVersion")
     }
 
@@ -270,7 +271,38 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         put("manifest_parse_status", manifestParseStatus)
         put("nested_apk_manifests_json", nestedApkManifests.toNestedJson())
         put("xapk_manifest_metadata_json", xapkManifest?.toXapkJson())
+        put("apks_toc_metadata_json", apksToc?.toApksTocJson())
     }
+
+    private fun br.com.reverselab.core.domain.ApksTocRecord.toApksTocJson(): String = JSONObject().apply {
+        put("packageName", packageName)
+        put("parseStatus", parseStatus)
+        put("variants", JSONArray().apply {
+            variants.forEach { variant ->
+                put(JSONObject().apply {
+                    put("variantNumber", variant.variantNumber)
+                    put("modules", JSONArray().apply {
+                        variant.modules.forEach { module ->
+                            put(JSONObject()
+                                .put("name", module.name)
+                                .put("dependencies", module.dependencies.toJsonArray()))
+                        }
+                    })
+                    put("apks", JSONArray().apply {
+                        variant.apks.forEach { apk ->
+                            put(JSONObject()
+                                .put("path", apk.path)
+                                .put("moduleName", apk.moduleName)
+                                .put("splitId", apk.splitId)
+                                .put("isMasterSplit", apk.isMasterSplit)
+                                .put("metadataKind", apk.metadataKind)
+                                .put("hasTargeting", apk.hasTargeting))
+                        }
+                    })
+                })
+            }
+        })
+    }.toString()
 
     private fun br.com.reverselab.core.domain.XapkManifestRecord.toXapkJson(): String = JSONObject()
         .put("packageName", packageName)
@@ -351,6 +383,48 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
             manifestConfigForSplit = getNullableString("manifest_config_for_split"),
             manifestUsesSplits = JSONArray(getString(getColumnIndexOrThrow("manifest_uses_splits_json"))).toStringList(),
             manifestParseStatus = getNullableString("manifest_parse_status"),
+            apksToc = getNullableString("apks_toc_metadata_json")?.let { raw ->
+                val root = JSONObject(raw)
+                val variants = root.optJSONArray("variants") ?: JSONArray()
+                br.com.reverselab.core.domain.ApksTocRecord(
+                    packageName = root.optString("packageName").takeIf { it.isNotBlank() && it != "null" },
+                    parseStatus = root.getString("parseStatus"),
+                    variants = buildList {
+                        for (variantIndex in 0 until variants.length()) {
+                            val variant = variants.getJSONObject(variantIndex)
+                            val modulesArray = variant.optJSONArray("modules") ?: JSONArray()
+                            val modules = buildList {
+                                for (moduleIndex in 0 until modulesArray.length()) {
+                                    val module = modulesArray.getJSONObject(moduleIndex)
+                                    add(br.com.reverselab.core.domain.ApksTocModuleRecord(
+                                        name = module.getString("name"),
+                                        dependencies = module.optJSONArray("dependencies").toStringList(),
+                                    ))
+                                }
+                            }
+                            val apksArray = variant.optJSONArray("apks") ?: JSONArray()
+                            val apks = buildList {
+                                for (apkIndex in 0 until apksArray.length()) {
+                                    val apk = apksArray.getJSONObject(apkIndex)
+                                    add(br.com.reverselab.core.domain.ApksTocApkRecord(
+                                        path = apk.getString("path"),
+                                        moduleName = apk.optString("moduleName").takeIf { it.isNotBlank() && it != "null" },
+                                        splitId = apk.optString("splitId").takeIf { it.isNotBlank() && it != "null" },
+                                        isMasterSplit = if (apk.has("isMasterSplit") && !apk.isNull("isMasterSplit")) apk.getBoolean("isMasterSplit") else null,
+                                        metadataKind = apk.optString("metadataKind").takeIf { it.isNotBlank() && it != "null" },
+                                        hasTargeting = apk.optBoolean("hasTargeting", false),
+                                    ))
+                                }
+                            }
+                            add(br.com.reverselab.core.domain.ApksTocVariantRecord(
+                                variantNumber = variant.getInt("variantNumber"),
+                                modules = modules,
+                                apks = apks,
+                            ))
+                        }
+                    },
+                )
+            },
             xapkManifest = getNullableString("xapk_manifest_metadata_json")?.let { raw ->
                 val item = JSONObject(raw)
                 br.com.reverselab.core.domain.XapkManifestRecord(
@@ -415,7 +489,8 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
                 manifest_uses_splits_json TEXT NOT NULL DEFAULT '[]',
                 manifest_parse_status TEXT,
                 nested_apk_manifests_json TEXT NOT NULL DEFAULT '[]',
-                xapk_manifest_metadata_json TEXT
+                xapk_manifest_metadata_json TEXT,
+                apks_toc_metadata_json TEXT
             )
             """.trimIndent(),
         )
@@ -434,6 +509,10 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
         action = SampleAssociationReviewAction.valueOf(getString(getColumnIndexOrThrow("action"))),
         reviewedAtEpochMillis = getLong(getColumnIndexOrThrow("reviewed_at")),
     )
+
+    private fun addApksTocColumn(db: SQLiteDatabase) {
+        addColumnIfMissing(db, "apks_toc_metadata_json", "TEXT")
+    }
 
     private fun addXapkManifestColumn(db: SQLiteDatabase) {
         addColumnIfMissing(db, "xapk_manifest_metadata_json", "TEXT")
@@ -505,7 +584,7 @@ class SqliteSampleCatalog(context: Context) : SQLiteOpenHelper(
 
     private companion object {
         const val DATABASE_NAME = "reverselab_samples.db"
-        const val DATABASE_VERSION = 6
+        const val DATABASE_VERSION = 7
         const val TABLE_SAMPLES = "samples"
         const val TABLE_ARCHIVE_INVENTORIES = "archive_inventories"
         const val TABLE_ASSOCIATION_REVIEWS = "sample_association_reviews"
