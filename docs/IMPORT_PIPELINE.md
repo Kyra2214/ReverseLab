@@ -62,3 +62,5 @@ Os caminhos do TOC são correlacionados com entradas APK do mesmo contêiner. A 
 A interpretação de targeting cobre ABI, multi-ABI, idioma, densidade e SDK mínimo, incluindo valores e alternativas declaradas por APK. Dimensões adicionais do protobuf permanecem preservadas apenas como presença genérica de targeting e não são inferidas.
 
 A tela apresenta targeting por APK: ABI/multi-ABI, idioma, densidade e SDK mínimo, com valores e alternativas. O analisador usa os metadados do TOC para verificar package name, caminhos declarados e dependências entre módulos. O limite de 32 APKs e o estado de truncamento impedem conclusões falsas sobre entradas não inspecionadas.
+
+A validação de `toc.pb` também verifica se cada módulo declarado possui APK descrito na variante, se dependências apontam para módulos presentes, se módulos split possuem exatamente um master split, e se há números de variante, módulos ou caminhos APK duplicados. O parser preserva duplicatas para revisão. Uma inconsistência gera estado de revisão estrutural, não exclusão ou correção automática.
