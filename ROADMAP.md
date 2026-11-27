@@ -1584,3 +1584,14 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Analisador verifica módulos sem APK descrito, dependências ausentes, quantidade de master splits por módulo split, caminhos duplicados, módulos duplicados e números de variante repetidos.
 - Inconsistências são exibidas como revisão estrutural; nenhuma entrada é removida ou corrigida automaticamente.
 - O resultado continua limitado ao conteúdo do TOC e não equivale a prova de compatibilidade universal.
+
+### 22.33 — Fase 2: expansão da leitura do AndroidManifest
+
+- Parser Binary XML expandido para versionCode, versionCodeMajor, versionName, minSdkVersion, targetSdkVersion, atributos de application, permissões, permissões declaradas, features, bibliotecas e componentes.
+- Componentes suportados: activity, activity-alias, service, receiver e provider, com exported/enabled/permission/process/targetActivity quando declarados.
+- Referências de recursos são representadas por ID hexadecimal; resolução de resources.arsc continua pendente.
+- Limites: 4.096 entradas por lista e 10.000 componentes por manifesto, com indicador de truncamento.
+- Persistência SQLite versão 8 por migração aditiva; UI exibe os metadados na inspeção.
+- O parser não executa o aplicativo nem tenta inferir atributos ausentes.
+- Estado: início da Fase 2 parcialmente implementado; assinatura/certificados, recursos e relatório estrutural completo permanecem pendentes.
+- Build/testes não executados, conforme política de validação final.
