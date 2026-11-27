@@ -1279,3 +1279,39 @@ A tela de armazenamento pode identificar arquivos temporários, derivados ou gra
 - Qualquer exclusão exige ação iniciada pelo usuário, apresentação do escopo exato e confirmação explícita.
 
 **Critério de aceite:** a tela Biblioteca oferece acesso direto às três áreas, pesquisa global com resultados separados por origem, navegação hierárquica e referências cruzadas rastreáveis, sem duplicação física desnecessária e sem exclusões automáticas.
+
+
+---
+
+## 22. Registro de implementação e retomada
+
+Esta seção registra o estado observado do código. A validação de build e testes permanece separada e será executada somente na fase final, conforme a política de execução vigente.
+
+### 22.1 Estado inicial verificado
+
+- Branch: `main`.
+- Commit-base: `a69ea8f772035778975dd78b0927b455a815cd2b`.
+- A árvore inicial continha somente `README.md` e `ROADMAP.md`.
+- Não havia código Android, Changelog, documentação técnica ou arquivo de retomada.
+
+### 22.2 Decomposição operacional da Fase 0
+
+| Submódulo | Escopo | Estado |
+|---|---|---|
+| 0.1 | Estrutura inicial Android modular e esqueleto de navegação | Em implementação |
+| 0.2 | Contratos de domínio, estados e convenções compartilhadas | Pendente |
+| 0.3 | Política de arquivos, permissões e preservação | Pendente |
+| 0.4 | Decisões arquiteturais e inventário de dependências/licenças | Pendente |
+| 0.5 | Tratamento de erros, logs e estados persistentes | Pendente |
+| 0.6 | Estratégia de backup e exportação | Pendente |
+
+### 22.3 Progresso e validação
+
+- Progresso funcional global: 0% antes da conclusão do primeiro submódulo.
+- Build, testes unitários, integração, instrumentação, compatibilidade e testes físicos: pendentes para a fase final.
+- Gradle Wrapper oficial ainda não incorporado; não criar binários fictícios.
+- Nenhum critério de teste foi removido; sua execução permanece acumulada para a validação final.
+
+### 22.4 Checkpoints
+
+Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP completo verificado e próximo submódulo. Um ZIP é checkpoint, não conclusão do projeto.
