@@ -46,3 +46,14 @@
 - Commit do refinamento de segurança do parser: `a6c82205e437344865cf2fd671b4a9458054a45e`.
 
 - Último commit de documentação/checkpoint: atualização de retomada após o refinamento do parser (registrado no histórico da branch `main`).
+
+## Atualização 2026-11-27 — correlação de APKs virtuais
+
+- Branch: `main`.
+- Commit da implementação do analisador: `17977088cc5a9491fbfe6a89266ae5a4476e2b90`.
+- Commit da integração da tela Analisar: `cd42503023b236fcaa8c8b4ea37e00e71e45abad`.
+- Novo `NestedPackageAssociationAnalyzer`: cruza package name de APKs internos XAPK/APKS com APKs externos somente no mesmo lote; avalia bases, splitName, uses-split e configForSplit.
+- UI apresenta caminhos virtuais e motivos por contêiner/package. Não cria registros de amostra, não extrai APKs e não muda associações persistidas.
+- Fase 1.4: correlação lógica e apresentação implementadas; interpretação de metadados toc.pb/manifest.json e revisão de completude continuam pendentes.
+- Fase 1.7: avaliação técnica de identidade e dependências ampliada para membros virtuais; revisão final de completude continua pendente.
+- Build/testes não executados por instrução; validação permanece acumulada para a etapa final. ZIPs ignorados.
