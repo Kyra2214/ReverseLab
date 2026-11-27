@@ -6,8 +6,8 @@ import br.com.reverselab.core.domain.SampleRecord
 import br.com.reverselab.core.domain.SampleRole
 
 /**
- * Conservative structural assessment for associated APK/split/OBB files.
- * Does not decode binary AndroidManifest.xml and never claims package identity or a complete split set.
+ * Conservative assessment for associated APK/split/OBB files.
+ * Uses parsed manifest identity but never claims a complete split set solely from supplied members.
  */
 class PackageSetCompletenessAnalyzer {
     fun assess(
