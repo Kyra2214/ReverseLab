@@ -50,3 +50,5 @@ Os dados são persistidos no SQLite versão 7 por migração aditiva e apresenta
 ### Targeting de dispositivos no toc.pb
 
 O leitor também decodifica os valores e alternativas de ABI, multi-ABI, idioma, densidade de tela e SDK mínimo nas descrições APK. Os dados são apresentados como targeting declarado pelo Bundletool, não como recomendação de instalação. Outras dimensões, como textura, sanitizer, grupos de dispositivos e países, ainda não são interpretadas semanticamente.
+
+A versão atual do parser de `toc.pb` também decodifica targeting de ABI, multi-ABI, idioma, densidade e SDK mínimo. Cada APK mantém os valores e alternativas retornados pelo protobuf. A leitura é descritiva e não seleciona variantes automaticamente.
