@@ -75,6 +75,34 @@ data class ApksTocRecord(
     init { require(parseStatus.isNotBlank()) }
 }
 
+data class AndroidComponentRecord(
+    val type: String,
+    val name: String,
+    val exported: Boolean?,
+    val enabled: Boolean?,
+    val permission: String?,
+    val process: String?,
+    val targetActivity: String?,
+)
+
+data class AndroidManifestDetailsRecord(
+    val versionCode: String?,
+    val versionCodeMajor: String?,
+    val versionName: String?,
+    val minSdkVersion: String?,
+    val targetSdkVersion: String?,
+    val applicationName: String?,
+    val applicationLabel: String?,
+    val debuggable: Boolean?,
+    val allowBackup: Boolean?,
+    val usesCleartextTraffic: Boolean?,
+    val permissions: List<String>,
+    val declaredPermissions: List<String>,
+    val features: List<String>,
+    val usesLibraries: List<String>,
+    val components: List<AndroidComponentRecord>,
+)
+
 data class ArchiveInventoryRecord(
     val id: ArchiveInspectionId,
     val sampleId: SampleId,
@@ -104,6 +132,7 @@ data class ArchiveInventoryRecord(
     val nestedApkManifests: List<NestedApkManifestRecord> = emptyList(),
     val xapkManifest: XapkManifestRecord? = null,
     val apksToc: ApksTocRecord? = null,
+    val manifestDetails: AndroidManifestDetailsRecord? = null,
 ) {
     init {
         require(inspectedAtEpochMillis > 0)
