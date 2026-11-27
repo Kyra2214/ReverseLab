@@ -26,7 +26,7 @@ O registro PENDING é criado antes da cópia. Se a operação falhar, o estado �
 - Cada revisão é gravada na auditoria em uma única transação SQLite, preservando grupo e confiança anteriores/novos, ação e horário.
 - A interface apresenta o histórico de revisões junto ao lote. USER_REJECTED registra explicitamente que o usuário separou aquela amostra.
 
-Associação heurística não é confirmação de que os arquivos pertencem ao mesmo pacote. A confirmação humana registra uma decisão do usuário, mas não equivale à verificação técnica por manifesto. A completude real do conjunto continua desconhecida até a leitura e comparação de manifestos, package name e metadados internos; essa verificação permanece pendente.
+Associação heurística não é confirmação de que os arquivos pertencem ao mesmo pacote. A confirmação humana registra uma decisão do usuário, mas não equivale à verificação técnica por manifesto. Foi adicionada a classe `PackageSetCompletenessAnalyzer` em `core/analysis`: ela distingue grupo sem anexos, ausência de APK base, múltiplos APKs base, manifesto estruturalmente ausente, inventário ainda indisponível e identidade ainda não verificada. O analisador usa somente os inventários já registrados e não extrai arquivos. Mesmo quando encontra manifestos, não declara o conjunto completo: package name, splitName, dependências e splits obrigatórios continuam aguardando a leitura de manifestos da Fase 2.
 
 ## Identidade e procedência
 
@@ -34,4 +34,4 @@ Cada registro preserva SampleId, lote de importação, URI de origem, nome origi
 
 ## Limites desta etapa
 
-Ainda não há extração de APK/XAPK/APKS/OBB, leitura de AndroidManifest.xml, resolução de package name, inspeção de splits por ABI/densidade/idioma ou análise de conteúdo. O original permanece intocado; a cópia privada é a amostra de trabalho.
+Ainda não há extração de APK/XAPK/APKS/OBB, decodificação de AndroidManifest.xml, resolução de package name, comparação de splitName, inspeção de splits por ABI/densidade/idioma ou análise de conteúdo. O original permanece intocado; a cópia privada é a amostra de trabalho.
