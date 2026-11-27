@@ -1381,7 +1381,7 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 | 1.1 | Telas Início/Biblioteca e navegação funcional | Concluído (implementação; validação final pendente) |
 | 1.2 | Seletor SAF e integração das permissões persistentes | Concluído (implementação; validação final pendente) |
 | 1.3 | Seleção múltipla e detecção real de formatos | Concluído (cabeçalho e estrutura interna; validação final pendente) |
-| 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Parcial: importação, manifesto binário, inventário virtual XAPK/APKS, manifest.json XAPK e toc.pb APKS implementados; AAB e confirmação de completude pendentes |
+| 1.4 | Importação controlada, SHA-256, duplicatas e agrupamento de APK/splits/OBB | Parcial: importação, manifestos binários, manifest.json XAPK e toc.pb APKS com módulos/dependências/targeting implementados; AAB e confirmação de completude pendentes |
 | 1.5 | Histórico de importação e ocupação de armazenamento | Concluído (implementação; validação final pendente) |
 | 1.6 | Inventário interno e verificação de contêineres APK/OBB/XAPK/APKS/AAB | Concluído (implementação; validação final pendente) |
 | 1.7 | Revisão e confirmação de grupos e detecção de conjuntos incompletos | Parcial: revisão auditada e correlação de identidade/splits, inclusive membros virtuais; prova de completude e interpretação de variantes ainda pendentes |
@@ -1562,3 +1562,12 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - O estado diferencia dimensões efetivamente decodificadas de targeting genérico; textura, sanitizer, grupos de dispositivos e países ainda não têm interpretação semântica.
 - A análise permanece descritiva: não escolhe nem recomenda um APK para instalação sem conhecer o dispositivo-alvo e sem avaliar o conjunto completo.
 - Build/testes não executados, conforme política de validação final.
+
+### 22.30 — Targeting APKS e proteção de cobertura parcial
+
+- Decodificação de valores e alternativas para ABI, multi-ABI, idioma, densidade e SDK mínimo por APK; persistência junto ao registro APKS e apresentação na UI.
+- Verificação de caminhos toc.pb agora considera tanto o limite de 32 APKs quanto o estado `truncated` do inventário. Se a cobertura não for completa, os caminhos restantes não são classificados como ausentes.
+- A mesma proteção de cobertura parcial é aplicada aos caminhos declarados pelo `manifest.json` XAPK.
+- O leitor protobuf rejeita varints que excedem 64 bits.
+- Targeting não determina automaticamente compatibilidade nem completude por dispositivo.
+- Build/testes não executados; validação final permanece pendente.
