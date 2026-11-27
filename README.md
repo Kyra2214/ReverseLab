@@ -22,6 +22,7 @@ ReverseLab/
 │   ├── storage/
 │   └── analysis/
 ├── docs/
+├── gradle/
 ├── ROADMAP.md
 ├── CHANGELOG.md
 └── RESUME_SESSION.md
@@ -44,5 +45,7 @@ ReverseLab/
 - [Arquitetura inicial](docs/ARCHITECTURE.md)
 - [Contratos de domínio](docs/DOMAIN_CONTRACTS.md)
 - [Política de arquivos e permissões](docs/STORAGE_POLICY.md)
+- [Decisões arquiteturais](docs/decisions/)
+- [Inventário de dependências e licenças](DEPENDENCIES.md)
 - [Changelog](CHANGELOG.md)
 - [Estado de retomada](RESUME_SESSION.md)

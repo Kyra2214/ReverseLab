@@ -1,4 +1,4 @@
-plugins { id("com.android.library") }
+plugins { alias(libs.plugins.android.library) }
 android {
     namespace = "br.com.reverselab.core.storage"
     compileSdk = 36

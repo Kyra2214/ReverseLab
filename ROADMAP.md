@@ -1301,7 +1301,7 @@ Esta seção registra o estado observado do código. A validação de build e te
 | 0.1 | Estrutura inicial Android modular e esqueleto de navegação | Concluído (implementação; validação final pendente) |
 | 0.2 | Contratos de domínio, estados e convenções compartilhadas | Concluído (implementação; validação final pendente) |
 | 0.3 | Política de arquivos, permissões e preservação | Concluído (implementação; validação final pendente) |
-| 0.4 | Decisões arquiteturais e inventário de dependências/licenças | Pendente |
+| 0.4 | Decisões arquiteturais e inventário de dependências/licenças | Concluído (implementação; validação final pendente) |
 | 0.5 | Tratamento de erros, logs e estados persistentes | Pendente |
 | 0.6 | Estratégia de backup e exportação | Pendente |
 
@@ -1353,3 +1353,11 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Pacote completo: `ReverseLab_CHECKPOINT_003.zip`, incluindo o estado integral do projeto.
 - Integridade estrutural do ZIP: confirmada após geração do checkpoint.
 - Build e testes: não executados; permanecem na validação final.
+
+
+### 22.8 Checkpoint 004
+
+- Submódulo: 0.4 — decisões arquiteturais e inventário de dependências/licenças.
+- Implementação: ADRs 0001–0003, inventário direto de dependências e catálogo central de versões Gradle.
+- Pacote completo: `ReverseLab_CHECKPOINT_004.zip`, incluindo o estado integral do projeto.
+- Build, resolução de dependências e auditoria transitiva: não executados; ficam para a validação final.

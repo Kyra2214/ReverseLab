@@ -8,7 +8,7 @@ Fundação inicial criada na Fase 0. Esta arquitetura é a separação inicial d
 
 - `:app`: aplicação Android, Activity, Jetpack Compose, navegação e apresentação.
 - `:core:domain`: entidades, estados, regras e contratos sem dependência da UI.
-- `:core:storage`: persistência, importação, procedência, backup e preservação dos dados.
+- `:core:storage`: persistência, importação, procedência, backup, SAF e preservação dos dados.
 - `:core:analysis`: orquestração de análise e adaptadores de ferramentas determinísticas.
 
 ## Direção das dependências
@@ -17,6 +17,12 @@ Fundação inicial criada na Fase 0. Esta arquitetura é a separação inicial d
 - `:core:storage` e `:core:analysis` poderão consumir contratos de `:core:domain` quando forem implementados.
 - `:core:domain` não depende de Android UI, banco de dados, rede ou provedores de IA.
 - A mini LLM será integrada por uma interface substituível em fase própria.
+
+## Decisões e inventário
+
+- Decisões arquiteturais: `docs/decisions/`.
+- Dependências e licenças: `DEPENDENCIES.md`.
+- Versões centralizadas: `gradle/libs.versions.toml`.
 
 ## Decisões iniciais
 
@@ -32,14 +38,15 @@ Fundação inicial criada na Fase 0. Esta arquitetura é a separação inicial d
 
 - Android Gradle Plugin: 9.3.1.
 - Gradle Wrapper pretendido: 9.5.0.
-- Kotlin Gradle Plugin / Compose Compiler Plugin: 2.4.21.
+- Kotlin / Compose Compiler Plugin: 2.4.21.
 - Compose BOM: 2025.11.00.
+- AndroidX Activity Compose: 1.11.0.
 
 A compatibilidade declarada do Kotlin 2.4.21 cobre AGP até 9.3.1 e Gradle até 9.7.0. A combinação precisa ser confirmada na validação final do projeto; nenhum build foi executado durante esta etapa por determinação do fluxo de implementação.
 
 ## Pendências da fundação
 
 - Adicionar os binários/scripts oficiais do Gradle Wrapper quando o artefato binário estiver disponível no fluxo de versionamento.
-- Definir contratos de domínio e estados persistentes em submódulo próprio.
+- Definir estratégia e configuração de CI para a fase final, sem antecipar testes.
 - Implementar persistência e permissões de arquivo em submódulos próprios.
-- Inventariar licenças de dependências à medida que forem incorporadas.
+- Inventariar licenças transitivas à medida que forem incorporadas.

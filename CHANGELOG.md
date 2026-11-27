@@ -15,6 +15,8 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Gate de governança para exclusão, sobrescrita, limpeza e deduplicação física, com confirmação exata de escopo.
 - Persistência de permissão de leitura SAF por URI, sem solicitar acesso amplo ao armazenamento.
 - Documentação da política de arquivos e permissões.
+- Três ADRs para arquitetura modular, preservação de dados e toolchain fixada.
+- Catálogo central de versões Gradle e inventário inicial de dependências/licenças.
 - Checkpoints completos `ReverseLab_CHECKPOINT_001.zip`, `ReverseLab_CHECKPOINT_002.zip` e `ReverseLab_CHECKPOINT_003.zip`, verificados estruturalmente.
 
 ### Deferred
