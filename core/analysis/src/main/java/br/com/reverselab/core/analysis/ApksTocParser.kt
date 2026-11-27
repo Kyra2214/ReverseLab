@@ -64,6 +64,8 @@ class ApksTocParser {
     private fun parseApkDescription(bytes: ByteArray, moduleName: String?): ApksTocApkRecord? {
         val fields = ProtoReader(bytes).readFields()
         val path = fields.firstBytes(2)?.utf8()?.replace('\\', '/')?.takeIf(::isSafePath) ?: return null
+        val targetingBytes = fields.firstBytes(1)
+        val targetingSummary = targetingBytes?.let(::parseTargeting).orEmpty()
         val splitMetadata = fields.firstBytes(3) ?: fields.firstBytes(5)
         val splitFields = splitMetadata?.let { ProtoReader(it).readFields() }
         val splitId = splitFields?.firstBytes(1)?.utf8()?.takeIf { it.isNotBlank() }
@@ -84,7 +86,92 @@ class ApksTocParser {
             isMasterSplit = isMasterSplit,
             metadataKind = metadataKind,
             hasTargeting = fields.any { it.number == 1 && it.bytes != null },
+            targetingSummary = targetingSummary,
         )
+    }
+
+    private fun parseTargeting(bytes: ByteArray): List<String> {
+        val fields = ProtoReader(bytes).readFields()
+        val summary = mutableListOf<String>()
+        fields.firstBytes(1)?.let { abiBytes ->
+            val abiFields = ProtoReader(abiBytes).readFields()
+            val values = abiFields.filter { it.number == 1 && it.bytes != null }.mapNotNull { parseAbi(it.bytes!!) }
+            val alternatives = abiFields.filter { it.number == 2 && it.bytes != null }.mapNotNull { parseAbi(it.bytes!!) }
+            if (values.isNotEmpty() || alternatives.isNotEmpty()) {
+                summary += "ABI value=${values.joinToString()} alternatives=${alternatives.joinToString()}"
+            }
+        }
+        fields.firstBytes(3)?.let { languageBytes ->
+            val languageFields = ProtoReader(languageBytes).readFields()
+            val values = languageFields.filter { it.number == 1 && it.bytes != null }.map { it.bytes!!.utf8() }
+            val alternatives = languageFields.filter { it.number == 2 && it.bytes != null }.map { it.bytes!!.utf8() }
+            if (values.isNotEmpty() || alternatives.isNotEmpty()) {
+                summary += "Idioma value=${values.joinToString()} alternatives=${alternatives.joinToString()}"
+            }
+        }
+        fields.firstBytes(4)?.let { densityBytes ->
+            val densityFields = ProtoReader(densityBytes).readFields()
+            val values = densityFields.filter { it.number == 1 && it.bytes != null }.mapNotNull { parseDensity(it.bytes!!) }
+            val alternatives = densityFields.filter { it.number == 2 && it.bytes != null }.mapNotNull { parseDensity(it.bytes!!) }
+            if (values.isNotEmpty() || alternatives.isNotEmpty()) {
+                summary += "Densidade value=${values.joinToString()} alternatives=${alternatives.joinToString()}"
+            }
+        }
+        fields.firstBytes(5)?.let { sdkBytes ->
+            val sdkFields = ProtoReader(sdkBytes).readFields()
+            val values = sdkFields.filter { it.number == 1 && it.bytes != null }.mapNotNull { parseSdkMinimum(it.bytes!!) }
+            val alternatives = sdkFields.filter { it.number == 2 && it.bytes != null }.mapNotNull { parseSdkMinimum(it.bytes!!) }
+            if (values.isNotEmpty() || alternatives.isNotEmpty()) {
+                summary += "SDK mínimo value=${values.joinToString()} alternatives=${alternatives.joinToString()}"
+            }
+        }
+        fields.firstBytes(7)?.let { multiAbiBytes ->
+            val multiAbiFields = ProtoReader(multiAbiBytes).readFields()
+            val values = multiAbiFields.filter { it.number == 1 && it.bytes != null }.map { multiField ->
+                val multi = ProtoReader(multiField.bytes!!).readFields()
+                multi.filter { it.number == 1 && it.bytes != null }.mapNotNull { parseAbi(it.bytes!!) }.joinToString("+")
+            }.filter { it.isNotBlank() }
+            if (values.isNotEmpty()) summary += "Multi-ABI value=${values.joinToString()}"
+        }
+        return summary
+    }
+
+    private fun parseAbi(bytes: ByteArray): String? {
+        val value = ProtoReader(bytes).readFields().firstVarint(1)?.toInt() ?: return null
+        return when (value) {
+            1 -> "armeabi"
+            2 -> "armeabi-v7a"
+            3 -> "arm64-v8a"
+            4 -> "x86"
+            5 -> "x86_64"
+            6 -> "mips"
+            7 -> "mips64"
+            8 -> "riscv64"
+            else -> null
+        }
+    }
+
+    private fun parseDensity(bytes: ByteArray): String? {
+        val fields = ProtoReader(bytes).readFields()
+        fields.firstVarint(2)?.let { return "${it}dpi" }
+        val alias = fields.firstVarint(1)?.toInt() ?: return null
+        return when (alias) {
+            1 -> "nodpi"
+            2 -> "ldpi"
+            3 -> "mdpi"
+            4 -> "tvdpi"
+            5 -> "hdpi"
+            6 -> "xhdpi"
+            7 -> "xxhdpi"
+            8 -> "xxxhdpi"
+            else -> null
+        }
+    }
+
+    private fun parseSdkMinimum(bytes: ByteArray): String? {
+        val sdkFields = ProtoReader(bytes).readFields()
+        val wrapper = sdkFields.firstBytes(1) ?: return null
+        return ProtoReader(wrapper).readFields().firstVarint(1)?.toString()
     }
 
     private fun isSafePath(path: String): Boolean {
