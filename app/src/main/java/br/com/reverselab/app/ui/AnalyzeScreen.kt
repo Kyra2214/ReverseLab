@@ -18,11 +18,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AttachFile
 import androidx.compose.material.icons.outlined.FolderCopy
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -41,9 +43,16 @@ import br.com.reverselab.core.domain.ImportBatchId
 import br.com.reverselab.core.domain.SampleAssociationConfidence
 import br.com.reverselab.core.domain.SampleCatalog
 import br.com.reverselab.core.domain.SampleRecord
+import br.com.reverselab.core.storage.ImportBatchSummary
+import br.com.reverselab.core.storage.ImportHistoryRepository
+import br.com.reverselab.core.storage.ImportHistorySnapshot
 import br.com.reverselab.core.storage.ImportDocumentRequest
 import br.com.reverselab.core.storage.SafPermissionManager
 import br.com.reverselab.core.storage.SampleImportCoordinator
+import br.com.reverselab.core.storage.StorageUsageSnapshot
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.Executors
 
@@ -66,10 +75,28 @@ fun AnalyzeScreen(
         SafPermissionManager(context.contentResolver)
     }
     val inspector = remember(context.contentResolver) { SafFormatInspector(context.contentResolver) }
+    val historyRepository = remember(context, sampleCatalog) {
+        ImportHistoryRepository(context, sampleCatalog)
+    }
     val inspectionExecutor = remember { Executors.newSingleThreadExecutor() }
     val mainHandler = remember { Handler(Looper.getMainLooper()) }
+    val historySnapshotState = remember { mutableStateOf<ImportHistorySnapshot?>(null) }
+    var statusMessage by remember { mutableStateOf<String?>(null) }
+    var isImporting by remember { mutableStateOf(false) }
     DisposableEffect(inspectionExecutor) {
         onDispose { inspectionExecutor.shutdown() }
+    }
+    val refreshHistory = remember(historyRepository, inspectionExecutor, mainHandler) {
+        {
+            inspectionExecutor.execute {
+                try {
+                    val snapshot = historyRepository.loadSnapshot()
+                    mainHandler.post { historySnapshotState.value = snapshot }
+                } catch (exception: Exception) {
+                    mainHandler.post { statusMessage = "Não foi possível atualizar o histórico de importação." }
+                }
+            }
+        }
     }
     val selectedDocuments = remember(permissionManager) {
         mutableStateListOf<SelectedDocument>().apply {
@@ -78,11 +105,10 @@ fun AnalyzeScreen(
             }
         }
     }
-    val importedSamples = remember(sampleCatalog) {
-        mutableStateListOf<SampleRecord>().apply { addAll(sampleCatalog.listAll()) }
+    DisposableEffect(historyRepository) {
+        refreshHistory()
+        onDispose { }
     }
-    var statusMessage by remember { mutableStateOf<String?>(null) }
-    var isImporting by remember { mutableStateOf(false) }
 
     val documentPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenMultipleDocuments(),
@@ -172,11 +198,10 @@ fun AnalyzeScreen(
                             documents = requests,
                             importedAtEpochMillis = System.currentTimeMillis(),
                         )
-                        val updatedCatalog = sampleCatalog.listAll()
+                        val snapshot = historyRepository.loadSnapshot()
                         val incompleteCount = results.count { it.errorMessage != null }
                         mainHandler.post {
-                            importedSamples.clear()
-                            importedSamples.addAll(updatedCatalog)
+                            historySnapshotState.value = snapshot
                             pendingIndices.forEach { index ->
                                 if (index in selectedDocuments.indices) {
                                     selectedDocuments[index] = selectedDocuments[index].copy(selectedForImport = false)
@@ -217,22 +242,30 @@ fun AnalyzeScreen(
                 )
             }
             if (selectedDocuments.isEmpty()) {
-                item {
-                    EmptyListCard("Nenhum arquivo selecionado. Use o seletor do Android para escolher uma ou mais amostras.")
-                }
+                item { EmptyListCard("Nenhum arquivo selecionado. Use o seletor do Android para escolher uma ou mais amostras.") }
             } else {
                 items(selectedDocuments) { document -> SelectedDocumentCard(document) }
             }
-            if (importedSamples.isNotEmpty()) {
+
+            val snapshot = historySnapshotState.value
+            if (snapshot == null) {
+                item { Text("Carregando histórico e armazenamento…", style = MaterialTheme.typography.bodySmall) }
+            } else {
+                item { StorageUsageCard(snapshot.storage) }
                 item {
-                    Text(
-                        "Amostras importadas (${importedSamples.size})",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(top = 12.dp),
-                    )
+                    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                        Text("Histórico de importações (${snapshot.batches.size})", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        OutlinedButton(onClick = refreshHistory) {
+                            Icon(Icons.Outlined.Refresh, contentDescription = null)
+                            Text("Atualizar")
+                        }
+                    }
                 }
-                items(importedSamples) { sample -> ImportedSampleCard(sample) }
+                if (snapshot.batches.isEmpty()) {
+                    item { EmptyListCard("Nenhuma importação registrada ainda.") }
+                } else {
+                    items(snapshot.batches) { batch -> ImportBatchCard(batch) }
+                }
             }
         }
     }
@@ -269,22 +302,55 @@ private fun SelectedDocumentCard(document: SelectedDocument) {
 }
 
 @Composable
-private fun ImportedSampleCard(sample: SampleRecord) {
+private fun StorageUsageCard(usage: StorageUsageSnapshot) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(sample.displayName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            Text("${sample.formatCode} • ${formatBytes(sample.sizeBytes)} • ${sample.status.name}", style = MaterialTheme.typography.bodySmall)
-            sample.sha256?.let { hash -> Text("SHA-256: $hash", style = MaterialTheme.typography.labelSmall) }
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Text("Armazenamento privado", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text(formatBytes(usage.bytesOnDisk), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+            Text("${usage.fileCount} arquivo(s) • ${usage.cataloguedSamples} registro(s) no catálogo", style = MaterialTheme.typography.bodySmall)
             Text(
-                "Grupo: ${sample.associationGroupId.value} • ${associationLabel(sample.associationConfidence)}",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                "Importados: ${usage.importedSamples} • Parciais: ${usage.partialSamples} • Pendentes: ${usage.pendingSamples} • Falhas: ${usage.failedSamples}",
+                style = MaterialTheme.typography.bodySmall,
             )
-            sample.duplicateOfSampleId?.let { duplicate ->
-                Text("Possível duplicata de ${duplicate.value}. Nenhum arquivo foi removido.", color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.labelSmall)
+            Text("Possíveis duplicatas: ${usage.duplicateCandidates}. Nenhum arquivo é removido automaticamente.", style = MaterialTheme.typography.bodySmall)
+            Text("Métrica referente à pasta privada de amostras, não ao espaço total do aplicativo.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+private fun ImportBatchCard(batch: ImportBatchSummary) {
+    var expanded by remember(batch.batchId) { mutableStateOf(false) }
+    Card(
+        onClick = { expanded = !expanded },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Text("Lote ${batch.batchId.value.take(8)}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(formatDate(batch.importedAtEpochMillis), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("${batch.totalSamples} arquivo(s) • ${formatBytes(batch.totalBytes)}", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "Importados: ${batch.importedSamples} • Parciais: ${batch.partialSamples} • Pendentes: ${batch.pendingSamples} • Falhas: ${batch.failedSamples}",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text("Formatos: ${batch.formats.joinToString()}", style = MaterialTheme.typography.bodySmall)
+            if (batch.duplicateCandidates > 0) {
+                Text("Possíveis duplicatas: ${batch.duplicateCandidates}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+            }
+            Text(if (expanded) "Ocultar amostras" else "Ver amostras", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+            if (expanded) {
+                batch.samples.forEach { sample ->
+                    Column(modifier = Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(sample.displayName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                        Text("${sample.formatCode} • ${sample.status.name} • ${formatBytes(sample.sizeBytes)}", style = MaterialTheme.typography.labelSmall)
+                        sample.sha256?.let { Text("SHA-256: $it", style = MaterialTheme.typography.labelSmall) }
+                        Text(associationLabel(sample.associationConfidence), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
             }
         }
     }
@@ -301,11 +367,11 @@ private fun EmptyListCard(message: String) {
 }
 
 private fun associationLabel(confidence: SampleAssociationConfidence): String = when (confidence) {
-    SampleAssociationConfidence.IMPORT_BATCH_ONLY -> "mesmo lote de importação; pacote não confirmado"
-    SampleAssociationConfidence.HEURISTIC_SINGLE_BASE_IN_BATCH -> "associação heurística; requer confirmação"
-    SampleAssociationConfidence.AMBIGUOUS_BATCH -> "associação ambígua; revisão necessária"
-    SampleAssociationConfidence.USER_CONFIRMED -> "associação confirmada pelo usuário"
-    SampleAssociationConfidence.MANIFEST_VERIFIED -> "manifesto verificado"
+    SampleAssociationConfidence.IMPORT_BATCH_ONLY -> "Mesmo lote; pacote não confirmado"
+    SampleAssociationConfidence.HEURISTIC_SINGLE_BASE_IN_BATCH -> "Associação heurística; requer confirmação"
+    SampleAssociationConfidence.AMBIGUOUS_BATCH -> "Associação ambígua; revisão necessária"
+    SampleAssociationConfidence.USER_CONFIRMED -> "Associação confirmada pelo usuário"
+    SampleAssociationConfidence.MANIFEST_VERIFIED -> "Manifesto verificado"
 }
 
 private fun formatBytes(bytes: Long): String = when {
@@ -313,6 +379,9 @@ private fun formatBytes(bytes: Long): String = when {
     bytes < 1024 * 1024 -> "%.1f KB".format(bytes / 1024.0)
     else -> "%.2f MB".format(bytes / (1024.0 * 1024.0))
 }
+
+private fun formatDate(epochMillis: Long): String =
+    SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(epochMillis))
 
 private fun resolveDisplayName(
     contentResolver: android.content.ContentResolver,

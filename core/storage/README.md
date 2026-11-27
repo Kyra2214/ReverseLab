@@ -1,6 +1,6 @@
 # core:storage
 
-Camada responsável pela persistência local, importação controlada, procedência, permissões SAF, políticas de preservação, registros persistentes de análise, catálogo de amostras e exportação de backup.
+Camada responsável pela persistência local, importação controlada, procedência, permissões SAF, políticas de preservação, registros persistentes de análise, catálogo de amostras, histórico/ocupação e exportação de backup.
 
 Regras obrigatórias:
 - Nenhuma exclusão, limpeza, sobrescrita ou deduplicação física automática.
@@ -11,5 +11,6 @@ Regras obrigatórias:
 - Histórico de execuções e catálogo de amostras não possuem métodos de exclusão.
 - Hashes detectam duplicatas; não removem nem mesclam arquivos. Cada importação mantém registro e cópia próprios.
 - Falhas de importação preservam os artefatos parciais e registram o estado.
+- O relatório de ocupação contabiliza a pasta privada de amostras, sem alegar medir todo o espaço do aplicativo.
 - Logs estruturados passam por redação de segredos antes de chegar ao Logcat.
 - Backups são exportados somente por ação do usuário; sobrescrever destino existente exige confirmação exata.
