@@ -1469,7 +1469,7 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 ### 22.20 Checkpoint 013 — revisão manual de associações
 
 - Submódulo: 1.7 — revisão e confirmação de grupos de amostras (implementação parcial).
-- Commit: será registrado após a publicação deste checkpoint.
+- Commit de implementação: `ba052c9629df3d0b8c1f4aa0837db7e1aa2c10a0`.
 - Implementação: ações para confirmar grupo heurístico, separar grupo, vincular split/OBB a um APK base e separar amostra individual; persistência transacional da auditoria; estado USER_REJECTED; exibição das decisões no histórico do lote.
 - Limite conhecido: a confirmação humana não valida a completude do pacote. A leitura e comparação de manifestos/package name continua pendente.
 - Build e testes: não executados, conforme a política de execução; permanecem acumulados para a validação final.

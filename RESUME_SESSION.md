@@ -16,7 +16,7 @@
 - Commits do submódulo 1.6: `41778e97743dc6b3bb1d90d48249f47bd50b0684` e `0c59e7eaa16203e8dd4c5fe163d32d7d68b83c5e`.
 - Fase 0: implementação dos seis submódulos concluída; validação final pendente.
 - Fase 1: 1.1, 1.2, 1.3, 1.5 e 1.6 concluídos; 1.4 parcial; 1.7 é o próximo.
-- Submódulo 1.7: revisão manual de associações implementada parcialmente no commit 55199248a6fda06c1488edcb0ac37e14ae69d6ae; integração do estado USER_REJECTED e apresentação detalhada do histórico corrigidas no checkpoint seguinte. A detecção técnica de completude por manifesto permanece pendente.
+- Submódulo 1.7: revisão manual de associações implementada parcialmente no commit 55199248a6fda06c1488edcb0ac37e14ae69d6ae; integração do estado USER_REJECTED e apresentação detalhada do histórico corrigidas no checkpoint seguinte. A detecção técnica de completude por manifesto permanece pendente. Commit de integração/documentação: `ba052c9629df3d0b8c1f4aa0837db7e1aa2c10a0`.
 - Próximo foco: concluir os limites residuais da Fase 1, especialmente validação estrutural de conjuntos e critérios de completude por manifesto, antes de avançar para a Fase 2.
 - Testes/builds: não executados por regra de execução; ficam acumulados para a validação final.
 - Pendência técnica: Gradle Wrapper binário oficial não foi obtido neste ambiente; não foi criado binário fictício.
