@@ -32,3 +32,13 @@
 
 - Ajuste adicional `285c864`: em múltiplas bases com mesmo package, bases e splits permanecem no mesmo grupo ambíguo para revisão. `e011363` atualiza o contrato documental do avaliador.
 - Estado de execução: 1.4 e 1.7 parcialmente implementados. Próxima pendência de 1.4: ler metadados de APKs aninhados em XAPK/APKS e correlacioná-los sem descartar o contêiner original. Próxima pendência de 1.7: estender parsing para estruturas compostas e refinar os requisitos de completude sem inferir splits ausentes.
+
+
+## Atualização 2026-11-27
+
+- Submódulo trabalhado: extensão de 1.4 para leitura de manifestos em APKs aninhados de XAPK/APKS.
+- Implementado: parsing por fluxo ZIP aninhado, sem extração; persistência SQLite 5; exibição de package/split/configForSplit/uses-split por caminho virtual; limites explícitos de leitura.
+- Não implementado ainda: associação lógica desses membros a amostras externas ou bases, parsing de toc.pb/manifest.json e prova de completude de variantes.
+- Estado: Fase 1.4 parcialmente implementada; Fase 1.7 parcialmente implementada. Nenhum build/teste executado.
+- Próximo requisito: correlação segura dos APKs internos por package name/splitName, mantendo as entradas como referências virtuais vinculadas ao contêiner original.
+- ZIPs: ignorados por instrução explícita do usuário.
