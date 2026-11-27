@@ -46,8 +46,8 @@ class ApksTocParser {
         }
         return ApksTocVariantRecord(
             variantNumber = variantNumber,
-            modules = moduleRecords.distinctBy { it.name },
-            apks = apkRecords.distinctBy { it.path },
+            modules = moduleRecords,
+            apks = apkRecords,
         )
     }
 
