@@ -17,7 +17,10 @@ Todas as alterações relevantes do ReverseLab serão registradas aqui.
 - Documentação da política de arquivos e permissões.
 - Três ADRs para arquitetura modular, preservação de dados e toolchain fixada.
 - Catálogo central de versões Gradle e inventário inicial de dependências/licenças.
-- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_004.zip`, verificados estruturalmente.
+- Modelo de erros com códigos, severidade, retry e IDs de correlação.
+- Logs estruturados com redação de credenciais, tokens e segredos em URLs.
+- Persistência SQLite de execuções e histórico transacional de estados, sem API de exclusão.
+- Checkpoints completos `ReverseLab_CHECKPOINT_001.zip` a `ReverseLab_CHECKPOINT_005.zip`, verificados estruturalmente.
 
 ### Deferred
 - Execução de builds, testes e validações para a fase final, conforme a política de execução vigente.

@@ -26,6 +26,10 @@
 
 `ProcessingState.canTransitionTo` centraliza as transições válidas. Estados terminais (`CANCELLED` e `COMPLETED`) não podem ser reabertos. Uma nova tentativa deve criar ou retomar uma execução por fluxo explícito, não alterar silenciosamente o histórico concluído.
 
-## Limites
+## Erros e diagnóstico
 
-Estes são contratos de dados e invariantes locais. Ainda não representam persistência Room, validação semântica automática, execução de IA ou teste reproduzível. Essas implementações pertencem às fases correspondentes do roadmap.
+`AppError` separa código estável, severidade, possibilidade de repetição, mensagem adequada ao usuário e ID de correlação. `DiagnosticEvent` representa logs estruturados; `DiagnosticLogger` é o contrato para destinos substituíveis.
+
+## Persistência de execuções
+
+`AnalysisRunStore` define inserção, consulta por ID/projeto e transição condicional de estado. Não expõe exclusão de histórico. A implementação SQLite registra eventos de transição para permitir auditoria e retomada.

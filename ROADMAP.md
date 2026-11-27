@@ -1302,7 +1302,7 @@ Esta seção registra o estado observado do código. A validação de build e te
 | 0.2 | Contratos de domínio, estados e convenções compartilhadas | Concluído (implementação; validação final pendente) |
 | 0.3 | Política de arquivos, permissões e preservação | Concluído (implementação; validação final pendente) |
 | 0.4 | Decisões arquiteturais e inventário de dependências/licenças | Concluído (implementação; validação final pendente) |
-| 0.5 | Tratamento de erros, logs e estados persistentes | Pendente |
+| 0.5 | Tratamento de erros, logs e estados persistentes | Concluído (implementação; validação final pendente) |
 | 0.6 | Estratégia de backup e exportação | Pendente |
 
 ### 22.3 Progresso e validação
@@ -1362,3 +1362,11 @@ Cada submódulo concluído deve registrar commit, arquivos alterados, ZIP comple
 - Pacote completo: `ReverseLab_CHECKPOINT_004.zip`, incluindo o estado integral do projeto.
 - Integridade estrutural do ZIP: confirmada após a geração final.
 - Build, resolução de dependências e auditoria transitiva: não executados; ficam para a validação final.
+
+
+### 22.9 Checkpoint 005
+
+- Submódulo: 0.5 — tratamento de erros, logs e estados persistentes.
+- Implementação: modelo de erros, logs estruturados com redação, armazenamento SQLite de execuções e trilha transacional de mudanças de estado.
+- Pacote completo: `ReverseLab_CHECKPOINT_005.zip`, incluindo o estado integral do projeto.
+- Build e testes: não executados; permanecem na validação final.

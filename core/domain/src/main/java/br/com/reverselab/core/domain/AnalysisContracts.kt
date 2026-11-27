@@ -18,7 +18,6 @@ enum class ProcessingState {
     CANCEL_REQUESTED, CANCELLED, NEEDS_REVIEW, COMPLETED,
 }
 
-/** Defines legal lifecycle transitions shared by analysis workers and UI. */
 fun ProcessingState.canTransitionTo(next: ProcessingState): Boolean = when (this) {
     ProcessingState.PENDING -> next in setOf(ProcessingState.QUEUED, ProcessingState.CANCELLED)
     ProcessingState.QUEUED -> next in setOf(
@@ -55,10 +54,7 @@ data class SourceLocator(
         require(lineEnd == null || lineEnd > 0)
         require(lineStart == null || lineEnd == null || lineEnd >= lineStart)
     }
-
-    private companion object {
-        val SHA256_PATTERN = Regex("^[a-fA-F0-9]{64}$")
-    }
+    private companion object { val SHA256_PATTERN = Regex("^[a-fA-F0-9]{64}$") }
 }
 
 data class EvidenceReference(
@@ -127,4 +123,58 @@ data class Finding(
         require(explanation.isNotBlank())
         require(evidenceIds.isNotEmpty())
     }
+}
+
+enum class ErrorSeverity { INFO, WARNING, ERROR, CRITICAL }
+enum class ErrorCode {
+    FILE_ACCESS_DENIED, UNSUPPORTED_FORMAT, INVALID_ARCHIVE, INTEGRITY_MISMATCH,
+    STORAGE_UNAVAILABLE, PARSE_FAILED, MODEL_UNAVAILABLE, NETWORK_UNAVAILABLE,
+    EXTERNAL_PROVIDER_ERROR, INVALID_STATE_TRANSITION, UNKNOWN,
+}
+
+data class AppError(
+    val code: ErrorCode,
+    val severity: ErrorSeverity,
+    val retryable: Boolean,
+    val userMessage: String,
+    val correlationId: String,
+    val technicalMessage: String? = null,
+) {
+    init {
+        require(userMessage.isNotBlank())
+        require(correlationId.isNotBlank())
+    }
+}
+
+enum class DiagnosticLevel { DEBUG, INFO, WARNING, ERROR }
+
+data class DiagnosticEvent(
+    val name: String,
+    val level: DiagnosticLevel,
+    val correlationId: String,
+    val occurredAtEpochMillis: Long,
+    val attributes: Map<String, String> = emptyMap(),
+) {
+    init {
+        require(name.isNotBlank())
+        require(correlationId.isNotBlank())
+        require(occurredAtEpochMillis >= 0)
+    }
+}
+
+interface DiagnosticLogger {
+    fun write(event: DiagnosticEvent)
+}
+
+/** Persistence contract intentionally contains no delete operation. */
+interface AnalysisRunStore {
+    fun insert(run: AnalysisRun)
+    fun findById(id: AnalysisRunId): AnalysisRun?
+    fun findByProject(projectId: ProjectId): List<AnalysisRun>
+    fun transitionState(
+        id: AnalysisRunId,
+        expected: ProcessingState,
+        next: ProcessingState,
+        occurredAtEpochMillis: Long,
+    ): Boolean
 }

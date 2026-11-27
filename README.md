@@ -45,6 +45,7 @@ ReverseLab/
 - [Arquitetura inicial](docs/ARCHITECTURE.md)
 - [Contratos de domínio](docs/DOMAIN_CONTRACTS.md)
 - [Política de arquivos e permissões](docs/STORAGE_POLICY.md)
+- [Erros, logs e estado persistente](docs/ERRORS_AND_LOGGING.md)
 - [Decisões arquiteturais](docs/decisions/)
 - [Inventário de dependências e licenças](DEPENDENCIES.md)
 - [Changelog](CHANGELOG.md)
